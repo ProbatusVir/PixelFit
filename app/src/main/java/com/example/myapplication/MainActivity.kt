@@ -34,6 +34,35 @@ class MainActivity : AppCompatActivity() {
       }
     }
 
+    //implement this when the screens (fragments???) exist
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId)
+        {
+            R.id.edit_profile_menuitem ->
+            {
+                return true
+            }
+            R.id.goals_trophies_menuitem ->
+            {
+                return true
+            }
+            R.id.block_list_menuitem ->
+            {
+                return true
+            }
+            R.id.pending_duels_menuitem ->
+            {
+                return true
+            }
+            R.id.settings_menuitem ->
+            {
+                return true
+            }
+            else -> super.onOptionsItemSelected(item)
+
+        }
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)

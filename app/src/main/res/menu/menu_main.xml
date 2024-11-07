@@ -22,5 +22,6 @@
     <item android:id="@+id/settings_menuitem"
           android:title="@string/avatar_dropdown_item5"
           android:orderInCategory="5"
-          app:showAsAction="never"/>
+          app:showAsAction="never"
+    />
 </menu>
