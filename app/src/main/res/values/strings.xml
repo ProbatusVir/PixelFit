@@ -1,12 +1,37 @@
 <resources>
     <string name="app_name">My Application</string>
+
+    <!-- Avatar dropdown menu strings -->
+    <string name="avatar_dropdown_item1">Edit Profile</string>
+    <string name="avatar_dropdown_item2">Goals &amp; Trophies</string>
+    <string name="avatar_dropdown_item3">Block List</string>
+    <string name="avatar_dropdown_item4">Pending Duels</string>
+    <string name="avatar_dropdown_item5">Settings</string>
+
+    <!-- Fitness content headers -->
+    <string name="infoheader_worked_on">What you worked on</string>
+    <string name="infoheader_calories_burned">Calories burned:</string>
+    <string name="infoheader_time_spent_total">Time spent exercising:</string>
+
+
+    <!-- Speakable text -->
+    <string name="description_fitness_nav_button1">Navigate to Instruction tab</string>
+    <string name="description_fitness_nav_button2">Navigate to Fitness Home Screen</string>
+    <string name="description_fitness_nav_button3">Navigate to Add/Search Users</string>
+    <string name="description_fitness_nav_button4">Navigate to Group Finder</string>
+
+    <!-- Presentation text -->
+    <string name="presentation_calories_burned">356 KCals!</string>
+    <string name="presentation_worked_on">arms\nleg\ntorso</string>
+    <string name="presentation_time_spent">1 hour\n45 minutes!</string>
+
+    <!-- Delete this as soon as we get the chance -->
     <string name="action_settings">Settings</string>
-    <!-- Strings used for fragments for navigation -->
+     Strings used for fragments for navigation
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
-
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris volutpat, dolor id
         interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus dui nec risus. Maecenas non sodales
