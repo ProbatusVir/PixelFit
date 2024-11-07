@@ -15,12 +15,15 @@
     />
 
     <include layout="@layout/content_main"/>
-    <ImageView
+    <ImageButton
             android:src="@android:drawable/sym_def_app_icon"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/UserAvatar"
+            android:layout_height="wrap_content"
+            android:id="@+id/user_avatar"
             android:layout_gravity="top|end"
             android:layout_marginTop="@dimen/avatar_margin"
-            android:layout_marginEnd="@dimen/avatar_margin" android:clickable="true"/>
+            android:layout_marginEnd="@dimen/avatar_margin"
+            android:background="@null"
 
+    />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

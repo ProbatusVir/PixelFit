@@ -8,7 +8,10 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
+import android.widget.ImageButton
+import android.widget.PopupMenu
 import com.example.myapplication.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -22,6 +25,12 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+      findViewById<ImageButton>(R.id.user_avatar).setOnClickListener {
+          val popup = PopupMenu(this, it)
+          val inflater: MenuInflater = popup.menuInflater
+          inflater.inflate(R.menu.menu_main, popup.menu)
+          popup.show()
+      }
     }
 
     override fun onSupportNavigateUp(): Boolean {
