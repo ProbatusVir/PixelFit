@@ -26,12 +26,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         //click register for making the popup
-      findViewById<ImageButton>(R.id.user_avatar).setOnClickListener {
-          val popup = PopupMenu(this, it)
-          val inflater: MenuInflater = popup.menuInflater
-          inflater.inflate(R.menu.menu_main, popup.menu)
-          popup.show()
-      }
+        findViewById<ImageButton>(R.id.user_avatar).setOnClickListener {
+            val popup = PopupMenu(this, it)
+            val inflater: MenuInflater = popup.menuInflater
+            inflater.inflate(R.menu.menu_main, popup.menu)
+            popup.show()
+        }
     }
 
     //implement this when the screens (fragments???) exist
