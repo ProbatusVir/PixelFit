@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="horizontal"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="91dp"
+              android:layout_gravity="bottom">
 
-    <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="91dp"
-            android:layout_gravity="bottom"
-            tools:ignore="UselessParent">
         <!-- For the record, this was made with placeholder images, the images here are not necessarily what we're using -->
         <ImageButton
                 android:layout_width="wrap_content"
@@ -33,5 +29,4 @@
                 android:layout_height="match_parent" app:srcCompat="@android:drawable/ic_menu_edit"
                 android:id="@+id/imageButton5" android:layout_weight="1" android:background="#FFEB3B"
                 android:contentDescription="@string/description_fitness_nav_button4"/>
-    </LinearLayout>
 </LinearLayout>
