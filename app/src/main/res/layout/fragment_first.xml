@@ -13,17 +13,17 @@
 
             tools:layout_editor_absoluteY="1dp" android:minHeight="730dp">
         <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="409dp"
+                android:layout_height="129dp" tools:layout_editor_absoluteY="1dp" tools:layout_editor_absoluteX="1dp">
+        </LinearLayout>
+        <LinearLayout
                 android:orientation="horizontal"
-                android:layout_width="0dp"
-                android:layout_height="24dp"
+                android:layout_width="393dp"
+                android:layout_height="94dp"
                 app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent" app:layout_constraintVertical_bias="0.191"
                 app:layout_constraintEnd_toEndOf="parent" app:layout_constraintHorizontal_bias="0.0">
-            <TextView
-                    android:text="@string/infoheader_worked_on"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent" android:id="@+id/textView"
-            />
             <TextView
                     android:text="@string/infoheader_calories_burned"
                     android:layout_width="wrap_content"
@@ -33,6 +33,34 @@
                     android:text="@string/infoheader_active_zone_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" android:id="@+id/textView4"
+            />
+            <TextView
+                    android:text="@string/infoheader_worked_on"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/textView"
+            />
+        </LinearLayout>
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" app:layout_constraintVertical_bias="0.191"
+                app:layout_constraintEnd_toEndOf="parent" app:layout_constraintHorizontal_bias="0.0">
+            <TextView
+                    android:text="@string/infoheader_calories_burned"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/textView_calories_burned_info"
+                    android:gravity="bottom"/>
+            <TextView
+                    android:text="@string/infoheader_active_zone_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/textView_active_zone_minutes_info"
+            />
+            <TextView
+                    android:text="@string/infoheader_worked_on"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/textView_worked_on"
             />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
