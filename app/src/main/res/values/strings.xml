@@ -6,6 +6,11 @@
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
+    <string name="avatar_dropdown_item1">Edit Profile</string>
+    <string name="avatar_dropdown_item2">Goals &amp; Trophies</string>
+    <string name="avatar_dropdown_item3">Block List</string>
+    <string name="avatar_dropdown_item4">Pending Duels</string>
+    <string name="avatar_dropdown_item5">Settings</string>
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris volutpat, dolor id
