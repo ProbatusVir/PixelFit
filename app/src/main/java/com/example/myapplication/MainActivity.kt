@@ -25,6 +25,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        //click register for making the popup
       findViewById<ImageButton>(R.id.user_avatar).setOnClickListener {
           val popup = PopupMenu(this, it)
           val inflater: MenuInflater = popup.menuInflater
