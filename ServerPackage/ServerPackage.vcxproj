@@ -131,10 +131,12 @@
   <ItemGroup>
     <ClCompile Include="CommandSet.cpp" />
     <ClCompile Include="ServerPackage.cpp" />
+    <ClCompile Include="User.cpp" />
     <ClCompile Include="WindowsServer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommandSet.h" />
+    <ClInclude Include="User.h" />
     <ClInclude Include="WindowsServer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

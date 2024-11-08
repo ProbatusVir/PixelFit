@@ -11,6 +11,7 @@
 #include <direct.h>
 #include <functional>
 #include <filesystem>
+#include "User.h"
 
 // use port numbers from 3500 - 65000. 
 // Avoid using ports lower than 3500 due to IATA protocols
@@ -28,7 +29,6 @@ WindowsServer::WindowsServer()
 		return;
 	}
 	serverFd = socket(AF_INET, SOCK_STREAM, 0);
-
 
 }
 
