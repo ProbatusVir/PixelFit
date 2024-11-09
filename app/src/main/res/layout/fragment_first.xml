@@ -39,8 +39,7 @@
                 />
                 <TextView
                         android:text="@string/presentation_calories_burned"
-                        android:gravity="center"
-                        android:textAlignment="textStart"
+                        android:gravity="start|center_vertical"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="match_parent" android:id="@+id/textView"/>
