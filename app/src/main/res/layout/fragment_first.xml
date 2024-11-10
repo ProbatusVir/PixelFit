@@ -18,22 +18,18 @@
                 android:layout_height="24dp"
                 app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent" app:layout_constraintVertical_bias="0.191"
-                app:layout_constraintEnd_toEndOf="parent" app:layout_constraintHorizontal_bias="0.0">
+                app:layout_constraintEnd_toEndOf="parent" app:layout_constraintHorizontal_bias="0.0"
+                android:id="@+id/linearLayout">
             <TextView
-                    android:text="@string/infoheader_worked_on"
+                    android:text="@string/info_header_worked_on"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent" android:id="@+id/textView"
             />
             <TextView
-                    android:text="@string/infoheader_calories_burned"
+                    android:text="@string/info_header_calories_burned"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" android:id="@+id/textView3"
                     android:gravity="bottom"/>
-            <TextView
-                    android:text="@string/infoheader_active_zone_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:id="@+id/textView4"
-            />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
