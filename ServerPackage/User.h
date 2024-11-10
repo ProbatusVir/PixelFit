@@ -15,6 +15,8 @@ private:
 	char _userName[20];
 	char _password[SHA256_DIGEST_LENGTH + 1];
 	bool _errorOnCreation = false;
+	char _token[SHA256_DIGEST_LENGTH + 1];
+
 
 };
 
