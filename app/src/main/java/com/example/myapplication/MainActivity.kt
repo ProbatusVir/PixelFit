@@ -8,7 +8,10 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
+import android.widget.ImageButton
+import android.widget.PopupMenu
 import com.example.myapplication.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -22,32 +25,41 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setSupportActionBar(binding.toolbar)
-
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
-
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .setAnchorView(R.id.fab).show()
+        //click register for making the popup
+        findViewById<ImageButton>(R.id.user_avatar).setOnClickListener {
+            val popup = PopupMenu(this, it)
+            val inflater: MenuInflater = popup.menuInflater
+            inflater.inflate(R.menu.menu_main, popup.menu)
+            popup.show()
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
-    }
-
+    //implement this when the screens (fragments???) exist
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_settings -> true
+        return when (item.itemId)
+        {
+            R.id.edit_profile_menuitem ->
+            {
+                return true
+            }
+            R.id.goals_trophies_menuitem ->
+            {
+                return true
+            }
+            R.id.block_list_menuitem ->
+            {
+                return true
+            }
+            R.id.pending_duels_menuitem ->
+            {
+                return true
+            }
+            R.id.settings_menuitem ->
+            {
+                return true
+            }
             else -> super.onOptionsItemSelected(item)
+
         }
     }
 
