@@ -11,7 +11,7 @@
 #include <direct.h>
 #include <functional>
 #include <filesystem>
-#include "User.h"
+
 
 // use port numbers from 3500 - 65000. 
 // Avoid using ports lower than 3500 due to IATA protocols
@@ -29,6 +29,7 @@ WindowsServer::WindowsServer()
 		return;
 	}
 	serverFd = socket(AF_INET, SOCK_STREAM, 0);
+	_commands = CommandSet();
 
 }
 
@@ -93,11 +94,26 @@ void WindowsServer::Start()
 				continue;
 			}
 
+			_clients.push_back(client);
 			auto boundClient = std::bind(&WindowsServer::HandleClient, this, client);
 			std::thread clientThread(boundClient);
 			clientThread.detach();
 
-			
+
+		}
+
+		// This is to check if 
+		auto clientIter = _clients.begin();
+
+		for (; clientIter != _clients.end(); clientIter++) {
+			SOCKET clientSocket = *clientIter;
+			if (FD_ISSET(clientSocket, &readFds)) {
+
+				auto boundClient = std::bind(&WindowsServer::HandleClient, this, clientSocket);
+
+				std::thread activeClient(boundClient);
+				activeClient.detach();
+			}
 		}
 
 
@@ -106,6 +122,10 @@ void WindowsServer::Start()
 
 void WindowsServer::Cleanup()
 {
+	// Call write methods to save the data on the server
+
+	// Clean up any dynamic memory
+
 }
 
 bool WindowsServer::IPSetupComplete()
@@ -118,15 +138,28 @@ bool WindowsServer::IPSetupComplete()
 
 void WindowsServer::HandleClient(SOCKET clientSocket)
 {
-	char buffer[1024];
+	
 
-	int readBuffer = recv(clientSocket, buffer, 4, 0);
+	unsigned int command = 0;
+	int readBuffer = recv(clientSocket, (char*)command, 4, 0);
 	if (readBuffer != 0) {
-		CommandSet commands;
-		int command = readBuffer;
-		commands.InterpretRequest(command, buffer);
+		unsigned int amountToRead = 0;
+		recv(clientSocket, (char*)amountToRead, 4, 0);
+		char* buffer = new char[amountToRead + 1];
+		recv(clientSocket, buffer, amountToRead, 0);
+		_commands.InterpretRequest(command, buffer);
 	}
-	else return;
+	else if (readBuffer == 0 || readBuffer == SOCKET_ERROR) {
+		std::cout << "Client disconnected \n";
+		closesocket(clientSocket);
+
+		for (auto clientIter = _clients.begin(); clientIter != _clients.end();) {
+			if (*clientIter == clientSocket)
+				clientIter = _clients.erase(clientIter);
+			else clientIter++;
+		}
+
+	}
 }
 
 void WindowsServer::AcquireIpAdress()
