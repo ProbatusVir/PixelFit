@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<font-family xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- todo: maybe?? Find out how to use the black style font -->
+    <font
+        android:textStyle="normal"
+        android:font="@font/sansita_regular"
+    />
+    <font
+        android:textStyle="italic"
+        android:font="@font/sansita_italic"
+    />
+    <font
+        android:textStyle="bold"
+        android:font="@font/sansita_bold"
+    />
+    <font
+        android:textStyle="bold|italic"
+        android:font="@font/sansita_bolditalic"
+    />
+
+</font-family>
