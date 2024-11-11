@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="primary_header" parent="android:TextAppearance">
+        <item name="fontFamily">@font/inder_regular</item>
+        <item name="font">@font/inder_regular</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/dark_text</item>
+        <item name="android:textSize">32sp</item>
+    </style>
+
+    <style name="body_text">
+        <item name="fontFamily">@font/sansita</item>
+        <item name="android:font">@font/sansita_regular</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/light_text</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+</resources>
