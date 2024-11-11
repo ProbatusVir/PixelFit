@@ -1,5 +1,5 @@
 #include "CommandSet.h"
-
+#include <iostream>
 int CommandSet::InterpretRequest(int command, char* buffer)
 {
 	// zero initializes and we return zero it will be a failed attempt for the server to call back to.
@@ -11,12 +11,13 @@ int CommandSet::InterpretRequest(int command, char* buffer)
 		}
 		break;
 	case 2:
-
+		std::cout << buffer << '\n';
 		break;
 
 	default:
 
 		return requestComplete;
+		break;
 	}
 
 	return requestComplete;
