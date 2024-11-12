@@ -2,4 +2,21 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Main color palette -->
+    <color name="fitness_background">#FF007F</color>
+    <color name="communication_background">#00BFFF</color>
+    <color name="dark_text">#0A0A23</color>
+    <color name="light_text">#2E2E2E</color>
+    <color name="accent">#FFD700</color>
+
+
+    <!-- Fitness parts model colors -->
+    <!-- We'll get more specific later -->
+    <color name="default_unworked">#FFFFFF</color>
+    <color name="default_worked">#FF0000</color>
+    <color name="arms">#FF0000</color>
+    <color name="legs">#00FF00</color>
+    <color name="torso">#0000FF</color>
+    <color name="head">#00FFFF</color>
 </resources>

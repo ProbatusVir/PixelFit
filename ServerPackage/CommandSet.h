@@ -2,11 +2,12 @@
 class CommandSet
 {
 public:
-	int InterpretRequest(int commmand, char* buffer);
-	bool LoginUser(char * buffer);
+	enum Command;
+
+	int InterpretRequest(const Command commmand, const char* buffer);
+	bool LoginUser(const char * buffer);
 
 private:
-
 	
 
 };
