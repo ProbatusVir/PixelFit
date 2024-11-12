@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-int CommandSet::InterpretRequest(const int command, const char* buffer)
+int CommandSet::InterpretRequest(const Command command, const char* buffer)
 {
 	// zero initializes and we return zero it will be a failed attempt for the server to call back to.
 	int requestComplete = 0;
@@ -13,7 +13,7 @@ int CommandSet::InterpretRequest(const int command, const char* buffer)
 		}
 		
 		break;
-	case GetUsers:	//TODO: Is this the right behavior?
+	case GetUsers:
 		std::cout << buffer << '\n';
 		break;
 
@@ -37,6 +37,7 @@ bool CommandSet::LoginUser(const char* buffer)
 	bool error = false;
 
 	size_t buff_seeker = 0;
+	size_t sizeOfUsername = 0;
 
 	//seek until End of Stream at null terminator, or until expected buffer size, to prevent fatal stack corruption
 	while ((char)buffer[buff_seeker] != '\0' || buff_seeker >= expectedBufferSize) {
@@ -47,25 +48,22 @@ bool CommandSet::LoginUser(const char* buffer)
 				username[buff_seeker] = buffer[buff_seeker];
 			}
 			else {
-				username[buff_seeker] = '\0'; //This string needs to be delimited.
 				fullReadOfUsername = true;
 			}
 
 			//Offset needs to be applied regardless here so we don't double count the newline
-			
+			sizeOfUsername++;
 
 		}
 
 		//Fill password buffer with whatever remains until null terminator
 		else {
-			password[buff_seeker - usernameSize] = buffer[buff_seeker];
+			password[buff_seeker - sizeOfUsername] = buffer[buff_seeker];
 		}
 
 		buff_seeker++;
 	}
 	
-	password[buff_seeker] = '\0';
-
 	error = !(strlen(password) <= passwordSize) && (strlen(username) <= usernameSize);
 
 

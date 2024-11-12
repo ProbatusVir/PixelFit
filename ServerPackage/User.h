@@ -1,6 +1,7 @@
 #pragma once
 #include <openssl/evp.h>
 #include <openssl/sha.h>
+
 class User
 {
 public:
