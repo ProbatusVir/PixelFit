@@ -130,7 +130,7 @@ void WindowsServer::Cleanup()
 
 }
 
-bool WindowsServer::IPSetupComplete()
+const bool WindowsServer::IPSetupComplete()
 {
 	if (_ipAddress[0] || _ipAddress[1] != 0) {
 		return true;
