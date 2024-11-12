@@ -4,9 +4,12 @@
 
 	enum class Command : unsigned int
 	{
-		Login = 1, GetUsers,
+		Login = 1,
+		GetUsers,
+		MessageServer,
 		DiscussionPost,
-		GetUser, BanUser,
+		GetUser,
+		BanUser,
 	};
 
 	static constexpr size_t packetSize = 1024;
