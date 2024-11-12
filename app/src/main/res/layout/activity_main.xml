@@ -18,11 +18,20 @@
             android:layout_margin="16dp"
             android:contentDescription="@string/description_user_avatar_icon"
     />
-    <androidx.fragment.app.FragmentContainerView
+
+    <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_gravity="bottom"
-            android:layout_height="70dp" android:name="com.example.myapplication.FirstFragment"
-            android:id="@+id/fragmentContainerView2"
-            tools:layout="@layout/fitness_nav_bottom"/>
-    <include layout="@layout/content_main"/>
-</FrameLayout>
+            android:layout_height="match_parent">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:id="@+id/bottom_nav"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/windowBackground"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:menu="@menu/bottom_nav"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+

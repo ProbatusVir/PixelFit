@@ -108,6 +108,7 @@
                         android:layout_height="match_parent" android:id="@+id/imageView2"
                         android:contentDescription="@string/description_fitness_parts_model"/>
             </LinearLayout>
+
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
