@@ -3,6 +3,7 @@
 #include <winsock.h>
 #include <WS2tcpip.h>
 #include <vector>
+#include "CommandSet.h"
 //#include <string>
 #pragma comment(lib, "Ws2_32.lib")
 class WindowsServer
@@ -22,6 +23,7 @@ private:
 	void HandleClient(SOCKET clientSocket);
 	char _ipAddress[INET_ADDRSTRLEN] = {0};
 	bool _keepAlive = true;
+	CommandSet _commands;
 	SOCKET serverFd;
 	std::vector<SOCKET> _clients;
 	// When the user files are added
