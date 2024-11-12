@@ -17,12 +17,14 @@
     <string name="previous">Previous</string>
     <string name="board">Community Board</string>
     <!-- Fitness content headers -->
+
     <string name="info_header_worked_on">What you worked on:</string>
     <string name="info_header_calories_burned">Calories burned:</string>
     <string name="info_header_time_spent_total">Time spent exercising:</string>
 
 
     <!-- Speakable text -->
+
     <string name="description_fitness_nav_button1">Navigate to Instruction tab</string>
     <string name="description_fitness_nav_button2">Navigate to Fitness Home Screen</string>
     <string name="description_fitness_nav_button3">Navigate to Add/Search Users</string>
@@ -36,6 +38,5 @@
     <string name="presentation_calories_burned">356 KCals!</string>
     <string name="presentation_worked_on">arms\nleg\ntorso</string>
     <string name="presentation_time_spent">1 hour\n45 minutes!</string>
-    <string name="second_fragment_label"> Second Fragment</string>
-    <string name="first_fragment_label">First Fragment</string>
+
 </resources>
