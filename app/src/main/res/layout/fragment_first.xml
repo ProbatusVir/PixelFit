@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
+<androidx.coordinatorlayout.widget.CoordinatorLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".FirstFragment">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:context=".FirstFragment"
+>
     <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:padding="16dp"
-            tools:layout_editor_absoluteY="1dp" android:minHeight="730dp">
+            android:minHeight="730dp">
         <LinearLayout
                 android:orientation="vertical"
-                android:layout_width="410dp"
-                android:layout_height="723dp"
+                android:layout_width="wrap_content"
+                android:layout_height="655dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintVertical_bias="0.234">
+                app:layout_constraintVertical_bias="500">
             <TextView
                     style="@style/primary_header"
                     android:text="@string/info_header_calories_burned"
@@ -33,15 +34,16 @@
                 <ImageView
                         android:src="@drawable/baseline_tag_faces_24"
                         android:layout_weight="1"
-                        android:layout_width="wrap_content"
+                        android:layout_width="1dp"
                         android:layout_height="match_parent" android:id="@+id/imageView4"
                         tools:ignore="NestedWeights"
                         android:contentDescription="@string/description_emoji_placeholder"/>
                 <TextView
                         style="@style/body_text"
+                        android:textSize="32sp"
                         android:text="@string/presentation_calories_burned"
                         android:gravity="start|center_vertical"
-                        android:layout_width="0dp"
+                        android:layout_width="1dp"
                         android:layout_weight="1"
                         android:layout_height="match_parent" android:id="@+id/textView"/>
             </LinearLayout>
@@ -78,7 +80,7 @@
                         android:textAlignment="center"
                         android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:layout_height="wrap_content" android:id="@+id/textView_calories_burned_placeholder"/>
+                        android:layout_height="match_parent" android:id="@+id/textView_calories_burned_placeholder"/>
                 <TextView
                         style="@style/body_text"
                         android:text="@string/presentation_worked_on"
@@ -91,24 +93,24 @@
             <LinearLayout
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:id="@+id/fitness_info_layout4"
                     android:layout_weight="1">
                 <ImageView
                         android:layout_weight="1"
                         android:src="@drawable/baseline_access_time_24"
-                        android:layout_width="0dp"
+                        android:layout_width="1dp"
                         android:layout_height="match_parent" android:id="@+id/imageView5"
                         tools:ignore="NestedWeights"
                         android:contentDescription="@string/description_clock_placeholder"/>
                 <ImageView
                         android:layout_weight="1"
                         android:src="@drawable/fitness_parts_model"
-                        android:layout_width="0dp"
+                        android:layout_width="1dp"
                         android:layout_height="match_parent" android:id="@+id/imageView2"
                         android:contentDescription="@string/description_fitness_parts_model"/>
             </LinearLayout>
 
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -2,6 +2,7 @@
     <string name="app_name">My Application</string>
 
     <!-- Avatar dropdown menu strings -->
+    <string name="avatar_icon">Profile</string>
     <string name="avatar_dropdown_item1">Edit Profile</string>
     <string name="avatar_dropdown_item2">Goals &amp; Trophies</string>
     <string name="avatar_dropdown_item3">Block List</string>
@@ -14,8 +15,10 @@
     <string name="header_Instructor">Instruct</string>
     <string name="header_Finder">Find</string>
 
+
     <string name="previous">Previous</string>
     <string name="board">Community Board</string>
+
     <!-- Fitness content headers -->
 
     <string name="info_header_worked_on">What you worked on:</string>
@@ -40,5 +43,9 @@
     <string name="presentation_calories_burned">356 KCals!</string>
     <string name="presentation_worked_on">arms\nleg\ntorso</string>
     <string name="presentation_time_spent">1 hour\n45 minutes!</string>
+
+    <!-- Screen Labels -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
 
 </resources>
