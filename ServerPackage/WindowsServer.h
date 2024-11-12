@@ -20,7 +20,7 @@ public:
 private:
 
 	void AcquireIpAdress();
-	void HandleClient(SOCKET clientSocket);
+	void HandleClient(const SOCKET clientSocket);
 	char _ipAddress[INET_ADDRSTRLEN] = {0};
 	bool _keepAlive = true;
 	CommandSet _commands;

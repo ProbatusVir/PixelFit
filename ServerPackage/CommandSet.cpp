@@ -1,19 +1,18 @@
 #include "CommandSet.h"
 #include <iostream>
 
-
 int CommandSet::InterpretRequest(const Command command, const char* buffer)
 {
 	// zero initializes and we return zero it will be a failed attempt for the server to call back to.
 	int requestComplete = 0;
 	switch (command) {
-	case Login:
+	case Command::Login:
 		if (LoginUser(buffer)) {
 			requestComplete = 1;
 		}
 		
 		break;
-	case GetUsers:
+	case Command::GetUsers:
 		std::cout << buffer << '\n';
 		break;
 
