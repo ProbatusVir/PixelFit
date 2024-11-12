@@ -30,7 +30,7 @@ WindowsServer::WindowsServer()
 	}
 	serverFd = socket(AF_INET, SOCK_STREAM, 0);
 	_commands = CommandSet();
-
+	
 }
 
 WindowsServer::~WindowsServer()
@@ -150,7 +150,7 @@ void WindowsServer::HandleClient(SOCKET clientSocket)
 		unsigned int amountToRead = 0;
 		//recv(clientSocket, (char*)amountToRead, 4, 0);
 		recv(clientSocket, buffer, 1023, 0);
-		_commands.InterpretRequest(command, buffer);
+		_commands.InterpretRequest((Command)command, buffer);
 		char response[4] = { 1 };
 		send(clientSocket, (char*)&response, 4, 0);
 
