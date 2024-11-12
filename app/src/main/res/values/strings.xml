@@ -33,6 +33,8 @@
     <string name="description_fitness_parts_model">Model displaying the parts of the body exercised:</string>
     <string name="description_clock_placeholder">Clock placeholder graphic</string>
     <string name="description_emoji_placeholder">Clock placeholder graphic</string>
+    <string name="description_user_avatar_icon">User avatar icon</string>
+
 
     <!-- Presentation text -->
     <string name="presentation_calories_burned">356 KCals!</string>
