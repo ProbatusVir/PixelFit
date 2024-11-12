@@ -7,13 +7,20 @@ int CommandSet::InterpretRequest(const Command command, const char* buffer)
 	int requestComplete = 0;
 	switch (command) {
 	case Command::Login:
-		if (LoginUser(buffer)) {
-			requestComplete = 1;
-		}
+		std::cout << buffer << '\n';
+		//if (LoginUser(buffer)) {
+		//	requestComplete = 1;
+		//}
 		
 		break;
 	case Command::GetUsers:
 		std::cout << buffer << '\n';
+		break;
+
+	case MessageServer:
+
+		std::cout << buffer << '\n';
+
 		break;
 
 	default:
