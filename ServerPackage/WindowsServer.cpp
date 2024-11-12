@@ -1,5 +1,4 @@
 #include "WindowsServer.h"
-
 #include <iostream>
 #include <thread>
 #include <fstream>
@@ -11,6 +10,7 @@
 #include <direct.h>
 #include <functional>
 #include <filesystem>
+#include "Constants.h"
 
 
 // use port numbers from 3500 - 65000. 
@@ -143,14 +143,15 @@ void WindowsServer::HandleClient(SOCKET clientSocket)
 
 
 	char buffer[1024] = { 0 };
-	unsigned int command = 0;
+
 	int readBuffer = recv(clientSocket, buffer, 4, 0);
-	command = (int)buffer[0];
+	const int command = (int)buffer[0];
 	if (readBuffer >= 0) {
 		unsigned int amountToRead = 0;
 		//recv(clientSocket, (char*)amountToRead, 4, 0);
 		recv(clientSocket, buffer, 1023, 0);
-		_commands.InterpretRequest((Command)command, buffer);
+		
+		_commands.InterpretRequest(command, buffer);
 		char response[4] = { 1 };
 		send(clientSocket, (char*)&response, 4, 0);
 

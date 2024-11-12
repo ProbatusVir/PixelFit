@@ -6,11 +6,13 @@
 	//	 and enforce the Command type 
 	enum Command
 	{
-		Login, GetUsers,
+		Login = 1, GetUsers,
 		DiscussionPost,
 		GetUser, BanUser,
 	};
 
+	// This is throwing errors for the build.
+	// Going to turn these into Macros which should work
 	static constexpr size_t usernameSize = 30;
 	static constexpr size_t passwordSize = 60;
 

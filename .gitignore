@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+./ServerPackage/.vs
+./ServerPackage/x64
+*x64
