@@ -3,12 +3,12 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         tools:context=".FirstFragment">
     <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:padding="16dp"
             tools:layout_editor_absoluteY="1dp" android:minHeight="730dp">
         <LinearLayout
@@ -21,7 +21,7 @@
                 app:layout_constraintVertical_bias="0.234">
             <TextView
                     style="@style/primary_header"
-                    android:text="@string/infoheader_calories_burned"
+                    android:text="@string/info_header_calories_burned"
                     android:textAlignment="center"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" android:id="@+id/textView7"/>
@@ -33,7 +33,7 @@
                 <ImageView
                         android:src="@drawable/baseline_tag_faces_24"
                         android:layout_weight="1"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent" android:id="@+id/imageView4"
                         tools:ignore="NestedWeights"
                         android:contentDescription="@string/description_emoji_placeholder"/>
@@ -52,14 +52,14 @@
                     android:id="@+id/fitness_info_layout1">
                 <TextView
                         style="@style/primary_header"
-                        android:text="@string/infoheader_time_spent_total"
+                        android:text="@string/info_header_time_spent_total"
                         android:textAlignment="center"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content" android:id="@+id/textView_calories_burned_info"/>
                 <TextView
                         style="@style/primary_header"
-                        android:text="@string/infoheader_worked_on"
+                        android:text="@string/info_header_worked_on"
                         android:textAlignment="center"
                         android:layout_width="0dp"
                         android:layout_weight="1"
@@ -78,7 +78,7 @@
                         android:textAlignment="center"
                         android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:layout_height="wrap_content" android:id="@+id/textView_calories_burned_placeholder"/>
+                        android:layout_height="match_parent" android:id="@+id/textView_calories_burned_placeholder"/>
                 <TextView
                         style="@style/body_text"
                         android:text="@string/presentation_worked_on"
@@ -97,7 +97,7 @@
                 <ImageView
                         android:layout_weight="1"
                         android:src="@drawable/baseline_access_time_24"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="match_parent" android:id="@+id/imageView5"
                         tools:ignore="NestedWeights"
                         android:contentDescription="@string/description_clock_placeholder"/>
