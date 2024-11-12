@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<FrameLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
@@ -8,21 +8,21 @@
         android:fitsSystemWindows="true"
         tools:context=".MainActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:fitsSystemWindows="true"
-    />
-    <include layout="@layout/content_main"/>
     <ImageButton
             android:src="@android:drawable/sym_def_app_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/user_avatar"
             android:layout_gravity="top|end"
-            android:layout_marginTop="@dimen/avatar_margin"
-            android:layout_marginEnd="@dimen/avatar_margin"
             android:background="@null"
-
+            android:layout_margin="16dp"
+            android:contentDescription="@string/description_user_avatar_icon"
     />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <androidx.fragment.app.FragmentContainerView
+            android:layout_width="match_parent"
+            android:layout_gravity="bottom"
+            android:layout_height="70dp" android:name="com.example.myapplication.FirstFragment"
+            android:id="@+id/fragmentContainerView2"
+            tools:layout="@layout/fitness_nav_bottom"/>
+    <include layout="@layout/content_main"/>
+</FrameLayout>

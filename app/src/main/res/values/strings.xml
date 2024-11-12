@@ -15,10 +15,15 @@
 
 
     <!-- Speakable text -->
+    <string name="description_user_avatar_icon">Your avatar icon</string>
     <string name="description_fitness_nav_button1">Navigate to Instruction tab</string>
     <string name="description_fitness_nav_button2">Navigate to Fitness Home Screen</string>
     <string name="description_fitness_nav_button3">Navigate to Add/Search Users</string>
     <string name="description_fitness_nav_button4">Navigate to Group Finder</string>
+    <!-- TODO: Make model description read from a list of parts worked on -->
+    <string name="description_fitness_parts_model">Model displaying the parts of the body exercised:</string>
+    <string name="description_clock_placeholder">Clock placeholder graphic</string>
+    <string name="description_emoji_placeholder">Clock placeholder graphic</string>
 
     <!-- Presentation text -->
     <string name="presentation_calories_burned">356 KCals!</string>

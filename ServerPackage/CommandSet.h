@@ -1,9 +1,15 @@
 #pragma once
+#include "Constants.h"
 class CommandSet
 {
 public:
-	int InterpretRequest(int commmand, char* buffer);
-	bool LoginUser(char * buffer);
+	enum Command;
+
+	int InterpretRequest(const int commmand, const char* buffer);
+	bool LoginUser(const char * buffer);
+
+private:
+	
 
 };
 

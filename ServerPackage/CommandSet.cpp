@@ -1,60 +1,73 @@
 #include "CommandSet.h"
+#include <iostream>
 
-int CommandSet::InterpretRequest(int command, char* buffer)
+
+int CommandSet::InterpretRequest(const int command, const char* buffer)
 {
 	// zero initializes and we return zero it will be a failed attempt for the server to call back to.
 	int requestComplete = 0;
 	switch (command) {
-	case 1:
+	case Login:
 		if (LoginUser(buffer)) {
 			requestComplete = 1;
 		}
+		
 		break;
-	case 2:
-
+	case GetUsers:	//TODO: Is this the right behavior?
+		std::cout << buffer << '\n';
 		break;
 
 	default:
 
 		return requestComplete;
+		break;
 	}
 
 	return requestComplete;
 }
 
-bool CommandSet::LoginUser(char* buffer)
+bool CommandSet::LoginUser(const char* buffer)
 {
-	char username[30] = { 0 };
-	char password[60] = { 0 };
+	constexpr size_t expectedBufferSize = usernameSize + passwordSize;
+
+	char username[usernameSize] = { 0 };
+	char password[passwordSize] = { 0 };
 
 	bool fullReadOfUsername = false;
+	bool error = false;
 
-	int counter = 0;
-	int offset = 0;
-	while ((char)counter != '\0') {
+	size_t buff_seeker = 0;
+
+	//seek until End of Stream at null terminator, or until expected buffer size, to prevent fatal stack corruption
+	while ((char)buffer[buff_seeker] != '\0' || buff_seeker >= expectedBufferSize) {
+		// If the username hasn't been read, add the next character or terminate the username read 
 		if (!fullReadOfUsername) {
 
-			if (buffer[counter] != '\n') {
-				username[counter] = buffer[counter];
-
-				offset++;
+			if (buffer[buff_seeker] != '\n') {
+				username[buff_seeker] = buffer[buff_seeker];
 			}
 			else {
+				username[buff_seeker] = '\0'; //This string needs to be delimited.
 				fullReadOfUsername = true;
-
-
 			}
 
+			//Offset needs to be applied regardless here so we don't double count the newline
+			
+
 		}
+
+		//Fill password buffer with whatever remains until null terminator
 		else {
-			password[counter - offset] = buffer[counter];
+			password[buff_seeker - usernameSize] = buffer[buff_seeker];
 		}
-		counter++;
+
+		buff_seeker++;
 	}
+	
+	password[buff_seeker] = '\0';
+
+	error = !(strlen(password) <= passwordSize) && (strlen(username) <= usernameSize);
 
 
-
-
-
-	return false;
+	return error;
 }

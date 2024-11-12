@@ -1,5 +1,4 @@
 #include "WindowsServer.h"
-#include "CommandSet.h"
 #include <iostream>
 #include <thread>
 #include <fstream>
@@ -11,6 +10,7 @@
 #include <direct.h>
 #include <functional>
 #include <filesystem>
+#include "Constants.h"
 
 
 // use port numbers from 3500 - 65000. 
@@ -30,7 +30,7 @@ WindowsServer::WindowsServer()
 	}
 	serverFd = socket(AF_INET, SOCK_STREAM, 0);
 	_commands = CommandSet();
-
+	
 }
 
 WindowsServer::~WindowsServer()
@@ -48,6 +48,7 @@ void WindowsServer::Start()
 		WSACleanup();
 		return;
 	}
+
 	address.sin_family = AF_INET;
 	address.sin_port = htons(PORT);
 	inet_pton(AF_INET, _ipAddress, &address.sin_addr);
@@ -87,7 +88,7 @@ void WindowsServer::Start()
 			int clientAddrSize = sizeof(clientAddr);
 
 			client = accept(serverFd, (sockaddr*)&clientAddr, &clientAddrSize);
-
+			std::cout << "Client accepted \n";
 			if (client == INVALID_SOCKET) {
 				std::cerr << "Socket accept failed\n";
 				closesocket(client);
@@ -95,6 +96,7 @@ void WindowsServer::Start()
 			}
 
 			_clients.push_back(client);
+
 			auto boundClient = std::bind(&WindowsServer::HandleClient, this, client);
 			std::thread clientThread(boundClient);
 			clientThread.detach();
@@ -102,7 +104,7 @@ void WindowsServer::Start()
 
 		}
 
-		// This is to check if 
+		// This is to check if clients sent anything to the server.
 		auto clientIter = _clients.begin();
 
 		for (; clientIter != _clients.end(); clientIter++) {
@@ -138,16 +140,21 @@ bool WindowsServer::IPSetupComplete()
 
 void WindowsServer::HandleClient(SOCKET clientSocket)
 {
-	
 
-	unsigned int command = 0;
-	int readBuffer = recv(clientSocket, (char*)command, 4, 0);
-	if (readBuffer != 0) {
+
+	char buffer[1024] = { 0 };
+
+	int readBuffer = recv(clientSocket, buffer, 4, 0);
+	const int command = (int)buffer[0];
+	if (readBuffer >= 0) {
 		unsigned int amountToRead = 0;
-		recv(clientSocket, (char*)amountToRead, 4, 0);
-		char* buffer = new char[amountToRead + 1];
-		recv(clientSocket, buffer, amountToRead, 0);
+		//recv(clientSocket, (char*)amountToRead, 4, 0);
+		recv(clientSocket, buffer, 1023, 0);
+		
 		_commands.InterpretRequest(command, buffer);
+		char response[4] = { 1 };
+		send(clientSocket, (char*)&response, 4, 0);
+
 	}
 	else if (readBuffer == 0 || readBuffer == SOCKET_ERROR) {
 		std::cout << "Client disconnected \n";
