@@ -1,17 +1,36 @@
 #include "CommandSet.h"
 #include <iostream>
 
-int CommandSet::InterpretRequest(const Command command, const char* buffer)
+CommandSet::CommandSet()
+{
+}
+
+CommandSet::CommandSet(User* user)
+{
+	
+}
+
+int CommandSet::InterpretRequest(const Command command, const char* buffer, User* user)
 {
 	// zero initializes and we return zero it will be a failed attempt for the server to call back to.
 	int requestComplete = 0;
+	bool loginAttempt = false;
+	
 	switch (command) {
 	case Command::Login:
 		std::cout << buffer << '\n';
-		//if (LoginUser(buffer)) {
-		//	requestComplete = 1;
-		//}
+		user = LoginUser(buffer, loginAttempt);
+		if (loginAttempt) {
+			requestComplete = 1;
+			std::cout << "Success\n";
+			
+		}
 		
+		else {
+			requestComplete = 0;
+			user = nullptr;
+			std::cout << "Failed\n";
+		}
 		break;
 	case Command::GetUsers:
 		std::cout << buffer << '\n';
@@ -32,7 +51,7 @@ int CommandSet::InterpretRequest(const Command command, const char* buffer)
 	return requestComplete;
 }
 
-bool CommandSet::LoginUser(const char* buffer)
+User* CommandSet::LoginUser(const char* buffer, bool& success)
 {
 	constexpr size_t expectedBufferSize = usernameSize + passwordSize;
 
@@ -41,7 +60,7 @@ bool CommandSet::LoginUser(const char* buffer)
 
 	bool fullReadOfUsername = false;
 	bool error = false;
-
+	User attemptLogin;
 	size_t buff_seeker = 0;
 	size_t sizeOfUsername = 0;
 
@@ -69,9 +88,36 @@ bool CommandSet::LoginUser(const char* buffer)
 
 		buff_seeker++;
 	}
-	
-	error = !(strlen(password) <= passwordSize) && (strlen(username) <= usernameSize);
+	unsigned char* checkPass = attemptLogin.HashPassword(password);
 
 
-	return error;
+	error = !(strlen((char*)checkPass) <= passwordSize) && (strlen(username) <= usernameSize);
+
+	if (!error) {
+		int comparedPass = -1;
+		//TODO: When SQL calls can be made for our user objects, we need to contact the db
+		// to get the user object. We then need to compare the hashed passwords against eachother
+		// if they match, then allow the user login, otherwise prevent it.
+		unsigned char* removeAfterDebug = attemptLogin.HashPassword("abcdef");
+		comparedPass = strcmp((char*)checkPass, (char*)removeAfterDebug);
+		if (comparedPass == 0) success = true;
+		else success = false;
+		delete[] checkPass;
+		delete[] removeAfterDebug;
+		// TODO: remove name after SQL integration
+		char name[20] = "someone";
+		uint64_t id = CreateID();
+		User* newUser = new User(name, username, password, id);
+		return newUser;
+	}
+	else return nullptr;
+
+
+}
+
+uint64_t CommandSet::CreateID()
+{
+	idIncrement = 0;
+	idIncrement++;
+	return idIncrement;
 }

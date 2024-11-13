@@ -4,7 +4,7 @@
 
 
 
-User::User(const char name[nameSize], const char userName[usernameSize], const char password[passwordSize])
+User::User(const char name[nameSize], const char userName[usernameSize], const char password[passwordSize], uint64_t id)
 {
 	strcpy_s(_name, name);
 	strcpy_s(_userName, userName);
@@ -14,12 +14,22 @@ User::User(const char name[nameSize], const char userName[usernameSize], const c
 	else {
 		_password = hashed;
 	}
-
+	_id = id;
 
 }
 
 User::User()
 {
+}
+
+User::User(const User& user)
+{
+	memcpy_s(_name, sizeof(_name), user._name, sizeof(_name));
+	memcpy_s(_userName, sizeof(_userName), user._userName, sizeof(user._userName));
+	memcpy_s(_password, sizeof(_password), user._password, sizeof(_password));
+	memcpy_s(_token, sizeof(_token), user._token, sizeof(_token));
+
+
 }
 
 User::~User()
