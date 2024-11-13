@@ -35,7 +35,7 @@ WindowsServer::WindowsServer()
 
 WindowsServer::~WindowsServer()
 {
-	WSACleanup();
+	Cleanup();
 }
 
 void WindowsServer::Start()
@@ -74,8 +74,9 @@ void WindowsServer::Start()
 	// Handle thread for graceful shutdown
 
 	// Begins monitoring clients
+	std::thread loginClients(&WindowsServer::LoginClients, this);
 	std::thread monitorClients(&WindowsServer::CheckClients, this);
-	
+
 	while (_keepAlive) {
 
 		FD_ZERO(&readFds);
@@ -98,9 +99,6 @@ void WindowsServer::Start()
 				continue;
 			}
 
-			auto boundClient = std::bind(&WindowsServer::HandleClient, this, client);
-			std::thread clientThread(boundClient);
-			clientThread.detach();
 			_clients.push_back(client);
 
 
@@ -111,14 +109,20 @@ void WindowsServer::Start()
 
 	}
 	monitorClients.join();
+	loginClients.join();
 }
 
 void WindowsServer::Cleanup()
 {
-	// Call write methods to save the data on the server
+	// Call methods to send data to sql server
 
 	// Clean up any dynamic memory
 
+	for (SOCKET client : _clients) {
+		closesocket(client);
+
+	}
+	WSACleanup();
 }
 
 const bool WindowsServer::IPSetupComplete()
@@ -132,19 +136,38 @@ void WindowsServer::HandleClient(const SOCKET clientSocket)
 	unsigned int amountToRead = 0;
 	char readCmd[sizeof(Command)];
 	char bytesToRead[5] = { 0 };
+	char response[4] = { 0 };
 	//Receive file header
 	const int readBuffer = recv(clientSocket, readCmd, sizeof(int), 0);
 	command = static_cast<Command>(readCmd[0]);
 	recv(clientSocket, bytesToRead, sizeof(int), 0);
 	memcpy_s(&amountToRead, 4, bytesToRead, 4);
-	char* buffer = new char[amountToRead];
+	char* buffer = nullptr;
+	buffer = new char[amountToRead];
 
 
 	if (readBuffer > 0) {
 		recv(clientSocket, buffer, amountToRead, 0);
+		if (command == Command::Login || command == Command::NewUser) {
+			User* userAttempt = nullptr;
+			int requestComplete = _commands.InterpretRequest(command, buffer, userAttempt);
+			memcpy_s(response, sizeof(int), &requestComplete, sizeof(int));
 
-		_commands.InterpretRequest(command, buffer);
-		char response[4] = { 1 };
+			if (userAttempt != nullptr) {
+				User forPairCreation(*userAttempt);
+				WindowsUserPair clientPair;
+				clientPair.user = forPairCreation;
+				clientPair.clientSocket = clientSocket;
+				_clientPairs.push_back(clientPair);
+				delete userAttempt;
+
+			}
+
+			memcpy_s(response, sizeof(int), &requestComplete, sizeof(int));
+		}
+		else int requestComplete = _commands.InterpretRequest(command, buffer, nullptr);
+
+	
 		send(clientSocket, (char*)&response, 4, 0);
 
 	}
@@ -159,10 +182,10 @@ void WindowsServer::HandleClient(const SOCKET clientSocket)
 		}
 
 	}
-	delete[] buffer;
+	if (buffer != nullptr) delete[] buffer;
 }
 
-void WindowsServer::CheckClients()
+void WindowsServer::LoginClients()
 {
 	fd_set clientFds;
 
@@ -180,27 +203,50 @@ void WindowsServer::CheckClients()
 
 			int activity = select(maxFds, &clientFds, NULL, NULL, NULL);
 
-			for (auto client : clientTemp) {
-				if (FD_ISSET(client, &clientFds) ) {
-					HandleClient(client);
+			auto client = clientTemp.begin();
+			for (; client != clientTemp.end();) {
+				if (FD_ISSET(*client, &clientFds)) {
+					HandleClient(*client);
+					client = clientTemp.erase(client);
+				}
+				else client++;
+			}
+		}
+
+
+	}
+
+}
+
+void WindowsServer::CheckClients()
+{
+	fd_set clientFds;
+
+	while (_keepAlive) {
+		FD_ZERO(&clientFds);
+		std::vector<WindowsUserPair> clientTemp = _clientPairs;
+
+		for (auto client : clientTemp) {
+			FD_SET(client.clientSocket, &clientFds);
+		}
+
+		if (_clients.size() > 0) {
+
+			int maxFds = static_cast<int>(*std::max_element(_clients.begin(), _clients.end())) + 1;
+
+			int activity = select(maxFds, &clientFds, NULL, NULL, NULL);
+
+			
+			for (auto client : clientTemp ) {
+				if (FD_ISSET(client.clientSocket, &clientFds)) {
+					HandleClient(client.clientSocket);
+
 				}
 			}
 		}
 
-		//for (int i = 0; i < clientTemp.size(); i++) {
-		//	const SOCKET temp = clientTemp[i];
-		//	FD_SET(temp, &clientFds);
-		//	int activity = select(5, &clientFds, NULL, NULL, NULL);
-
-		//	if (FD_ISSET(temp, &clientFds) && activity != 0) {
-		//		auto boundClient = std::bind(&WindowsServer::HandleClient, this, temp);
-		//		std::thread clientThread(boundClient);
-		//		clientThread.detach();
-		//	}
-		//}
 
 	}
-
 }
 
 void WindowsServer::AcquireIpAdress()

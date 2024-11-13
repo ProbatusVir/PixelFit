@@ -5,6 +5,7 @@
 	enum class Command : unsigned int
 	{
 		Login = 1,
+		NewUser,
 		GetUsers,
 		MessageServer,
 		DiscussionPost,

@@ -46,7 +46,7 @@ void LoginInfo(ServerConnect &server) {
 
    memcpy_s(messageToServer, username.size(), username.c_str(), username.size());
    messageToServer[lengthOfMessage] = '\0';
-   server.SendToServer(1, messageToServer);
+   server.SendToServer((int)Command::Login, messageToServer);
 
    delete[] messageToServer;
 }
@@ -60,7 +60,7 @@ void SendMessageToServer(ServerConnect& server) {
 
     strcpy_s(message, response.c_str());
    
-    server.SendToServer( 3, message);
+    server.SendToServer((int) Command::MessageServer, message);
 
 }
 
@@ -68,8 +68,8 @@ int main()
 {
     ServerConnect server;
     std::string* options = MakeMenu();
-    
-    while (true) {
+    bool keepAlive = true;
+    while (keepAlive) {
         int response = 0;
 
         PrintMenu(options, SIZE_OF_MENU);
@@ -92,7 +92,12 @@ int main()
 
             SendMessageToServer(server);
             break;
+        case 4:
+            keepAlive = false;
+            break;
+
         }
+        
 
 
     }
