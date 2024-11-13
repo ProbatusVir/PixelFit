@@ -106,7 +106,7 @@ void WindowsServer::Start()
 
 		// This is to check if clients sent anything to the server.
 		for (auto clientIter = _clients.begin(); clientIter != _clients.end(); clientIter++) {
-			const SOCKET& clientSocket = *clientIter;
+			const SOCKET clientSocket = *clientIter;
 			if (FD_ISSET(clientSocket, &readFds)) {
 
 				auto boundClient = std::bind(&WindowsServer::HandleClient, this, clientSocket);
@@ -137,11 +137,13 @@ void WindowsServer::HandleClient(const SOCKET clientSocket)
 {
 	Command command;
 	unsigned int amountToRead;
-
+	char readCmd[4];
+	char bytesToRead[4];
 	//Receive file header
-	const int readBuffer = recv(clientSocket, (char*)&command, sizeof(Command), 0);
-	recv(clientSocket, (char*)&amountToRead, sizeof(int), 0);
-
+	const int readBuffer = recv(clientSocket, readCmd , sizeof(Command), 0);
+	command = (Command)readCmd[0];
+	recv(clientSocket, bytesToRead , sizeof(int), 0);
+	amountToRead = bytesToRead[0];
 	char* buffer = new char[amountToRead];
 
 
@@ -164,6 +166,7 @@ void WindowsServer::HandleClient(const SOCKET clientSocket)
 		}
 
 	}
+	delete[] buffer;
 }
 
 void WindowsServer::AcquireIpAdress()

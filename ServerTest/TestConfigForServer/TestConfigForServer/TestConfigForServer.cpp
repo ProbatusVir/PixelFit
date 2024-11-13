@@ -35,17 +35,18 @@ void LoginInfo(ServerConnect &server) {
     std::getline(std::cin.ignore(), response);
     username = response;
     response = "";
-    std::cout << "\n Please type in your password.\n";
-    std::getline(std::cin.ignore(), response);
+    std::cout << "Please type in your password.\n";
+    std::getline(std::cin, response);
     password = response;
     username += '\n';
     username += password;
+    username += '\0';
    unsigned int lengthOfMessage = username.size() + password.size();
    char* messageToServer = new char[lengthOfMessage + 1];
 
    memcpy_s(messageToServer, username.size(), username.c_str(), username.size());
-
-   server.SendToServer(Login, messageToServer);
+   messageToServer[lengthOfMessage] = '\0';
+   server.SendToServer(Command::Login, messageToServer);
 
    delete[] messageToServer;
 }
@@ -76,7 +77,9 @@ int main()
         std::cin >> response;
 
         switch (response) {
-        case Login: 
+
+        case 1: 
+
             LoginInfo(server);
 
             break;

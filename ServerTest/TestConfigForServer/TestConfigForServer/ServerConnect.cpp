@@ -29,10 +29,10 @@ int ServerConnect::SendToServer(Command command, char* message)
 	int codeFromServer = 0;
 
 	int lengthOfMessage = (int) strlen(message);
-
+	lengthOfMessage++;
 	char* messageToServer = new char[lengthOfMessage + 9];
 
-	*messageToServer = command;
+	*messageToServer = (int) command;
 
 	messageToServer[4] = lengthOfMessage;
 
