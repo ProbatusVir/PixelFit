@@ -17,7 +17,7 @@ int CommandSet::InterpretRequest(const Command command, const char* buffer)
 		std::cout << buffer << '\n';
 		break;
 
-	case MessageServer:
+	case Command::MessageServer:
 
 		std::cout << buffer << '\n';
 
