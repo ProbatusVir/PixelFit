@@ -9,7 +9,7 @@
 
     <style name="body_text">
         <item name="fontFamily">@font/sansita</item>
-        <item name="android:textStyle">italic|bold</item>
+        <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/light_text</item>
         <item name="android:textSize">20sp</item>
     </style>

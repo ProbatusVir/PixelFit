@@ -1,18 +1,21 @@
 #pragma once
+#include <openssl/sha.h>
 
-	//TODO: Ryan, please delete this comment after reading
-	// You're welcome to rename these, or assign new values
-	// But this is just a way to enforce a source of truth
-	//	 and enforce the Command type 
-	enum Command
+
+	enum class Command : unsigned int
 	{
-		Login = 1, GetUsers,
+		Login = 1,
+		NewUser,
+		GetUsers,
+		MessageServer,
 		DiscussionPost,
-		GetUser, BanUser,
+		GetUser,
+		BanUser,
 	};
 
-	// This is throwing errors for the build.
-	// Going to turn these into Macros which should work
+	static constexpr size_t packetSize = 1024;
+	static constexpr size_t hashSize = SHA256_DIGEST_LENGTH;
+	static constexpr size_t nameSize = 50;
 	static constexpr size_t usernameSize = 30;
 	static constexpr size_t passwordSize = 60;
 

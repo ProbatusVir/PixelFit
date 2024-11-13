@@ -1,22 +1,27 @@
 #pragma once
 #include <openssl/evp.h>
 #include <openssl/sha.h>
+#include "Constants.h"
+
 class User
 {
 public:
-	User(char name[50], char userName[20], char password[60]);
+	User(const char name[nameSize], const char userName[usernameSize], const char password[passwordSize], uint64_t id);
 	User();
+	User(const User& user);
 	~User();
+	uint64_t Id() { return _id; }
+	unsigned char* HashPassword(const char password[passwordSize]);
 
+	
 private:
 
-	unsigned char* HashPassword(char password[60]);
-	char _name[50];
-	char _userName[20];
-	char _password[SHA256_DIGEST_LENGTH + 1];
+	char _name[nameSize];
+	char _userName[usernameSize];
+	unsigned char* _password;
 	bool _errorOnCreation = false;
-	char _token[SHA256_DIGEST_LENGTH + 1];
-
+	unsigned char _token[hashSize + 1];
+	uint64_t _id;
 
 };
 

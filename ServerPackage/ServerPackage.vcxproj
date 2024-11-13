@@ -139,6 +139,7 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="WindowsServer.h" />
+    <ClInclude Include="WindowsUserPair.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

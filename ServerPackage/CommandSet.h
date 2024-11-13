@@ -1,15 +1,21 @@
 #pragma once
 #include "Constants.h"
+#include "User.h"
+
+#include <vector>
 class CommandSet
 {
 public:
-	enum Command;
-
-	int InterpretRequest(const int commmand, const char* buffer);
-	bool LoginUser(const char * buffer);
+	CommandSet();
+	CommandSet(User* user);
+	int InterpretRequest(const Command commmand, const char* buffer,User* user = nullptr);
+	User *LoginUser(const char * buffer, bool &success);
 
 private:
-	
+	//TODO: Add logic to save the next available id and load to the idIncrmenter
+	 uint64_t CreateID();
+	 uint64_t idIncrement;
+	 
 
 };
 
