@@ -40,7 +40,7 @@
 
 
     <!-- Presentation text -->
-    <string name="presentation_calories_burned">356 KCals!</string>
+    <string name="presentation_calories_burned">356\nKCals!</string>
     <string name="presentation_worked_on">arms\nleg\ntorso</string>
     <string name="presentation_time_spent">1 hour\n45 minutes!</string>
 

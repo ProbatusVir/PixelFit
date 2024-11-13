@@ -42,7 +42,7 @@
                         style="@style/body_text"
                         android:textSize="32sp"
                         android:text="@string/presentation_calories_burned"
-                        android:gravity="start|center_vertical"
+                        android:gravity="center"
                         android:layout_width="1dp"
                         android:layout_weight="1"
                         android:layout_height="match_parent" android:id="@+id/textView"/>
