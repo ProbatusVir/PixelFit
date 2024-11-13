@@ -14,7 +14,7 @@ public:
 
 	~ServerConnect();
 
-	int SendToServer(Command command, char* message);
+	int SendToServer(int command, char* message);
 
 	void CreateSocket();
 	

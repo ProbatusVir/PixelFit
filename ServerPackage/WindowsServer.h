@@ -21,6 +21,7 @@ private:
 
 	void AcquireIpAdress();
 	void HandleClient(const SOCKET clientSocket);
+	void CheckClients();
 	char _ipAddress[INET_ADDRSTRLEN] = {0};
 	bool _keepAlive = true;
 	CommandSet _commands;
