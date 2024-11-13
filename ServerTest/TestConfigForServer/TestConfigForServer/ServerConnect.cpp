@@ -24,7 +24,7 @@ ServerConnect::~ServerConnect()
 	WSACleanup();
 }
 
-int ServerConnect::SendToServer(Command command, char* message)
+int ServerConnect::SendToServer(int command, char* message)
 {
 	int codeFromServer = 0;
 
@@ -32,17 +32,13 @@ int ServerConnect::SendToServer(Command command, char* message)
 	lengthOfMessage++;
 	char* messageToServer = new char[lengthOfMessage + 9];
 
-	*messageToServer = (int) command;
 
-	messageToServer[4] = lengthOfMessage;
-
-	for (int i = 8; i < lengthOfMessage + 8; i++) {
-		messageToServer[i] = message[i - 8];
-
-	}
-
-	messageToServer[lengthOfMessage + 8] = '\0';
-	send(_client, messageToServer, lengthOfMessage + 9, 0);
+	lengthOfMessage += 9;
+	memcpy_s(messageToServer, lengthOfMessage, &command, sizeof(command));
+	memcpy_s(messageToServer + 4, lengthOfMessage, &lengthOfMessage, sizeof(int));
+	memcpy_s(messageToServer + 8, lengthOfMessage, message, lengthOfMessage);
+	
+	send(_client, messageToServer, lengthOfMessage, 0);
 
 	char response[37] = { 0 };
 

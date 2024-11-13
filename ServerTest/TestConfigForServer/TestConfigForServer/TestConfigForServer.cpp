@@ -46,7 +46,7 @@ void LoginInfo(ServerConnect &server) {
 
    memcpy_s(messageToServer, username.size(), username.c_str(), username.size());
    messageToServer[lengthOfMessage] = '\0';
-   server.SendToServer(Command::Login, messageToServer);
+   server.SendToServer(1, messageToServer);
 
    delete[] messageToServer;
 }
@@ -59,8 +59,8 @@ void SendMessageToServer(ServerConnect& server) {
     std::getline(std::cin.ignore(), response);
 
     strcpy_s(message, response.c_str());
-    Command command = Command(3);
-    server.SendToServer( command, message);
+   
+    server.SendToServer( 3, message);
 
 }
 
