@@ -1,14 +1,20 @@
 #pragma once
+#include <openssl/sha.h>
 
 
-	enum Command
+	enum class Command : unsigned int
 	{
-		Login = 1, GetUsers,
+		Login = 1,
+		GetUsers,
+		MessageServer,
 		DiscussionPost,
-		GetUser, BanUser,
+		GetUser,
+		BanUser,
 	};
 
-
+	static constexpr size_t packetSize = 1024;
+	static constexpr size_t hashSize = SHA256_DIGEST_LENGTH;
+	static constexpr size_t nameSize = 50;
 	static constexpr size_t usernameSize = 30;
 	static constexpr size_t passwordSize = 60;
 

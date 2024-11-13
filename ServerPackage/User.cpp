@@ -4,7 +4,7 @@
 
 
 
-User::User(char name[50], char userName[20], char password[60])
+User::User(const char name[nameSize], const char userName[usernameSize], const char password[passwordSize])
 {
 	strcpy_s(_name, name);
 	strcpy_s(_userName, userName);
@@ -12,9 +12,7 @@ User::User(char name[50], char userName[20], char password[60])
 
 	if (hashed == nullptr) _errorOnCreation = true;
 	else {
-
-		
-		memcpy_s(_password, EVP_MAX_MD_SIZE, hashed, EVP_MAX_MD_SIZE);
+		_password = hashed;
 	}
 
 
@@ -26,12 +24,12 @@ User::User()
 
 User::~User()
 {
-	
+	delete[] _password;
 }
 
-unsigned char* User::HashPassword(char password[60])
+unsigned char* User::HashPassword(const char password[passwordSize])
 {
-	unsigned char hash[SHA256_DIGEST_LENGTH] = { 0 };
+	unsigned char* hash = new unsigned char[hashSize + 1]{ 0 };
 	EVP_MD_CTX* context = EVP_MD_CTX_new();
 	const EVP_MD* sha256 = EVP_sha256();
 	unsigned int lengthOfHash = 0;
@@ -47,12 +45,6 @@ unsigned char* User::HashPassword(char password[60])
 		EVP_MD_CTX_free(context);
 		
 	}
-	
-	
-
-	
-
-
 
 	return hash;
 }
