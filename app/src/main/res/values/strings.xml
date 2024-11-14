@@ -52,7 +52,10 @@
     <string name="login_button">Submit</string>
     <string name="sign_up_link">"Don't have an account? Sign Up"</string>
 
-    <!-- Fragment labels -->
-    <string name="Home_fragment_label">HomeFragment</string>
-    <string name="Login_fragment_label">LogInFragment</string>
+    <!-- Room finder text -->
+    <string name="room_header">Room Finder</string>
+
+    
+
+  
 </resources>
