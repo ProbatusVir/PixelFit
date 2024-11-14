@@ -17,3 +17,4 @@ local.properties
 ./ServerPackage/x64
 *x64
 /.vs
+/ServerTest/TestConfigForServer/.vs
