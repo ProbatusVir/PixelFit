@@ -45,19 +45,12 @@
     <string name="presentation_time_spent">1 hour\n45 minutes!</string>
 
 
-    <!-- Presentation text -->
+    <!-- Login text -->
     <string name="login_text">Login</string>
     <string name="email_input_text">Enter Your Email</string>
     <string name="password_input_text">Enter Your Password</string>
     <string name="login_button">Submit</string>
     <string name="sign_up_link">"Don't have an account? Sign In"</string>
 
-
-    <!-- Presentation text -->
-    <string name="login_text">Login</string>
-    <string name="email_input_text">Enter Your Email</string>
-    <string name="password_input_text">Enter Your Password</string>
-    <string name="login_button">Submit</string>
-    <string name="sign_up_link">"Don't have an account? Sign In"</string>
 
 </resources>
