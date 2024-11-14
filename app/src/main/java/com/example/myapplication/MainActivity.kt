@@ -12,7 +12,10 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.widget.ImageButton
 import android.widget.PopupMenu
+import androidx.fragment.app.Fragment
+import androidx.navigation.ui.setupWithNavController
 import com.example.myapplication.databinding.ActivityMainBinding
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,7 +27,19 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        //Setting the starting screen
+        bottomNavigation(SecondFragment())
+        //Changing the fragment to selected icon
+        binding.bottomNav.setOnItemSelectedListener {
+            when(it.itemId){
+                R.id.Home -> bottomNavigation(FirstFragment())
 
+                else ->{
+
+                }
+            }
+            true
+        }
         //click register for making the popup
         findViewById<ImageButton>(R.id.user_avatar).setOnClickListener {
             val popup = PopupMenu(this, it)
@@ -32,6 +47,14 @@ class MainActivity : AppCompatActivity() {
             inflater.inflate(R.menu.menu_main, popup.menu)
             popup.show()
         }
+    }
+
+    // function for moving across the bottom nav
+    private fun bottomNavigation(fragment : Fragment){
+        val fragmentManager = supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.home_screen, fragment)
+        fragmentTransaction.commit()
     }
 
     //implement this when the screens (fragments???) exist
