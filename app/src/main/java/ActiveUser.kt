@@ -25,7 +25,7 @@ object ActiveUser : User() {
     fun displayWeight() : String = weight().toString() + (if (Preferences.metric) "kg" else "lb")
     fun displayHeight() : String = height.displayHeight()
     fun displayCaloriesBurned() : String =
-        String.format(Locale.US, "%d KCals!", caloriesBurned.toInt())
+        String.format(Locale.US, "%d\nKCals!", caloriesBurned.toInt())
     fun displayTimeSpentExercising() : String =
         String.format(Locale.US, "%d hours\n%d minutes!", timeSpentExercising / 60, timeSpentExercising % 60)
 
