@@ -1,3 +1,5 @@
+import java.util.*
+
 object ActiveUser : User() {
     //TODO: A far from exhaustive list of anatomy!
     enum class Parts {
@@ -8,9 +10,10 @@ object ActiveUser : User() {
 
     var caloriesBurned : Double = 0.0
     var calorieGoals : Int = 0
+    var timeSpentExercising : Int = 0 // Minutes
 
-    var weight : Double = 0.0 //lbs
-    var height : Height = Height() //inches
+    var weight : Double = 0.0    //lbs
+    var height : Height //inches
 
     var partsWorked : BooleanArray = BooleanArray(Parts.entries.size)
 
@@ -18,40 +21,36 @@ object ActiveUser : User() {
     fun loadFromFile() {}
     fun saveToFile() {}
 
-    public fun weightInLbs() : Double = weight
-
-    public fun weightInKgs() : Double = weight * 0.453592
-
-    public fun bmi() : Double = weightInKgs() / (height.heightInM() * height.heightInM())
-        //return weightInKgs() / (height.heightInM() * height.heightInM())
-    //}
-
-    class Height
-    {
-        private final val inToCm : Double = 2.54;       private final val cmToIn : Double = 1 / inToCm
-        private final val inToM : Double = .0254;       private final val mToIn : Double = 1 / inToM
-        private final val inToFt : Double = 1.0 / 12.0; private final val ftToIn : Double = 1 / inToFt
+    fun weight() : Double = if (Preferences.metric) weightInKgs() else weight
+    fun displayWeight() : String = weight().toString() + (if (Preferences.metric) "kg" else "lb")
+    fun displayHeight() : String = height.displayHeight()
+    fun displayCaloriesBurned() : String = String.format(Locale.US, "%d KCals!", caloriesBurned)
+    fun displayTimeSpentExercising() : String =
+        String.format(Locale.US, "%d hours\n%d minutes!", timeSpentExercising / 60, timeSpentExercising % 60)
 
 
-        var height : Double = 0.0
+    fun displayPartsWorked() : String {
+        var str = String()
 
-        //Obviously if it was saved in metric and loaded in Freedom, things would be off.
-        public fun setHeight(metric : Boolean, newHeight : Double) {
-            height = if (metric) newHeight * cmToIn else newHeight;
-        }
+        for (i in 1..partsWorked.size)
+            if (partsWorked[i]) str += Parts.entries[i].name + '\n'
 
-        fun heightInIn() : Double = height
+        return str.trimEnd()
+    }
+    //maybe we can show users the effectiveness of their workouts in Kcal/min so they can maximize gains
 
-        fun heightInCm() : Double = height * inToCm
+    private fun weightInLbs() : Double = weight
 
-        fun heightInFt() : Double = height * inToFt
+    private fun weightInKgs() : Double = weight * 0.453592
 
-        public fun heightInM() : Double = height * inToM
+    fun bmi() : Double = weightInKgs() / (height.heightInM() * height.heightInM())
 
-        public fun displayHeight() : String {
-            return if (Preferences.metric) heightInCm().toInt().toString()
-                else heightInFt().toInt().toString() + '\'' + heightInIn().toInt().toString() + '"'
-        }
-
+    init {
+        height = Height(0.0)
+        caloriesBurned = 314.0
+        partsWorked[Parts.Arms.ordinal] = true
+        partsWorked[Parts.Legs.ordinal] = true
+        partsWorked[Parts.Torso.ordinal] = true
+        timeSpentExercising = 105
     }
 }
