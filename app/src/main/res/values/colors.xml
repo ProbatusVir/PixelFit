@@ -19,4 +19,5 @@
     <color name="legs">#00FF00</color>
     <color name="torso">#0000FF</color>
     <color name="head">#00FFFF</color>
+    <color name="button_purple">#6851A5</color>
 </resources>
