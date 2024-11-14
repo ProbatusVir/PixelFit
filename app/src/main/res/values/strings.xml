@@ -40,9 +40,9 @@
 
 
     <!-- Presentation text -->
-    <string name="presentation_calories_burned">356\nKCals!</string>
-    <string name="presentation_worked_on">arms\nleg\ntorso</string>
-    <string name="presentation_time_spent">1 hour\n45 minutes!</string>
+    <string name="presentation_calories_burned">0\nKCals!</string>
+    <string name="presentation_worked_on">None</string>
+    <string name="presentation_time_spent">0 hour\n0 minutes!</string>
 
     <!-- Screen Labels -->
     <string name="first_fragment_label">First Fragment</string>
