@@ -55,7 +55,7 @@
     <!-- Room finder text -->
     <string name="room_header">Room Finder</string>
 
-    
-
-  
+    <!-- Fragment labels -->
+    <string name="Home_fragment_label">HomeFragment</string>
+    <string name="Login_fragment_label">LogInFragment</string>
 </resources>
