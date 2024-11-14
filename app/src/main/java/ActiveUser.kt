@@ -24,7 +24,8 @@ object ActiveUser : User() {
     fun weight() : Double = if (Preferences.metric) weightInKgs() else weight
     fun displayWeight() : String = weight().toString() + (if (Preferences.metric) "kg" else "lb")
     fun displayHeight() : String = height.displayHeight()
-    fun displayCaloriesBurned() : String = String.format(Locale.US, "%d KCals!", caloriesBurned)
+    fun displayCaloriesBurned() : String =
+        String.format(Locale.US, "%d KCals!", caloriesBurned.toInt())
     fun displayTimeSpentExercising() : String =
         String.format(Locale.US, "%d hours\n%d minutes!", timeSpentExercising / 60, timeSpentExercising % 60)
 
@@ -32,7 +33,7 @@ object ActiveUser : User() {
     fun displayPartsWorked() : String {
         var str = String()
 
-        for (i in 1..partsWorked.size)
+        for (i in partsWorked.indices)
             if (partsWorked[i]) str += Parts.entries[i].name + '\n'
 
         return str.trimEnd()
