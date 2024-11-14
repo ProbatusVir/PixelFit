@@ -8,6 +8,10 @@
         android:fitsSystemWindows="true"
         tools:context=".MainActivity">
 
+    <androidx.fragment.app.FragmentContainerView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:name="com.example.myapplication.FirstFragment"
+            android:id="@+id/home_screen" tools:layout="@layout/fragment_first"/>
     <ImageButton
             android:src="@android:drawable/sym_def_app_icon"
             android:layout_width="wrap_content"
@@ -16,7 +20,7 @@
             android:layout_gravity="top|end"
             android:background="@null"
             android:layout_margin="16dp"
-            android:contentDescription="@string/description_user_avatar_icon"
+            android:contentDescription="@string/avatar_icon"
     />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -34,3 +38,4 @@
                 app:menu="@menu/bottom_nav"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
+
