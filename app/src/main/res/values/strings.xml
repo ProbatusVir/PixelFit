@@ -50,7 +50,7 @@
     <string name="email_input_text">Enter Your Email</string>
     <string name="password_input_text">Enter Your Password</string>
     <string name="login_button">Submit</string>
-    <string name="sign_up_link">"Don't have an account? Sign In"</string>
+    <string name="sign_up_link">"Don't have an account? Sign Up"</string>
 
 
 </resources>
