@@ -52,12 +52,12 @@ class MainActivity : AppCompatActivity() {
         val fragmentTransaction = fragmentManager.beginTransaction()
         fragmentTransaction.replace(R.id.home_screen, fragment)
         fragmentTransaction.commit()
-    }
 
-    override fun onPostCreate(savedInstanceState: Bundle?) {
-        super.onPostCreate(savedInstanceState)
-        updateText()
-        updateModel()
+        //Initialize the new fragment values
+        when (fragment.id)
+        {
+        R.id.FirstFragment -> initFitnessHub()
+        }
     }
 
     private fun updateText()
@@ -73,6 +73,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateModel()
     {}
+
+    private fun initFitnessHub()
+    {
+        updateText()
+        updateModel()
+    }
 
     //implement this when the screens (fragments???) exist
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
