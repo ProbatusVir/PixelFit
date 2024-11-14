@@ -1,17 +1,16 @@
 package com.example.myapplication
 
+import ActiveUser
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.widget.ImageButton
 import android.widget.PopupMenu
+import android.widget.TextView
 import com.example.myapplication.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -33,6 +32,26 @@ class MainActivity : AppCompatActivity() {
             popup.show()
         }
     }
+
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        updateText()
+        updateModel()
+    }
+
+    private fun updateText()
+    {
+        val calories  : TextView = findViewById(R.id.textView_calories_burned_info)
+        val workedOn  : TextView = findViewById(R.id.textView_worked_on_info)
+        val timeSpent : TextView = findViewById(R.id.textView_time_spent_info)
+
+        calories.text = ActiveUser.displayCaloriesBurned()
+        workedOn.text = ActiveUser.displayPartsWorked()
+        timeSpent.text = ActiveUser.displayTimeSpentExercising()
+    }
+
+    private fun updateModel()
+    {}
 
     //implement this when the screens (fragments???) exist
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
