@@ -271,10 +271,12 @@ void WindowsServer::HandleLoginOfClient(const SOCKET& clientSocket)
 			clientPair.user = userAttempt;
 			clientPair.clientSocket = clientSocket;
 			unsigned char* token = userAttempt.Token();
-			tokenSize = strlen((char*)token);
+			tokenSize = hashSize;
 			memcpy_s(response + 4, sizeof(int), &tokenSize, sizeof(int));
 			memcpy_s(response + 8, tokenSize, (char*)token, tokenSize);
 			_clientPairs.push_back(clientPair);
+
+			
 		
 
 		}

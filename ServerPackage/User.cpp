@@ -15,7 +15,7 @@ User::User(const char name[nameSize], const char userName[usernameSize], const c
 		memcpy_s(_password, hashSize, hashed, hashSize);
 	}
 	_id = id;
-
+	CreateToken();
 }
 
 User::User()
