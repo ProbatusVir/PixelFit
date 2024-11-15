@@ -73,7 +73,9 @@ void User::CreateToken()
 		token[i] = (char)random;
 
 	}
+	
 
 	memcpy_s(_token, hashSize, token, hashSize);
+	_token[hashSize] = '\0';
 
 }
