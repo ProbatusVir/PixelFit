@@ -132,12 +132,14 @@
     <ClCompile Include="CommandSet.cpp" />
     <ClCompile Include="ServerPackage.cpp" />
     <ClCompile Include="User.cpp" />
+    <ClCompile Include="WindowsInterpreter.cpp" />
     <ClCompile Include="WindowsServer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommandSet.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="User.h" />
+    <ClInclude Include="WindowsInterpreter.h" />
     <ClInclude Include="WindowsServer.h" />
     <ClInclude Include="WindowsUserPair.h" />
   </ItemGroup>

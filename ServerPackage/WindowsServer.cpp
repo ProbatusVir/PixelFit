@@ -29,7 +29,7 @@ WindowsServer::WindowsServer()
 		return;
 	}
 	serverFd = socket(AF_INET, SOCK_STREAM, 0);
-	_commands = CommandSet();
+	_interpreter = WindowsInterpreter();
 
 }
 
@@ -74,8 +74,8 @@ void WindowsServer::Start()
 	// Handle thread for graceful shutdown
 
 	// Begins monitoring clients
-	std::thread loginClients(&WindowsServer::LoginClients, this);
-	std::thread monitorClients(&WindowsServer::CheckClients, this);
+	std::thread monitorClients(&WindowsServer::MonitorClients, this);
+
 
 	while (_keepAlive) {
 
@@ -108,8 +108,8 @@ void WindowsServer::Start()
 
 
 	}
+	
 	monitorClients.join();
-	loginClients.join();
 }
 
 void WindowsServer::Cleanup()
@@ -132,48 +132,43 @@ const bool WindowsServer::IPSetupComplete()
 
 void WindowsServer::HandleClient(const SOCKET clientSocket)
 {
+
+	// TODO: Make this look better (rs)
 	Command command;
 	unsigned int amountToRead = 0;
 	char readCmd[sizeof(Command)];
 	char bytesToRead[5] = { 0 };
 	char response[4] = { 0 };
+
 	//Receive file header
+
 	const int readBuffer = recv(clientSocket, readCmd, sizeof(int), 0);
 	command = static_cast<Command>(readCmd[0]);
-	recv(clientSocket, bytesToRead, sizeof(int), 0);
-	memcpy_s(&amountToRead, 4, bytesToRead, 4);
-	char* buffer = nullptr;
-	buffer = new char[amountToRead];
+
 
 
 	if (readBuffer > 0) {
-		recv(clientSocket, buffer, amountToRead, 0);
-		// TODO: Refactor below so this is not necessary
-		User deleteThisOnRefactor;
-		int requestComplete = _commands.InterpretRequest(command, buffer, deleteThisOnRefactor);
-
-		memcpy_s(response, sizeof(int), &requestComplete, sizeof(int));
-		send(clientSocket, (char*)&response, 4, 0);
-
+	
+		_interpreter.InterpretMessage(clientSocket, command);
 	}
 	else if (readBuffer == 0 || readBuffer == SOCKET_ERROR) {
 		std::cout << "Client disconnected \n";
 		closesocket(clientSocket);
-		
-		auto client = _clientPairs.begin();
-		for (; client != _clientPairs.end();) {
-			if (client->clientSocket == clientSocket) {
-				client = _clientPairs.erase(client);
+
+		auto client = _clients.begin();
+		for (; client != _clients.end();) {
+			if (*client == clientSocket) {
+				client = _clients.erase(client);
 			}
 			else client++;
 		}
 
 	}
-	if (buffer != nullptr) delete[] buffer;
+	
 }
 // Handles the login of each client to pair them to a user object and their respective socket
 // Following this process, our CheckClient function will be able to contact the correct clients.
-void WindowsServer::LoginClients()
+void WindowsServer::MonitorClients()
 {
 	fd_set clientFds;
 
@@ -191,16 +186,17 @@ void WindowsServer::LoginClients()
 
 			int activity = select(maxFds, &clientFds, NULL, NULL, NULL);
 
-			auto client = clientTemp.begin();
-			for (; client != clientTemp.end();) {
-				if (FD_ISSET(*client, &clientFds)) {
-					HandleLoginOfClient(*client);
-					
-					client = clientTemp.erase(client);
 
+		
+				auto client = clientTemp.begin();
+				for (; client != clientTemp.end();client++) {
+					if (FD_ISSET(*client, &clientFds)) {
+						HandleClient(*client);
+					}
+					
 				}
-				else client++;
-			}
+			
+
 		}
 
 
@@ -210,95 +206,9 @@ void WindowsServer::LoginClients()
 // This checks on every logged in client
 // If there are incoming requests from logged in clients
 // this will handle their requests. This also allows us to push to clients.
-void WindowsServer::CheckClients()
-{
-	fd_set clientFds;
-
-	while (_keepAlive) {
-		FD_ZERO(&clientFds);
-		std::vector<WindowsUserPair> clientTemp = _clientPairs;
-
-		for (auto client : clientTemp) {
-			FD_SET(client.clientSocket, &clientFds);
-		}
-
-		if (_clients.size() > 0) {
-
-			//int maxFds = static_cast<int>(std::max_element(_clientPairs.begin()->clientSocket, _clientPairs.end()->clientSocket)) + 1;
-
-			//int activity = select(maxFds, &clientFds, NULL, NULL, NULL);
-
-			// This gives us control to push things to other clients. This also allows us to check each client for changes
-			for (auto client : clientTemp) {
-				if (FD_ISSET(client.clientSocket, &clientFds)) {
-					HandleClient(client.clientSocket);
-
-				}
-			}
-		}
 
 
-	}
-}
 
-void WindowsServer::HandleLoginOfClient(const SOCKET& clientSocket)
-{
-	Command command;
-	unsigned int amountToRead = 0;
-	char readCmd[sizeof(Command)];
-	char bytesToRead[5] = { 0 };
-	char response[255] = { 0 };
-	//Receive file header
-	const int readBuffer = recv(clientSocket, readCmd, sizeof(int), 0);
-	command = static_cast<Command>(readCmd[0]);
-	recv(clientSocket, bytesToRead, sizeof(int), 0);
-	memcpy_s(&amountToRead, 4, bytesToRead, 4);
-	char* buffer = nullptr;
-	buffer = new char[amountToRead];
-	unsigned int tokenSize = 0;
-
-	if (readBuffer > 0) {
-		recv(clientSocket, buffer, amountToRead, 0);
-
-		User userAttempt;
-		int requestComplete = _commands.InterpretRequest(command, buffer, userAttempt);
-		memcpy_s(response, sizeof(int), &requestComplete, sizeof(int));
-
-		if (requestComplete) {
-			
-		
-			WindowsUserPair clientPair;
-			clientPair.user = userAttempt;
-			clientPair.clientSocket = clientSocket;
-			unsigned char* token = userAttempt.Token();
-			tokenSize = hashSize + 1;
-			memcpy_s(response + 4, sizeof(int), &tokenSize, sizeof(int));
-			memcpy_s(response + 8, tokenSize, (char*)token, tokenSize);
-			_clientPairs.push_back(clientPair);
-
-			
-		
-
-		}
-
-		
-
-		send(clientSocket, (char*)&response, tokenSize + 8, 0);
-
-	}
-	else if (readBuffer == 0 || readBuffer == SOCKET_ERROR) {
-		std::cout << "Client disconnected \n";
-		closesocket(clientSocket);
-
-		for (auto clientIter = _clients.begin(); clientIter != _clients.end();) {
-			if (*clientIter == clientSocket)
-				clientIter = _clients.erase(clientIter);
-			else clientIter++;
-		}
-
-	}
-	if (buffer != nullptr) delete[] buffer;
-}
 
 
 

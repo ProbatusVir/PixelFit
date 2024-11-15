@@ -8,7 +8,6 @@ class CommandSet
 public:
 	CommandSet();
 	CommandSet(User* user);
-	int InterpretRequest(const Command commmand, const char* buffer,User& user);
 	User LoginUser(const char * buffer, bool &success);
 	User NewUser(const char* buffer, bool& success);
 
