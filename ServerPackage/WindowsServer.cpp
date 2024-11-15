@@ -266,12 +266,12 @@ void WindowsServer::HandleLoginOfClient(const SOCKET& clientSocket)
 
 		if (requestComplete) {
 			
-			// TODO: token is not wanting to the packet going to the client
+		
 			WindowsUserPair clientPair;
 			clientPair.user = userAttempt;
 			clientPair.clientSocket = clientSocket;
 			unsigned char* token = userAttempt.Token();
-			tokenSize = hashSize;
+			tokenSize = hashSize + 1;
 			memcpy_s(response + 4, sizeof(int), &tokenSize, sizeof(int));
 			memcpy_s(response + 8, tokenSize, (char*)token, tokenSize);
 			_clientPairs.push_back(clientPair);
