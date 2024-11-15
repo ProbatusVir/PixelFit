@@ -1,6 +1,5 @@
 package com.example.myapplication
 
-import ActiveUser
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -10,7 +9,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.widget.ImageButton
 import android.widget.PopupMenu
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.example.myapplication.databinding.ActivityMainBinding
 
@@ -52,32 +50,6 @@ class MainActivity : AppCompatActivity() {
         val fragmentTransaction = fragmentManager.beginTransaction()
         fragmentTransaction.replace(R.id.home_screen, fragment)
         fragmentTransaction.commit()
-
-        //Initialize the new fragment values
-        when (fragment.id)
-        {
-        R.id.FirstFragment -> initFitnessHub()
-        }
-    }
-
-    private fun updateText()
-    {
-        val calories  : TextView = findViewById(R.id.textView_calories_burned_info)
-        val workedOn  : TextView = findViewById(R.id.textView_worked_on_info)
-        val timeSpent : TextView = findViewById(R.id.textView_time_spent_info)
-
-        calories.text = ActiveUser.displayCaloriesBurned()
-        workedOn.text = ActiveUser.displayPartsWorked()
-        timeSpent.text = ActiveUser.displayTimeSpentExercising()
-    }
-
-    private fun updateModel()
-    {}
-
-    private fun initFitnessHub()
-    {
-        updateText()
-        updateModel()
     }
 
     //implement this when the screens (fragments???) exist
