@@ -10,65 +10,7 @@ CommandSet::CommandSet(User* user)
 	
 }
 
-int CommandSet::InterpretRequest(const Command command, const char* buffer, User& user)
-{
-	// zero initializes and we return zero it will be a failed attempt for the server to call back to.
-	int requestComplete = 0;
-	bool loginAttempt = false;
-	
-	switch (command) {
-	case Command::Login:
-		user = LoginUser(buffer, loginAttempt);
-		if (loginAttempt) {
-			requestComplete = 1;
-			std::cout << "Success\n";
-			
-		}
-		
-		else {
-			requestComplete = 0;
-			
-			
-			std::cout << "Failed\n";
-		}
-		break;
-	case Command::NewUser:
-		std::cout << buffer << '\n';
-		
-		user = NewUser(buffer, loginAttempt);
-		if (loginAttempt) {
-			std::cout << "Success \n";
-			
-			requestComplete = 1;
 
-		}
-		else {
-			
-			std::cout << "Failed register \n";
-		}
-		break;
-
-	case Command::GetUsers:
-
-		std::cout << buffer << '\n';
-		requestComplete = 1;
-		break;
-
-	case Command::MessageServer:
-		std::cout << buffer << '\n';
-
-		requestComplete = 1;
-		break;
-
-
-	default:
-
-		return requestComplete;
-		break;
-	}
-
-	return requestComplete;
-}
 
 User CommandSet::LoginUser(const char* buffer, bool& success)
 {
@@ -179,6 +121,9 @@ User CommandSet::NewUser(const char* buffer, bool& success)
 		unsigned char* hashed = User::HashPassword(password);
 		char transferToCharHash[passwordSize] = { 0 };
 		memcpy_s(transferToCharHash, strlen((char*)hashed), hashed, strlen((char*)hashed));
+
+		//TODO: Send to database once we have database connection
+
 		User newUser =  User(name, username, transferToCharHash , id);
 		success = true;
 		return newUser;

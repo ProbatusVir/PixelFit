@@ -5,6 +5,7 @@
 #include <vector>
 #include "CommandSet.h"
 #include "WindowsUserPair.h"
+#include "WindowsInterpreter.h"
 //#include <string>
 #pragma comment(lib, "Ws2_32.lib")
 class WindowsServer
@@ -23,15 +24,14 @@ private:
 
 	void AcquireIpAdress();
 	void HandleClient(const SOCKET clientSocket);
-	void LoginClients();
-	void CheckClients();
-	void HandleLoginOfClient(const SOCKET &clientSocket);
+	void MonitorClients();
+	
 	char _ipAddress[INET_ADDRSTRLEN] = {0};
 	bool _keepAlive = true;
-	CommandSet _commands;
+	
 	SOCKET serverFd;
 	std::vector<SOCKET> _clients;
-	std::vector<WindowsUserPair> _clientPairs;
+	WindowsInterpreter _interpreter;
 	// This is for the transfer from command set to create our pairs needed
 	User _loginUser;
 	

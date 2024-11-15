@@ -96,11 +96,10 @@ int main()
     bool keepAlive = true;
     while (keepAlive) {
         int response = 0;
-
         PrintMenu(options, SIZE_OF_MENU);
         std::cout << "Please select a option \n";
         std::cin >> response;
-
+        
         switch (response) {
 
         case 1: 
@@ -121,6 +120,9 @@ int main()
             keepAlive = false;
             break;
 
+        default:
+            std::cout << "Wrong input \n";
+            break;
         }
         
 
