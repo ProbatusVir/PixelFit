@@ -15,7 +15,7 @@ User::User(const char name[nameSize], const char userName[usernameSize], const c
 		memcpy_s(_password, hashSize, hashed, hashSize);
 	}
 	_id = id;
-
+	CreateToken();
 }
 
 User::User()
@@ -66,14 +66,16 @@ unsigned char* User::HashPassword(const char password[passwordSize])
 
 void User::CreateToken()
 {
-	srand(time_t(NULL));
+	srand(static_cast<unsigned int>(time(nullptr)));
 	unsigned char token[hashSize] = { 0 };
 	for (int i = 0; i < hashSize; i++) {
 		unsigned int random = rand() % 255 + 33;
 		token[i] = (char)random;
 
 	}
+	
 
 	memcpy_s(_token, hashSize, token, hashSize);
+	_token[hashSize] = '\0';
 
 }
