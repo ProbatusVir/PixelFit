@@ -40,12 +40,22 @@
 
 
     <!-- Presentation text -->
-    <string name="presentation_calories_burned">356\nKCals!</string>
-    <string name="presentation_worked_on">arms\nleg\ntorso</string>
-    <string name="presentation_time_spent">1 hour\n45 minutes!</string>
+    <string name="presentation_calories_burned">0\nKCals!</string>
+    <string name="presentation_worked_on">None</string>
+    <string name="presentation_time_spent">0 hour\n0 minutes!</string>
 
-    <!-- Screen Labels -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
 
+    <!-- Login text -->
+    <string name="login_text">Login</string>
+    <string name="email_input_text">Enter Your Email</string>
+    <string name="password_input_text">Enter Your Password</string>
+    <string name="login_button">Submit</string>
+    <string name="sign_up_link">"Don't have an account? Sign Up"</string>
+
+    <!-- Room finder text -->
+    <string name="room_header">Room Finder</string>
+
+    <!-- Fragment labels -->
+    <string name="Home_fragment_label">HomeFragment</string>
+    <string name="Login_fragment_label">LogInFragment</string>
 </resources>

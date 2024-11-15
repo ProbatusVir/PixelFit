@@ -8,8 +8,9 @@ class CommandSet
 public:
 	CommandSet();
 	CommandSet(User* user);
-	int InterpretRequest(const Command commmand, const char* buffer,User* user = nullptr);
-	User *LoginUser(const char * buffer, bool &success);
+	int InterpretRequest(const Command commmand, const char* buffer,User& user);
+	User LoginUser(const char * buffer, bool &success);
+	User NewUser(const char* buffer, bool& success);
 
 private:
 	//TODO: Add logic to save the next available id and load to the idIncrmenter

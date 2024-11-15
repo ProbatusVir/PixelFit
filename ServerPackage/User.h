@@ -10,15 +10,18 @@ public:
 	User();
 	User(const User& user);
 	~User();
-	uint64_t Id() { return _id; }
-	unsigned char* HashPassword(const char password[passwordSize]);
+	unsigned char* Token() { return _token; }
 
+	uint64_t Id() { return _id; }
+	static unsigned char* HashPassword(const char password[passwordSize]);
+	
 	
 private:
-
+	void CreateToken();
 	char _name[nameSize];
 	char _userName[usernameSize];
-	unsigned char* _password;
+	// This should be hash size as we want to save the hash, not the actual password
+	unsigned char _password[hashSize];
 	bool _errorOnCreation = false;
 	unsigned char _token[hashSize + 1];
 	uint64_t _id;

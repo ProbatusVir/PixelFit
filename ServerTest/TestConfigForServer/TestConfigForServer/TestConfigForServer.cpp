@@ -24,6 +24,31 @@ void PrintMenu(std::string* options, int size) {
     }
 }
 
+void CreateNewUser(ServerConnect &server) {
+    std::string name = "";
+    std::string username = "";
+    std::string password = "";
+   
+    std::cout << "Please input your name \n";
+    std::getline(std::cin.ignore(), name);
+    std::cout << "Please enter your username\n";
+    std::getline(std::cin.ignore(), username);
+    std::cout << "Please enter your password\n";
+    std::getline(std::cin.ignore(), password);
+    name += '\n';
+    name += username;
+    name += '\n';
+    name += password;
+
+    name += '\0';
+    char* messageToServer = new char[name.size() + 1];
+    memcpy_s(messageToServer, name.size(), name.c_str(), name.size());
+
+    server.SendToServer((int)Command::NewUser, messageToServer);
+
+    delete[] messageToServer;
+
+}
 
 
 void LoginInfo(ServerConnect &server) {
@@ -85,7 +110,7 @@ int main()
             break;
 
         case 2:
-
+            CreateNewUser(server);
             break;
 
         case 3:

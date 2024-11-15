@@ -1,17 +1,17 @@
 package com.example.myapplication
 
+import ActiveUser
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.widget.ImageButton
 import android.widget.PopupMenu
+import android.widget.TextView
+import androidx.fragment.app.Fragment
 import com.example.myapplication.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -24,7 +24,19 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        //Setting the starting screen
+        bottomNavigation(SecondFragment())
+        //Changing the fragment to selected icon
+        binding.bottomNav.setOnItemSelectedListener {
+            when(it.itemId){
+                R.id.Home -> bottomNavigation(FirstFragment())
 
+                else ->{
+
+                }
+            }
+            true
+        }
         //click register for making the popup
         findViewById<ImageButton>(R.id.user_avatar).setOnClickListener {
             val popup = PopupMenu(this, it)
@@ -32,6 +44,40 @@ class MainActivity : AppCompatActivity() {
             inflater.inflate(R.menu.menu_main, popup.menu)
             popup.show()
         }
+    }
+
+    // function for moving across the bottom nav
+    private fun bottomNavigation(fragment : Fragment){
+        val fragmentManager = supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.home_screen, fragment)
+        fragmentTransaction.commit()
+
+        //Initialize the new fragment values
+        when (fragment.id)
+        {
+        R.id.FirstFragment -> initFitnessHub()
+        }
+    }
+
+    private fun updateText()
+    {
+        val calories  : TextView = findViewById(R.id.textView_calories_burned_info)
+        val workedOn  : TextView = findViewById(R.id.textView_worked_on_info)
+        val timeSpent : TextView = findViewById(R.id.textView_time_spent_info)
+
+        calories.text = ActiveUser.displayCaloriesBurned()
+        workedOn.text = ActiveUser.displayPartsWorked()
+        timeSpent.text = ActiveUser.displayTimeSpentExercising()
+    }
+
+    private fun updateModel()
+    {}
+
+    private fun initFitnessHub()
+    {
+        updateText()
+        updateModel()
     }
 
     //implement this when the screens (fragments???) exist
