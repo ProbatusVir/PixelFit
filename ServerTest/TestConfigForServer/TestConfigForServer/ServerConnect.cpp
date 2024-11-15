@@ -40,13 +40,26 @@ int ServerConnect::SendToServer(int command, char* message)
 	
 	send(_client, messageToServer, lengthOfMessage, 0);
 
-	char response[37] = { 0 };
+	char response[4] = { 0 };
 
 
 	int readBuffer = recv(_client, response, 4, 0);
 
 	if (readBuffer > 0) {
-		codeFromServer = (unsigned int)response[0];
+	
+		memcpy_s(&codeFromServer, sizeof(int), response, sizeof(int));
+		if (codeFromServer > 0 && codeFromServer < 2) {
+			recv(_client, response, sizeof(int), 0);
+			int tokenSize = 0;
+			memcpy_s(&tokenSize, sizeof(int), response, sizeof(int));
+			char* token = nullptr;
+			token = new char[tokenSize];
+			recv(_client, token, tokenSize, 0);
+			std::cout << token << '\n';
+			if (token != nullptr) delete[] token;
+
+		}
+		else std::cout << "Failed request \n";
 
 	}
 
