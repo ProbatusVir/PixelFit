@@ -66,7 +66,7 @@ unsigned char* User::HashPassword(const char password[passwordSize])
 
 void User::CreateToken()
 {
-	srand(time_t(NULL));
+	srand(static_cast<unsigned int>(time(nullptr)));
 	unsigned char token[hashSize] = { 0 };
 	for (int i = 0; i < hashSize; i++) {
 		unsigned int random = rand() % 255 + 33;
