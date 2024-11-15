@@ -10,7 +10,7 @@ CommandSet::CommandSet(User* user)
 	
 }
 
-int CommandSet::InterpretRequest(const Command command, const char* buffer, User* user)
+int CommandSet::InterpretRequest(const Command command, const char* buffer, User& user)
 {
 	// zero initializes and we return zero it will be a failed attempt for the server to call back to.
 	int requestComplete = 0;
@@ -18,7 +18,6 @@ int CommandSet::InterpretRequest(const Command command, const char* buffer, User
 	
 	switch (command) {
 	case Command::Login:
-		std::cout << buffer << '\n';
 		user = LoginUser(buffer, loginAttempt);
 		if (loginAttempt) {
 			requestComplete = 1;
@@ -28,19 +27,39 @@ int CommandSet::InterpretRequest(const Command command, const char* buffer, User
 		
 		else {
 			requestComplete = 0;
-			user = nullptr;
+			
+			
 			std::cout << "Failed\n";
 		}
 		break;
-	case Command::GetUsers:
+	case Command::NewUser:
 		std::cout << buffer << '\n';
+		
+		user = NewUser(buffer, loginAttempt);
+		if (loginAttempt) {
+			std::cout << "Success \n";
+			
+			requestComplete = 1;
+
+		}
+		else {
+			
+			std::cout << "Failed register \n";
+		}
+		break;
+
+	case Command::GetUsers:
+
+		std::cout << buffer << '\n';
+		requestComplete = 1;
 		break;
 
 	case Command::MessageServer:
-
 		std::cout << buffer << '\n';
 
+		requestComplete = 1;
 		break;
+
 
 	default:
 
@@ -51,7 +70,7 @@ int CommandSet::InterpretRequest(const Command command, const char* buffer, User
 	return requestComplete;
 }
 
-User* CommandSet::LoginUser(const char* buffer, bool& success)
+User CommandSet::LoginUser(const char* buffer, bool& success)
 {
 	constexpr size_t expectedBufferSize = usernameSize + passwordSize;
 
@@ -88,7 +107,7 @@ User* CommandSet::LoginUser(const char* buffer, bool& success)
 
 		buff_seeker++;
 	}
-	unsigned char* checkPass = attemptLogin.HashPassword(password);
+	unsigned char* checkPass = User::HashPassword(password);
 
 
 	error = !(strlen((char*)checkPass) <= passwordSize) && (strlen(username) <= usernameSize);
@@ -98,7 +117,7 @@ User* CommandSet::LoginUser(const char* buffer, bool& success)
 		//TODO: When SQL calls can be made for our user objects, we need to contact the db
 		// to get the user object. We then need to compare the hashed passwords against eachother
 		// if they match, then allow the user login, otherwise prevent it.
-		unsigned char* removeAfterDebug = attemptLogin.HashPassword("abcdef");
+		unsigned char* removeAfterDebug = User::HashPassword("abcdef");
 		comparedPass = strcmp((char*)checkPass, (char*)removeAfterDebug);
 		if (comparedPass == 0) success = true;
 		else success = false;
@@ -107,11 +126,63 @@ User* CommandSet::LoginUser(const char* buffer, bool& success)
 		// TODO: remove name after SQL integration
 		char name[20] = "someone";
 		uint64_t id = CreateID();
-		User* newUser = new User(name, username, password, id);
+		User newUser = User(name, username, password, id);
 		return newUser;
 	}
-	else return nullptr;
 
+
+
+}
+
+User CommandSet::NewUser(const char* buffer, bool& success)
+{
+	char name[nameSize] = { 0 };
+	char username[usernameSize] = { 0 };
+	char password[hashSize] = { 0 };
+	bool fullReadOnName = false;
+	bool fullReadOnUsername = false;
+	bool fullReadOnPassword = false;
+	size_t sizeOfName = 0;
+	size_t sizeOfUsername = 0;
+	
+
+	size_t buffSeeker = 0;
+
+	while (buffer[buffSeeker] != '\0' && buffSeeker <= strlen(buffer)) {
+		if (!fullReadOnName) {
+			sizeOfName++;
+			if (buffer[buffSeeker] != '\n')
+				name[buffSeeker] = buffer[buffSeeker];
+
+			else fullReadOnName = true;
+
+		}
+		else if (!fullReadOnUsername) {
+			if (buffer[buffSeeker] != '\n')
+				username[buffSeeker - sizeOfName] = buffer[buffSeeker];
+			else fullReadOnUsername = true;
+			sizeOfUsername++;
+		}
+		else {
+			password[buffSeeker - sizeOfUsername - sizeOfName] = buffer[buffSeeker];
+		}
+
+		buffSeeker++;
+
+	}
+
+	int verifyReadName = strlen(name);
+	int verifyReadUsername = strlen(username);
+	int verifyReadPassword = strlen(password);
+	if (verifyReadName && verifyReadUsername && verifyReadPassword != 0) {
+		uint64_t id = CreateID();
+		unsigned char* hashed = User::HashPassword(password);
+		char transferToCharHash[passwordSize] = { 0 };
+		memcpy_s(transferToCharHash, strlen((char*)hashed), hashed, strlen((char*)hashed));
+		User newUser =  User(name, username, transferToCharHash , id);
+		success = true;
+		return newUser;
+	}
 
 }
 
