@@ -27,18 +27,37 @@ ServerConnect::~ServerConnect()
 int ServerConnect::SendToServer(int command, char* message)
 {
 	int codeFromServer = 0;
-
-	int lengthOfMessage = (int) strlen(message);
+	unsigned int tokenSize = 0;
+	if (_token != nullptr)
+		tokenSize = hashSize + 1;
+	int lengthOfMessage = (int)strlen(message);
 	lengthOfMessage++;
-	char* messageToServer = new char[lengthOfMessage + 9];
+	unsigned int lengthOfCommandAndMessageHeader = 9;
+	char messageToServer[1024] = { 0 };
+	
 
 
 	lengthOfMessage += 9;
-	memcpy_s(messageToServer, lengthOfMessage, &command, sizeof(command));
-	memcpy_s(messageToServer + 4, lengthOfMessage, &lengthOfMessage, sizeof(int));
-	memcpy_s(messageToServer + 8, lengthOfMessage, message, lengthOfMessage);
-	
-	send(_client, messageToServer, lengthOfMessage, 0);
+	// writes command
+	memcpy_s(messageToServer, sizeOfInt, &command, sizeof(command));
+	if (_token[0] != 0) {
+		// creates the size of the token
+		memcpy_s(messageToServer + sizeOfInt, sizeOfInt, &tokenSize, sizeOfInt);
+		// writes the token
+		memcpy_s(messageToServer + sizeOfInt * 2, tokenSize, _token, tokenSize);
+		// writes length of message
+		memcpy_s(messageToServer + sizeOfInt * 2 + tokenSize, sizeOfInt, &lengthOfMessage, sizeOfInt);
+		// writes the message
+		memcpy_s(messageToServer + sizeOfInt * 3 + tokenSize, lengthOfMessage, message, lengthOfMessage);
+	}
+	else {
+		memcpy_s(messageToServer + sizeOfInt, lengthOfMessage, &lengthOfMessage, sizeof(int));
+		memcpy_s(messageToServer + sizeOfInt * 2, lengthOfMessage, message, lengthOfMessage);
+
+	}
+	unsigned int packetSize = lengthOfCommandAndMessageHeader + tokenSize + lengthOfMessage;
+	std::cout << '\n' << messageToServer << '\n';
+	send(_client, messageToServer, packetSize , 0);
 
 	char response[4] = { 0 };
 
@@ -46,24 +65,35 @@ int ServerConnect::SendToServer(int command, char* message)
 	int readBuffer = recv(_client, response, 4, 0);
 
 	if (readBuffer > 0) {
-	
+
 		memcpy_s(&codeFromServer, sizeof(int), response, sizeof(int));
 		if (codeFromServer > 0 && codeFromServer < 2) {
 			recv(_client, response, sizeof(int), 0);
 			int tokenSize = 0;
 			memcpy_s(&tokenSize, sizeof(int), response, sizeof(int));
-			char* token = nullptr;
-			token = new char[tokenSize];
-			recv(_client, token, tokenSize, 0);
-			std::cout << token << '\n';
-			if (token != nullptr) delete[] token;
+			
+			
+			recv(_client, _token, tokenSize, 0);
+			std::cout << _token << '\n';
+		
 
 		}
-		else std::cout << "Failed request \n";
+		else {
+			char* recvMessage = nullptr;
+			char readHeader[sizeOfInt] = { 0 };
+			unsigned int byteHeader = 0;
+			recv(_client, readHeader, sizeOfInt, 0);
+			memcpy_s(&byteHeader, sizeOfInt, readHeader, sizeOfInt);
+			
+			recvMessage = new char[byteHeader + 1];
+
+			recv(_client, recvMessage, byteHeader, 0);
+			std::cout << recvMessage << '\n';
+			if (recvMessage != nullptr) delete[] recvMessage;
+		}
 
 	}
-
-
+	
 
 	return codeFromServer;
 

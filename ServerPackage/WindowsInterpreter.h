@@ -5,6 +5,8 @@
 #include <vector>
 #include "Constants.h"
 #include "CommandSet.h"
+#include <unordered_map>
+#include <string>
 // This class will handle communication and distribution of information
 // to clients. The pair vector will be here so if we need to contact a client
 // from another client we can loop through and find the information.
@@ -26,9 +28,9 @@ private:
 	void MessageToServer(const SOCKET& clientSocket);
 	void SendMessageToClient(const SOCKET& clientSocket, bool success);
 	unsigned int ReadByteHeader(const SOCKET& clientSocket);
+	bool VerifyUserAuth(const SOCKET& clientSocket);
+	std::unordered_map<std::string, WindowsUserPair> _clientPairs;
 
-
-	std::vector<WindowsUserPair> _clientPairs;
 	CommandSet _commands;
 };
 

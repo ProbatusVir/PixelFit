@@ -142,7 +142,7 @@ void WindowsServer::HandleClient(const SOCKET clientSocket)
 
 	//Receive file header
 
-	const int readBuffer = recv(clientSocket, readCmd, sizeof(int), 0);
+	const int readBuffer = recv(clientSocket, readCmd, sizeOfInt, 0);
 	command = static_cast<Command>(readCmd[0]);
 
 

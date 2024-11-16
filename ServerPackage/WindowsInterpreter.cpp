@@ -1,6 +1,7 @@
 #include "WindowsInterpreter.h"
 #include "iostream"
 
+
 void WindowsInterpreter::InterpretMessage(const SOCKET& clientSocket, Command command)
 {
 	switch (command) {
@@ -36,7 +37,7 @@ void WindowsInterpreter::DisconnectClient(const SOCKET& clientSocket)
 	if (_clientPairs.size()) {
 		auto client = _clientPairs.begin();
 		for (; client != _clientPairs.end();) {
-			if (client->clientSocket == clientSocket) {
+			if (client->second.clientSocket == clientSocket) {
 				client = _clientPairs.erase(client);
 			}
 			else client++;
@@ -49,8 +50,6 @@ void WindowsInterpreter::DisconnectClient(const SOCKET& clientSocket)
 
 void WindowsInterpreter::HandleLoginUser(const SOCKET& clientSocket)
 {
-
-	// This may break, it would be nice if it worked.
 
 	unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
 	if (sizeOfHeader != 0) {
@@ -90,13 +89,13 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 {
 	char* response = nullptr;
 	if (success) {
-		const unsigned char* token = user.Token();
+		char* token = user.Token();
 		unsigned int sizeOfToken = strlen((char*)token);
 		// This is necessary for our response array to be sized with null terminator
 		sizeOfToken++;
 		unsigned int sizeOfResponse = sizeOfInt * 2 + sizeOfToken;
 		response = new char[sizeOfResponse];
-		unsigned int msgSuccess = (int)MessageResult::Success;
+		unsigned int msgSuccess = (int)MessageResult::LoginSuccess;
 		memcpy_s(response, sizeOfInt, &msgSuccess, sizeOfInt);
 		memcpy_s(response + sizeOfInt, sizeOfInt, &sizeOfToken, sizeOfInt);
 		memcpy_s(response + sizeOfInt * 2, sizeOfToken, token, sizeOfToken);
@@ -104,7 +103,10 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 		WindowsUserPair clientPair;
 		clientPair.user = user;
 		clientPair.clientSocket = clientSocket;
-		_clientPairs.push_back(clientPair);
+		clientPair.token =  token;
+		std::string tokenAsStr = clientPair.token;
+		std::pair<std::string, WindowsUserPair> newPair(clientPair.token, clientPair);
+		_clientPairs.insert(newPair);
 
 	}
 	else {
@@ -123,17 +125,21 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 
 void WindowsInterpreter::MessageToServer(const SOCKET& clientSocket)
 {
-	unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
-	bool success = false;
-	char* buffer = new char[sizeOfHeader + 1];
+	if (VerifyUserAuth(clientSocket)) {
+		unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
+		bool success = false;
+		char* buffer = new char[sizeOfHeader + 1];
 
-	int bytesRead = recv(clientSocket, buffer, sizeOfHeader, 0);
-	if (bytesRead) {
-		success = true;
-		std::cout << buffer << '\n';
-		SendMessageToClient(clientSocket, success);
+		int bytesRead = recv(clientSocket, buffer, sizeOfHeader, 0);
+		if (bytesRead) {
+			success = true;
+			std::cout << buffer << '\n';
+			SendMessageToClient(clientSocket, success);
+		}
+		else SendMessageToClient(clientSocket, success);
+
 	}
-	else SendMessageToClient(clientSocket, success);
+	else SendMessageToClient(clientSocket, false);
 }
 
 void WindowsInterpreter::SendMessageToClient(const SOCKET& clientSocket, bool success)
@@ -141,33 +147,37 @@ void WindowsInterpreter::SendMessageToClient(const SOCKET& clientSocket, bool su
 	if (success) {
 		char message[] = "Message Recieved\0";
 		unsigned int messageLength = strlen((char*)message);
-		// idk why this works, but it works
-		messageLength += 4;
-		unsigned int responseCode = (unsigned int)MessageResult::Success;
+		
+		messageLength++;
+
+		unsigned int command = (unsigned int) MessageResult::Success;
 
 		char* response = nullptr;
-		unsigned int packetSize = messageLength + sizeOfInt + 1;
+		unsigned int packetSize = messageLength + sizeOfInt * 2;
 		response = new char[packetSize];
-		memcpy_s(response, sizeOfInt, &responseCode, sizeOfInt);
+		memcpy_s(response, sizeOfInt, &command, sizeOfInt);
 		memcpy_s(response + sizeOfInt, sizeOfInt, &messageLength, sizeOfInt);
 		memcpy_s(response + sizeOfInt * 2, messageLength, message, messageLength);
 		send(clientSocket, response, packetSize, 0);
+		delete[] response;
 
 	}
 	else {
 		char message[] = "Error reading message\0";
-		unsigned int messageLength = strlen(message);
-		// Copies from the if statement, so again idk why its off by 4 but it is
-		messageLength += 4;
-		unsigned int responseCode = (unsigned int)MessageResult::Failed;
+		unsigned int messageLength = strlen((char*)message);
+
+		messageLength++;
+
+		unsigned int command = (unsigned int)MessageResult::Failed;
 
 		char* response = nullptr;
-		unsigned int packetSize = messageLength + responseCode + 1;
+		unsigned int packetSize = messageLength + sizeOfInt * 2;
 		response = new char[packetSize];
-		memcpy_s(response, sizeOfInt, &responseCode, sizeOfInt);
+		memcpy_s(response, sizeOfInt, &command, sizeOfInt);
 		memcpy_s(response + sizeOfInt, sizeOfInt, &messageLength, sizeOfInt);
 		memcpy_s(response + sizeOfInt * 2, messageLength, message, messageLength);
 		send(clientSocket, response, packetSize, 0);
+		delete[] response;
 	}
 }
 
@@ -181,6 +191,29 @@ unsigned int WindowsInterpreter::ReadByteHeader(const SOCKET& clientSocket)
 	byteHeader = (unsigned int)response[0];
 
 	return byteHeader;
+}
+
+bool WindowsInterpreter::VerifyUserAuth(const SOCKET& clientSocket)
+{
+	unsigned int header = ReadByteHeader(clientSocket);
+	bool success = false;
+	if (header) {
+		char* token = nullptr;
+		token = new char[header];
+
+		recv(clientSocket, (char*) token, header, 0);
+		std::string tokenAsStr = token;
+		auto existingToken = _clientPairs.find(tokenAsStr);
+		if (existingToken == _clientPairs.end()) {
+			
+		}
+		else {
+			success = true;
+		}
+
+		if (token != nullptr) delete[] token;
+	}
+	return success;
 }
 
 
