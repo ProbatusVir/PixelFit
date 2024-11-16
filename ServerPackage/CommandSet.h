@@ -2,7 +2,6 @@
 #include "Constants.h"
 #include "User.h"
 
-#include <vector>
 class CommandSet
 {
 public:
