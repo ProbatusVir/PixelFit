@@ -24,7 +24,7 @@ void PrintMenu(std::string* options, int size) {
     }
 }
 
-void CreateNewUser(ServerConnect &server) {
+void CreateNewUser(ServerConnect &server, unsigned char* token) {
     std::string name = "";
     std::string username = "";
     std::string password = "";
@@ -51,7 +51,7 @@ void CreateNewUser(ServerConnect &server) {
 }
 
 
-void LoginInfo(ServerConnect &server) {
+void LoginInfo(ServerConnect &server, unsigned char* token) {
 
     std::string username = "";
     std::string password = "";
@@ -76,14 +76,16 @@ void LoginInfo(ServerConnect &server) {
    delete[] messageToServer;
 }
 
-void SendMessageToServer(ServerConnect& server) {
+void SendMessageToServer(ServerConnect& server, unsigned char* token) {
 
     char message[1024];
     std::string response;
     std::cout << "Please enter your message to the server";
     std::getline(std::cin.ignore(), response);
 
+
     strcpy_s(message, response.c_str());
+    
    
     server.SendToServer((int) Command::MessageServer, message);
 
@@ -94,6 +96,7 @@ int main()
     ServerConnect server;
     std::string* options = MakeMenu();
     bool keepAlive = true;
+    unsigned char* token = nullptr;
     while (keepAlive) {
         int response = 0;
         PrintMenu(options, SIZE_OF_MENU);
@@ -104,17 +107,17 @@ int main()
 
         case 1: 
 
-            LoginInfo(server);
+            LoginInfo(server, token);
 
             break;
 
         case 2:
-            CreateNewUser(server);
+            CreateNewUser(server, token);
             break;
 
         case 3:
 
-            SendMessageToServer(server);
+            SendMessageToServer(server, token);
             break;
         case 4:
             keepAlive = false;
@@ -128,7 +131,7 @@ int main()
 
 
     }
-
+    if (token != nullptr) delete[] token;
     delete[] options;
     
 }
