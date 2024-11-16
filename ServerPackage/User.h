@@ -10,12 +10,12 @@ public:
 	User();
 	User(const User& user);
 	~User();
-	unsigned char* Token() { return _token; }
+	const unsigned char* Token() { return _token; }
 
 	uint64_t Id() { return _id; }
 	static unsigned char* HashPassword(const char password[passwordSize]);
-	
-	
+
+
 private:
 	void CreateToken();
 	char _name[nameSize];

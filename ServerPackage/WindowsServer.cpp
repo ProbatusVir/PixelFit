@@ -153,8 +153,8 @@ void WindowsServer::HandleClient(const SOCKET clientSocket)
 	}
 	else if (readBuffer == 0 || readBuffer == SOCKET_ERROR) {
 		std::cout << "Client disconnected \n";
-		closesocket(clientSocket);
-
+		
+		
 		auto client = _clients.begin();
 		for (; client != _clients.end();) {
 			if (*client == clientSocket) {
@@ -162,7 +162,7 @@ void WindowsServer::HandleClient(const SOCKET clientSocket)
 			}
 			else client++;
 		}
-
+		_interpreter.DisconnectClient(clientSocket);
 	}
 	
 }

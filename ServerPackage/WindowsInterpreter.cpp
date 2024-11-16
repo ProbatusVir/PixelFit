@@ -31,6 +31,22 @@ void WindowsInterpreter::InterpretMessage(const SOCKET& clientSocket, Command co
 	}
 }
 
+void WindowsInterpreter::DisconnectClient(const SOCKET& clientSocket)
+{
+	if (_clientPairs.size()) {
+		auto client = _clientPairs.begin();
+		for (; client != _clientPairs.end();) {
+			if (client->clientSocket == clientSocket) {
+				client = _clientPairs.erase(client);
+			}
+			else client++;
+		}
+
+	}
+
+	closesocket(clientSocket);
+}
+
 void WindowsInterpreter::HandleLoginUser(const SOCKET& clientSocket)
 {
 
@@ -74,13 +90,13 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 {
 	char* response = nullptr;
 	if (success) {
-		unsigned char* token = user.Token();
+		const unsigned char* token = user.Token();
 		unsigned int sizeOfToken = strlen((char*)token);
 		// This is necessary for our response array to be sized with null terminator
 		sizeOfToken++;
 		unsigned int sizeOfResponse = sizeOfInt * 2 + sizeOfToken;
 		response = new char[sizeOfResponse];
-		unsigned int msgSuccess = (int) MessageResult::Success;
+		unsigned int msgSuccess = (int)MessageResult::Success;
 		memcpy_s(response, sizeOfInt, &msgSuccess, sizeOfInt);
 		memcpy_s(response + sizeOfInt, sizeOfInt, &sizeOfToken, sizeOfInt);
 		memcpy_s(response + sizeOfInt * 2, sizeOfToken, token, sizeOfToken);
@@ -110,7 +126,7 @@ void WindowsInterpreter::MessageToServer(const SOCKET& clientSocket)
 	unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
 	bool success = false;
 	char* buffer = new char[sizeOfHeader + 1];
-	
+
 	int bytesRead = recv(clientSocket, buffer, sizeOfHeader, 0);
 	if (bytesRead) {
 		success = true;
@@ -124,7 +140,7 @@ void WindowsInterpreter::SendMessageToClient(const SOCKET& clientSocket, bool su
 {
 	if (success) {
 		char message[] = "Message Recieved\0";
-		unsigned int messageLength = strlen((char*) message);
+		unsigned int messageLength = strlen((char*)message);
 		// idk why this works, but it works
 		messageLength += 4;
 		unsigned int responseCode = (unsigned int)MessageResult::Success;
