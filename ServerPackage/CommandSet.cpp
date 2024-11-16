@@ -49,7 +49,7 @@ User CommandSet::LoginUser(const char* buffer, bool& success)
 
 		buff_seeker++;
 	}
-	unsigned char* checkPass = User::HashPassword(password);
+	 char* checkPass = User::HashPassword(password);
 
 
 	error = !(strlen((char*)checkPass) <= passwordSize) && (strlen(username) <= usernameSize);
@@ -59,7 +59,7 @@ User CommandSet::LoginUser(const char* buffer, bool& success)
 		//TODO: When SQL calls can be made for our user objects, we need to contact the db
 		// to get the user object. We then need to compare the hashed passwords against eachother
 		// if they match, then allow the user login, otherwise prevent it.
-		unsigned char* removeAfterDebug = User::HashPassword("abcdef");
+		 char* removeAfterDebug = User::HashPassword("abcdef");
 		comparedPass = strcmp((char*)checkPass, (char*)removeAfterDebug);
 		if (comparedPass == 0) success = true;
 		else success = false;
@@ -118,7 +118,7 @@ User CommandSet::NewUser(const char* buffer, bool& success)
 	int verifyReadPassword = strlen(password);
 	if (verifyReadName && verifyReadUsername && verifyReadPassword != 0) {
 		uint64_t id = CreateID();
-		unsigned char* hashed = User::HashPassword(password);
+		 char* hashed = User::HashPassword(password);
 		char transferToCharHash[passwordSize] = { 0 };
 		memcpy_s(transferToCharHash, strlen((char*)hashed), hashed, strlen((char*)hashed));
 

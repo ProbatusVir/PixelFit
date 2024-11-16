@@ -26,6 +26,8 @@ private:
 	char _ipAddress[INET_ADDRSTRLEN] = { 0 };
 
 	SOCKET _client;
+	// length of secure token
+	char _token[33] = { 0 };
 
 
 };

@@ -15,6 +15,7 @@
 
 	enum class MessageResult : unsigned int {
 		Failed,
+		LoginSuccess,
 		Success
 	};
 
