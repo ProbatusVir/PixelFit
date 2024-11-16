@@ -10,11 +10,12 @@ int main()
 #if defined(_WIN32)
 
 	WindowsServer server;
-	SQLInterface* sql_server = SQLInterface::Instance();
+	SQLInterface* sql_interface = SQLInterface::Instance();
 	if (server.IPSetupComplete()) {
 		server.Start();
 	}
 
+	SQLInterface::Destroy();
 #elif defined(_linux_)
 	std::cout << "Linux operating system \n"
 
