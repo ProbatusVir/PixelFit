@@ -131,6 +131,7 @@
   <ItemGroup>
     <ClCompile Include="CommandSet.cpp" />
     <ClCompile Include="ServerPackage.cpp" />
+    <ClCompile Include="SQLInterface.cpp" />
     <ClCompile Include="User.cpp" />
     <ClCompile Include="WindowsInterpreter.cpp" />
     <ClCompile Include="WindowsServer.cpp" />
@@ -138,6 +139,8 @@
   <ItemGroup>
     <ClInclude Include="CommandSet.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="db_credentials.h" />
+    <ClInclude Include="SQLInterface.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="WindowsInterpreter.h" />
     <ClInclude Include="WindowsServer.h" />
