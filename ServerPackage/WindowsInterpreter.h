@@ -15,7 +15,7 @@ public:
 	//This will take the client socket and begin interpretations.
 	//From here the appropriate functions will be called and data handled outside of the switch statement.
 	void InterpretMessage(const SOCKET &clientSocket, Command command);
-
+	void DisconnectClient(const SOCKET& clientSocket);
 private:
 	void HandleLoginUser(const SOCKET& clientSocket);
 	void HandleNewUser(const SOCKET& clientSocket);
