@@ -5,22 +5,18 @@
 #include "ServerConnect.h"
 #include <string>
 #include "../../../ServerPackage/Constants.h"
-#define SIZE_OF_MENU 4
 
-std::string* MakeMenu() {
+constexpr const char* options[] =
+{
+    "1) Login user",
+    "2) New user",
+    "3) Message To Server",
+    "4) End",
+};
 
-    std::string* options = new std::string[SIZE_OF_MENU];
-    options[0] = "1) Login user";
-    options[1] = "2) New user";
-    options[2] = "3) Message To Server";
-    options[3] = "4) End";
-
-    return options;
-}
-
-void PrintMenu(std::string* options, int size) {
-    for (int i = 0; i < size; i++) {
-        std::cout << options[i] << '\n';
+void PrintMenu() {
+    for (const char* option : options) {
+        std::cout << option << '\n';
     }
 }
 
@@ -94,12 +90,11 @@ void SendMessageToServer(ServerConnect& server, unsigned char* token) {
 int main()
 {
     ServerConnect server;
-    std::string* options = MakeMenu();
     bool keepAlive = true;
     unsigned char* token = nullptr;
     while (keepAlive) {
         int response = 0;
-        PrintMenu(options, SIZE_OF_MENU);
+        PrintMenu();
         std::cout << "Please select a option \n";
         std::cin >> response;
         
@@ -132,17 +127,5 @@ int main()
 
     }
     if (token != nullptr) delete[] token;
-    delete[] options;
     
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
