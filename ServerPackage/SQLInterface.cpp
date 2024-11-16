@@ -7,6 +7,19 @@
 
 // https://www.ibm.com/docs/en/db2-for-zos/13?topic=functions-sqlallochandle-allocate-handle
 
+SQLInterface* SQLInterface::m_instance = nullptr;
+
+SQLInterface::SQLInterface()
+{
+	ConnectToDB();
+}
+
+SQLInterface::~SQLInterface()
+{
+	delete m_environment_handle;
+	delete m_database_connection_handle;
+}
+
 void SQLInterface::ConnectToDB()
 {
 	// The naming convention is:
@@ -28,20 +41,24 @@ void SQLInterface::ConnectToDB()
 		(SQLCHAR*)auth_password, sizeof(auth_password)
 	);
 
+	std::cerr << "SQL Server diagnostics:\n";
 	InterpretState(henvironment_state, "environment handle");
 	InterpretState(henvironment_state, "connection handle");
 	InterpretState(henvironment_state, "connection");
 
 }
 
-void SQLInterface::InterpretState(const SQLRETURN code, const char* name)
+void SQLInterface::InterpretState(const SQLRETURN code, const char* name, const bool indented)
 {
+	const char* error_message;
 	switch (code)
 	{
-	case (SQL_INVALID_HANDLE): std::cerr << "Invalid handle for " << name << '\n';		break;
-	case (SQL_SUCCESS): std::cerr << name << " succeeded!" << '\n';						break;
-	case(SQL_SUCCESS_WITH_INFO): std::cerr << name << " succeeded with info!" << '\n';	break;
-	default: std::cerr << "Something went wrong initializing " << name << '\n';			break;
+	case (SQL_INVALID_HANDLE): error_message = "Invalid handle";		break;
+	case (SQL_SUCCESS): error_message = "success";						break;
+	case(SQL_SUCCESS_WITH_INFO): error_message = "success with info";	break;
+	default: error_message = "error initializing";						break;
 	}
+	
+	std::cerr << (indented ? '\t' : '\0') << name << ": " << error_message << " -- Code: " << code << '\n';
 }
 
