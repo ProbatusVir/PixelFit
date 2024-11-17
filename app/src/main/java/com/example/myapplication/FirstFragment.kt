@@ -59,7 +59,7 @@ class FirstFragment : Fragment() {
         val context = activity?.applicationContext
         val dir = context?.filesDir
 
-        val file : File = File(dir, GuyFactory.FILE_NAME)
+        val file = File(dir, GuyFactory.FILE_NAME)
         val factory = GuyFactory()
 
         factory.saveToFile(file)

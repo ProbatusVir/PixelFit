@@ -2,7 +2,6 @@ import android.graphics.Color
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
-import androidx.core.graphics.toColor
 import java.io.File
 import java.util.*
 
@@ -45,7 +44,7 @@ class GuyFactory {
             + Path(LEFT_ARM_SHAPE, ActiveUser.Parts.Arms).toString()
             + Path(RIGHT_ARM_SHAPE, ActiveUser.Parts.Arms).toString()
             + Path(TORSO_SHAPE, ActiveUser.Parts.Torso).toString()
-            + Path(HEAD_SHAPE.toString(), ActiveUser.Parts.Head).toString()
+            + Path(HEAD_SHAPE, ActiveUser.Parts.Head).toString()
             + "</vector>")
     }
 
@@ -54,7 +53,7 @@ class GuyFactory {
         private fun getColor() : Int = if (ActiveUser.partsWorked[part.ordinal])  WORKED_COLOR else UNWORKED_COLOR
 
         @OptIn(ExperimentalStdlibApi::class)
-        public override fun toString() : String
+        override fun toString() : String
         {
             val color = getColor()
             val fillHex = String.format(Locale.US, "#%02x%02x%02x", color.red, color.green, color.blue)
