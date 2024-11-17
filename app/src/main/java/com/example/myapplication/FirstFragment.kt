@@ -1,12 +1,16 @@
 package com.example.myapplication
 
+import GuyFactory
+import android.graphics.drawable.VectorDrawable
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import com.example.myapplication.databinding.FragmentFirstBinding
+import java.io.File
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -36,7 +40,7 @@ class FirstFragment : Fragment() {
     private fun initFitnessHub(view : View)
     {
         updateText(view)
-        updateModel()
+        //updateModel(view)
     }
 
     private fun updateText(view : View)
@@ -50,8 +54,20 @@ class FirstFragment : Fragment() {
         timeSpent.text = ActiveUser.displayTimeSpentExercising()
     }
 
-    private fun updateModel()
-    {}
+    private fun updateModel(view : View)
+    {
+        val context = activity?.applicationContext
+        val dir = context?.filesDir
+
+        val file : File = File(dir, GuyFactory.FILE_NAME)
+        val factory = GuyFactory()
+
+        factory.saveToFile(file)
+        val guy : ImageView = view.findViewById(R.id.fitness_model)
+
+        val theDraw = VectorDrawable.createFromPath(file.path)
+        guy.setImageDrawable(theDraw)
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
