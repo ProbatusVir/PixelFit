@@ -3,7 +3,7 @@ import java.util.*
 object ActiveUser : User() {
     //TODO: A far from exhaustive list of anatomy!
     enum class Parts {
-        Arms, Legs, Torso
+        Arms, Legs, Torso, Head
     }
 
     lateinit var name : String
@@ -52,6 +52,7 @@ object ActiveUser : User() {
         partsWorked[Parts.Arms.ordinal] = true
         partsWorked[Parts.Legs.ordinal] = true
         partsWorked[Parts.Torso.ordinal] = true
+        partsWorked[Parts.Head.ordinal] = false
         timeSpentExercising = 105
     }
 }
