@@ -13,10 +13,17 @@
 		BanUser,
 	};
 
+	enum class MessageResult : unsigned int {
+		Failed,
+		LoginSuccess,
+		Success
+	};
+
 	static constexpr size_t packetSize = 1024;
 	static constexpr size_t hashSize = SHA256_DIGEST_LENGTH;
 	static constexpr size_t nameSize = 50;
 	static constexpr size_t usernameSize = 30;
 	static constexpr size_t passwordSize = 60;
+	static constexpr unsigned int sizeOfInt = 4;
 
 

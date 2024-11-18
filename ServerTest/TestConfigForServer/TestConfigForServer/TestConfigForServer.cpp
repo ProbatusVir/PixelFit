@@ -5,26 +5,22 @@
 #include "ServerConnect.h"
 #include <string>
 #include "../../../ServerPackage/Constants.h"
-#define SIZE_OF_MENU 4
 
-std::string* MakeMenu() {
+constexpr const char* options[] =
+{
+    "1) Login user",
+    "2) New user",
+    "3) Message To Server",
+    "4) End",
+};
 
-    std::string* options = new std::string[SIZE_OF_MENU];
-    options[0] = "1) Login user";
-    options[1] = "2) New user";
-    options[2] = "3) Message To Server";
-    options[3] = "4) End";
-
-    return options;
-}
-
-void PrintMenu(std::string* options, int size) {
-    for (int i = 0; i < size; i++) {
-        std::cout << options[i] << '\n';
+void PrintMenu() {
+    for (const char* option : options) {
+        std::cout << option << '\n';
     }
 }
 
-void CreateNewUser(ServerConnect &server) {
+void CreateNewUser(ServerConnect &server, unsigned char* token) {
     std::string name = "";
     std::string username = "";
     std::string password = "";
@@ -51,7 +47,7 @@ void CreateNewUser(ServerConnect &server) {
 }
 
 
-void LoginInfo(ServerConnect &server) {
+void LoginInfo(ServerConnect &server, unsigned char* token) {
 
     std::string username = "";
     std::string password = "";
@@ -76,14 +72,16 @@ void LoginInfo(ServerConnect &server) {
    delete[] messageToServer;
 }
 
-void SendMessageToServer(ServerConnect& server) {
+void SendMessageToServer(ServerConnect& server, unsigned char* token) {
 
     char message[1024];
     std::string response;
     std::cout << "Please enter your message to the server";
     std::getline(std::cin.ignore(), response);
 
+
     strcpy_s(message, response.c_str());
+    
    
     server.SendToServer((int) Command::MessageServer, message);
 
@@ -92,52 +90,42 @@ void SendMessageToServer(ServerConnect& server) {
 int main()
 {
     ServerConnect server;
-    std::string* options = MakeMenu();
     bool keepAlive = true;
+    unsigned char* token = nullptr;
     while (keepAlive) {
         int response = 0;
-
-        PrintMenu(options, SIZE_OF_MENU);
+        PrintMenu();
         std::cout << "Please select a option \n";
         std::cin >> response;
-
+        
         switch (response) {
 
         case 1: 
 
-            LoginInfo(server);
+            LoginInfo(server, token);
 
             break;
 
         case 2:
-            CreateNewUser(server);
+            CreateNewUser(server, token);
             break;
 
         case 3:
 
-            SendMessageToServer(server);
+            SendMessageToServer(server, token);
             break;
         case 4:
             keepAlive = false;
             break;
 
+        default:
+            std::cout << "Wrong input \n";
+            break;
         }
         
 
 
     }
-
-    delete[] options;
+    if (token != nullptr) delete[] token;
     
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
