@@ -65,6 +65,12 @@ class FirstFragment : Fragment() {
         factory.saveToFile(file)
         val guy : ImageView = view.findViewById(R.id.fitness_model)
 
+        //File peek
+        var a : String = ""
+        for (line in file.readLines())
+            a += line
+
+
         val theDraw = VectorDrawable.createFromPath(file.path)
         guy.setImageDrawable(theDraw)
     }

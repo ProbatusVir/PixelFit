@@ -25,45 +25,66 @@ class GuyFactory {
         const val WORKED_COLOR = Color.RED
         const val UNWORKED_COLOR = Color.WHITE
 
-        const val HEADER = ( "<vector xmlns:android=\"http://schemas.android.com/apk/res/android\"\n"
+        const val NORMAL_HEADER = "<svg viewBox=\"0 0 $WIDTH $HEIGHT\">\n"
+        const val ANDROID_HEADER = ( "<vector xmlns:android=\"http://schemas.android.com/apk/res/android\"\n"
                 + "\t$NAMESPACE" + "width=\"$WIDTH$UNIT\"\n"
                 + "\t$NAMESPACE" + "height=\"$HEIGHT$UNIT\"\n"
                 + "\t$NAMESPACE" + "viewportWidth=\"$WIDTH\"\n"
                 + "\t$NAMESPACE" + "viewportHeight=\"$HEIGHT\"" + ">\n"
                 )
+
     }
+
+    private var isNormal : Boolean = false
 
     fun saveToFile(file : File) {
         if (!file.exists())
             file.createNewFile()
 
-        file.writeText(
-           HEADER
-           + Path(LEFT_LEG_SHAPE, ActiveUser.Parts.Legs).toString()
-            + Path(RIGHT_LEG_SHAPE, ActiveUser.Parts.Legs).toString()
-            + Path(LEFT_ARM_SHAPE, ActiveUser.Parts.Arms).toString()
-            + Path(RIGHT_ARM_SHAPE, ActiveUser.Parts.Arms).toString()
-            + Path(TORSO_SHAPE, ActiveUser.Parts.Torso).toString()
-            + Path(HEAD_SHAPE, ActiveUser.Parts.Head).toString()
-            + "</vector>")
+        file.writeText((if (isNormal) NORMAL_HEADER else ANDROID_HEADER)
+           + comment("legs")
+            + Path(LEFT_LEG_SHAPE, ActiveUser.Parts.Legs, isNormal).toString()
+            + Path(RIGHT_LEG_SHAPE, ActiveUser.Parts.Legs, isNormal).toString()
+           + comment("arms")
+            + Path(LEFT_ARM_SHAPE, ActiveUser.Parts.Arms, isNormal).toString()
+            + Path(RIGHT_ARM_SHAPE, ActiveUser.Parts.Arms, isNormal).toString()
+           + comment ("torso")
+            + Path(TORSO_SHAPE, ActiveUser.Parts.Torso, isNormal).toString()
+           + comment("head")
+            + Path(HEAD_SHAPE, ActiveUser.Parts.Head, isNormal).toString()
+            + "</svg>")
+
     }
 
+    private fun comment(message : String) = "" +
+            "\n\t<!-- $message -->\n\n"
 
-    class Path(private val shape : String, private val part : ActiveUser.Parts) {
+    class Path(private val shape : String, private val part : ActiveUser.Parts, private val isNormal : Boolean) {
         private fun getColor() : Int = if (ActiveUser.partsWorked[part.ordinal])  WORKED_COLOR else UNWORKED_COLOR
 
-        @OptIn(ExperimentalStdlibApi::class)
-        override fun toString() : String
-        {
+        override fun toString() : String = if (isNormal) normalOut() else normalOut()
+
+        private fun normalOut() : String {
             val color = getColor()
             val fillHex = String.format(Locale.US, "#%02x%02x%02x", color.red, color.green, color.blue)
             val outlineHex = String.format(Locale.US, "#%02x%02x%02x", OUTLINE_COLOR.red, OUTLINE_COLOR.green, OUTLINE_COLOR.blue)
             return ("\t<path\n"
-                            + "\t\t$NAMESPACE" + "pathData=\"$shape\"\n"
-                            + "\t\t$NAMESPACE" + "strokeWidth=\"$STROKE\"\n"
-                            + "\t\t$NAMESPACE" + "fillColor=\"$fillHex\"\n"
-                            + "\t\t$NAMESPACE" + "strokeColor=\"$outlineHex\"" + "/>\n"
+                    + "\t\td=\"$shape\"\n"
+                    + "\t\tstyle=\"fill:$fillHex;stroke-width:$STROKE;stroke:$outlineHex\"/>\n"
                     )
+        }
+
+        private fun androidOut() : String {
+            val color = getColor()
+            val fillHex = String.format(Locale.US, "#%02x%02x%02x", color.red, color.green, color.blue)
+            val outlineHex = String.format(Locale.US, "#%02x%02x%02x", OUTLINE_COLOR.red, OUTLINE_COLOR.green, OUTLINE_COLOR.blue)
+            return ("\t<path\n"
+                    + "\t\t$NAMESPACE" + "pathData=\"$shape\"\n"
+                    + "\t\t$NAMESPACE" + "strokeWidth=\"$STROKE\"\n"
+                    + "\t\t$NAMESPACE" + "fillColor=\"$fillHex\"\n"
+                    + "\t\t$NAMESPACE" + "strokeColor=\"$outlineHex\"" + "/>\n"
+                    )
+
         }
     }
 }
