@@ -23,7 +23,7 @@ SQLInterface::~SQLInterface()
 void SQLInterface::ConnectToDB()
 {
 	// The naming convention is:
-	// SQL + Handle + handletType
+	// SQL + h(andle) + handleType
 	SQLHENV hEnv = nullptr;	// SQL Handle: Environment
 	SQLHDBC hDbc = nullptr;	// SQL Handle: Database Connection
 
