@@ -30,14 +30,13 @@ int ServerConnect::SendToServer(int command, char* message)
 	unsigned int tokenSize = 0;
 	if (_token != nullptr)
 		tokenSize = hashSize + 1;
-	int lengthOfMessage = (int)strlen(message);
-	lengthOfMessage++;
-	unsigned int lengthOfCommandAndMessageHeader = 9;
+	
+	constexpr unsigned int lengthOfCommandAndMessageHeader = 9;
+	const int lengthOfMessage = (int)strlen(message) + 1 + lengthOfCommandAndMessageHeader;
+	
 	char messageToServer[1024] = { 0 };
 	
 
-
-	lengthOfMessage += 9;
 	// writes command
 	memcpy_s(messageToServer, sizeOfInt, &command, sizeof(command));
 	if (_token[0] != 0) {
@@ -55,6 +54,7 @@ int ServerConnect::SendToServer(int command, char* message)
 		memcpy_s(messageToServer + sizeOfInt * 2, lengthOfMessage, message, lengthOfMessage);
 
 	}
+	//TODO: Ask Ryan if adding the header length twice was intentional.
 	unsigned int packetSize = lengthOfCommandAndMessageHeader + tokenSize + lengthOfMessage;
 	std::cout << '\n' << messageToServer << '\n';
 	send(_client, messageToServer, packetSize , 0);
@@ -62,9 +62,9 @@ int ServerConnect::SendToServer(int command, char* message)
 	char response[4] = { 0 };
 
 
-	int readBuffer = recv(_client, response, 4, 0);
+	const int readBufferSize = recv(_client, response, 4, 0);
 
-	if (readBuffer > 0) {
+	if (readBufferSize > 0) {
 
 		memcpy_s(&codeFromServer, sizeof(int), response, sizeof(int));
 		if (codeFromServer > 0 && codeFromServer < 2) {
@@ -79,15 +79,17 @@ int ServerConnect::SendToServer(int command, char* message)
 
 		}
 		else {
+			//TODO: Ask Ryan if the readHeader needs to be here.
 			char* recvMessage = nullptr;
-			char readHeader[sizeOfInt] = { 0 };
-			unsigned int byteHeader = 0;
-			recv(_client, readHeader, sizeOfInt, 0);
-			memcpy_s(&byteHeader, sizeOfInt, readHeader, sizeOfInt);
+			//char readHeader[sizeOfInt] = { 0 };
+			unsigned int byteHeaderSize = 0;
+			recv(_client, (char*)&byteHeaderSize, sizeOfInt, 0);
+			//recv(_client, readHeader, sizeOfInt, 0);
+			//memcpy_s(&byteHeaderSize, sizeOfInt, readHeader, sizeOfInt);
 			
-			recvMessage = new char[byteHeader + 1];
+			recvMessage = new char[byteHeaderSize + 1];
 
-			recv(_client, recvMessage, byteHeader, 0);
+			recv(_client, recvMessage, byteHeaderSize, 0);
 			std::cout << recvMessage << '\n';
 			if (recvMessage != nullptr) delete[] recvMessage;
 		}
@@ -139,19 +141,16 @@ void ServerConnect::CreateSocket()
 
 	if (connect(socketFd, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
 		std::cerr << "Connection error \n";
-		int errorCode = WSAGetLastError();
-		if (errorCode == WSAECONNREFUSED) {
-			std::cerr << "Connection refused. Ensure the server is running and accessible.\n";
+		const int errorCode = WSAGetLastError();
+
+		switch (errorCode)
+		{
+			case (WSAECONNREFUSED): std::cerr << "Connection refused. Ensure the server is running and accessible.\n"; break;
+			case (WSAETIMEDOUT): std::cerr << "Connection timed out. The server might be down or not responding.\n"; break;
+			case (WSAEHOSTUNREACH): std::cerr << "No route to host. Check your network connection.\n"; break;
+			case (WSAENETUNREACH): std::cerr << "Network is unreachable.\n";
 		}
-		else if (errorCode == WSAETIMEDOUT) {
-			std::cerr << "Connection timed out. The server might be down or not responding.\n";
-		}
-		else if (errorCode == WSAEHOSTUNREACH) {
-			std::cerr << "No route to host. Check your network connection.\n";
-		}
-		else if (errorCode == WSAENETUNREACH) {
-			std::cerr << "Network is unreachable.\n";
-		}
+
 		closesocket(socketFd);
 		WSACleanup();
 		return;
