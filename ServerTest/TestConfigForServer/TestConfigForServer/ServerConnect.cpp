@@ -54,8 +54,8 @@ int ServerConnect::SendToServer(int command, char* message)
 		memcpy_s(messageToServer + sizeOfInt * 2, lengthOfMessage, message, lengthOfMessage);
 
 	}
-	//TODO: Ask Ryan if adding the header length twice was intentional.
-	unsigned int packetSize = lengthOfCommandAndMessageHeader + tokenSize + lengthOfMessage;
+
+	const unsigned int packetSize = tokenSize + lengthOfMessage;
 	std::cout << '\n' << messageToServer << '\n';
 	send(_client, messageToServer, packetSize , 0);
 
@@ -79,14 +79,9 @@ int ServerConnect::SendToServer(int command, char* message)
 
 		}
 		else {
-			//TODO: Ask Ryan if the readHeader needs to be here.
 			char* recvMessage = nullptr;
-			//char readHeader[sizeOfInt] = { 0 };
 			unsigned int byteHeaderSize = 0;
-			recv(_client, (char*)&byteHeaderSize, sizeOfInt, 0);
-			//recv(_client, readHeader, sizeOfInt, 0);
-			//memcpy_s(&byteHeaderSize, sizeOfInt, readHeader, sizeOfInt);
-			
+			recv(_client, (char*)&byteHeaderSize, sizeOfInt, 0);			
 			recvMessage = new char[byteHeaderSize + 1];
 
 			recv(_client, recvMessage, byteHeaderSize, 0);
@@ -136,7 +131,7 @@ void ServerConnect::CreateSocket()
 		WSACleanup();
 		return;
 	}
-
+	std::cout << "Protocol set \n";
 	// connect to server
 
 	if (connect(socketFd, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
@@ -148,7 +143,7 @@ void ServerConnect::CreateSocket()
 			case (WSAECONNREFUSED): std::cerr << "Connection refused. Ensure the server is running and accessible.\n"; break;
 			case (WSAETIMEDOUT): std::cerr << "Connection timed out. The server might be down or not responding.\n"; break;
 			case (WSAEHOSTUNREACH): std::cerr << "No route to host. Check your network connection.\n"; break;
-			case (WSAENETUNREACH): std::cerr << "Network is unreachable.\n";
+			case (WSAENETUNREACH): std::cerr << "Network is unreachable.\n"; break;
 		}
 
 		closesocket(socketFd);
