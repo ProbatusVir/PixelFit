@@ -7,4 +7,5 @@ struct WindowsUserPair {
 
 	User user;
 	SOCKET clientSocket;
+	char* token = nullptr;
 };

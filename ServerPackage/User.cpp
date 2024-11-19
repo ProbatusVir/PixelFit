@@ -8,7 +8,7 @@ User::User(const char name[nameSize], const char userName[usernameSize], const c
 {
 	strcpy_s(_name, name);
 	strcpy_s(_userName, userName);
-	unsigned char* hashed = HashPassword(password);
+	char* hashed = HashPassword(password);
 
 	if (hashed == nullptr) _errorOnCreation = true;
 	else {
@@ -40,9 +40,9 @@ User::~User()
 
 
 
-unsigned char* User::HashPassword(const char password[passwordSize])
+ char* User::HashPassword(const char password[passwordSize])
 {
-	unsigned char* hash = new unsigned char[hashSize + 1] { 0 };
+	char* hash = new char[hashSize + 1] { 0 };
 	EVP_MD_CTX* context = EVP_MD_CTX_new();
 	const EVP_MD* sha256 = EVP_sha256();
 	unsigned int lengthOfHash = 0;
@@ -52,7 +52,7 @@ unsigned char* User::HashPassword(const char password[passwordSize])
 
 	if (EVP_DigestInit(context, sha256) != 1 ||
 		EVP_DigestUpdate(context, password, strlen(password)) != 1 ||
-		EVP_DigestFinal(context, hash, &lengthOfHash) != 1
+		EVP_DigestFinal(context, (unsigned char*) hash, &lengthOfHash) != 1
 		)
 	{
 		EVP_MD_CTX_free(context);
@@ -66,7 +66,7 @@ unsigned char* User::HashPassword(const char password[passwordSize])
 
 void User::CreateToken()
 {
-	srand(time_t(NULL));
+	srand(static_cast<unsigned int>(time(nullptr)));
 	unsigned char token[hashSize] = { 0 };
 	for (int i = 0; i < hashSize; i++) {
 		unsigned int random = rand() % 255 + 33;

@@ -27,43 +27,70 @@ ServerConnect::~ServerConnect()
 int ServerConnect::SendToServer(int command, char* message)
 {
 	int codeFromServer = 0;
-
-	int lengthOfMessage = (int) strlen(message);
-	lengthOfMessage++;
-	char* messageToServer = new char[lengthOfMessage + 9];
-
-
-	lengthOfMessage += 9;
-	memcpy_s(messageToServer, lengthOfMessage, &command, sizeof(command));
-	memcpy_s(messageToServer + 4, lengthOfMessage, &lengthOfMessage, sizeof(int));
-	memcpy_s(messageToServer + 8, lengthOfMessage, message, lengthOfMessage);
+	unsigned int tokenSize = 0;
+	if (_token != nullptr)
+		tokenSize = hashSize + 1;
 	
-	send(_client, messageToServer, lengthOfMessage, 0);
+	constexpr unsigned int lengthOfCommandAndMessageHeader = 9;
+	const int lengthOfMessage = (int)strlen(message) + 1 + lengthOfCommandAndMessageHeader;
+	
+	char messageToServer[1024] = { 0 };
+	
+
+	// writes command
+	memcpy_s(messageToServer, sizeOfInt, &command, sizeof(command));
+	if (_token[0] != 0) {
+		// creates the size of the token
+		memcpy_s(messageToServer + sizeOfInt, sizeOfInt, &tokenSize, sizeOfInt);
+		// writes the token
+		memcpy_s(messageToServer + sizeOfInt * 2, tokenSize, _token, tokenSize);
+		// writes length of message
+		memcpy_s(messageToServer + sizeOfInt * 2 + tokenSize, sizeOfInt, &lengthOfMessage, sizeOfInt);
+		// writes the message
+		memcpy_s(messageToServer + sizeOfInt * 3 + tokenSize, lengthOfMessage, message, lengthOfMessage);
+	}
+	else {
+		memcpy_s(messageToServer + sizeOfInt, lengthOfMessage, &lengthOfMessage, sizeof(int));
+		memcpy_s(messageToServer + sizeOfInt * 2, lengthOfMessage, message, lengthOfMessage);
+
+	}
+
+	const unsigned int packetSize = tokenSize + lengthOfMessage;
+	std::cout << '\n' << messageToServer << '\n';
+	send(_client, messageToServer, packetSize , 0);
 
 	char response[4] = { 0 };
 
 
-	int readBuffer = recv(_client, response, 4, 0);
+	const int readBufferSize = recv(_client, response, 4, 0);
 
-	if (readBuffer > 0) {
-	
+	if (readBufferSize > 0) {
+
 		memcpy_s(&codeFromServer, sizeof(int), response, sizeof(int));
 		if (codeFromServer > 0 && codeFromServer < 2) {
 			recv(_client, response, sizeof(int), 0);
 			int tokenSize = 0;
 			memcpy_s(&tokenSize, sizeof(int), response, sizeof(int));
-			char* token = nullptr;
-			token = new char[tokenSize];
-			recv(_client, token, tokenSize, 0);
-			std::cout << token << '\n';
-			if (token != nullptr) delete[] token;
+			
+			
+			recv(_client, _token, tokenSize, 0);
+			std::cout << _token << '\n';
+		
 
 		}
-		else std::cout << "Failed request \n";
+		else {
+			char* recvMessage = nullptr;
+			unsigned int byteHeaderSize = 0;
+			recv(_client, (char*)&byteHeaderSize, sizeOfInt, 0);			
+			recvMessage = new char[byteHeaderSize + 1];
+
+			recv(_client, recvMessage, byteHeaderSize, 0);
+			std::cout << recvMessage << '\n';
+			if (recvMessage != nullptr) delete[] recvMessage;
+		}
 
 	}
-
-
+	
 
 	return codeFromServer;
 
@@ -104,24 +131,21 @@ void ServerConnect::CreateSocket()
 		WSACleanup();
 		return;
 	}
-
+	std::cout << "Protocol set \n";
 	// connect to server
 
 	if (connect(socketFd, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
 		std::cerr << "Connection error \n";
-		int errorCode = WSAGetLastError();
-		if (errorCode == WSAECONNREFUSED) {
-			std::cerr << "Connection refused. Ensure the server is running and accessible.\n";
+		const int errorCode = WSAGetLastError();
+
+		switch (errorCode)
+		{
+			case (WSAECONNREFUSED): std::cerr << "Connection refused. Ensure the server is running and accessible.\n"; break;
+			case (WSAETIMEDOUT): std::cerr << "Connection timed out. The server might be down or not responding.\n"; break;
+			case (WSAEHOSTUNREACH): std::cerr << "No route to host. Check your network connection.\n"; break;
+			case (WSAENETUNREACH): std::cerr << "Network is unreachable.\n"; break;
 		}
-		else if (errorCode == WSAETIMEDOUT) {
-			std::cerr << "Connection timed out. The server might be down or not responding.\n";
-		}
-		else if (errorCode == WSAEHOSTUNREACH) {
-			std::cerr << "No route to host. Check your network connection.\n";
-		}
-		else if (errorCode == WSAENETUNREACH) {
-			std::cerr << "Network is unreachable.\n";
-		}
+
 		closesocket(socketFd);
 		WSACleanup();
 		return;
