@@ -107,7 +107,7 @@
                         android:layout_weight="1"
                         android:src="@drawable/fitness_parts_model"
                         android:layout_width="1dp"
-                        android:layout_height="match_parent" android:id="@+id/imageView2"
+                        android:layout_height="match_parent" android:id="@+id/fitness_model"
                         android:contentDescription="@string/description_fitness_parts_model"/>
             </LinearLayout>
 
