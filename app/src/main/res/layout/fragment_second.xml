@@ -28,7 +28,7 @@
             android:autofillHints="emailAddress"
             android:textColorHint="@color/white"
             android:textColor="@color/white"
-            android:inputType="textEmailAddress"
+            android:inputType="textEmailSubject"
             android:background="@drawable/borders"
             android:padding="8dp"
             android:layout_marginTop="80dp"
