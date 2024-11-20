@@ -1,67 +1,109 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/gradients">
 
     <TextView
             android:id="@+id/textview_first"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="76dp"
+            android:layout_marginTop="80dp"
             android:text="@string/login_text"
+            android:textColor="@color/white"
             android:textSize="50sp"
             android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            style="@style/login_text"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" app:layout_constraintHorizontal_bias="0.498"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
     <EditText
             android:id="@+id/email_input"
             android:layout_width="300dp"
             android:layout_height="48dp"
             android:hint="@string/email_input_text"
             android:autofillHints="emailAddress"
-            android:inputType="textEmailAddress"
+            android:textColorHint="@color/white"
+            android:textColor="@color/white"
+            android:inputType="textEmailSubject"
             android:background="@drawable/borders"
-            android:padding="5dp"
+            android:padding="8dp"
+            android:layout_marginTop="80dp"
+            style="@style/login_text"
             app:layout_constraintTop_toBottomOf="@id/textview_first"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="60dp" app:layout_constraintHorizontal_bias="0.5"/>
+            app:layout_constraintEnd_toEndOf="parent"/>
+
     <EditText
             android:id="@+id/password_input"
             android:layout_width="300dp"
             android:layout_height="48dp"
             android:hint="@string/password_input_text"
+            android:textColorHint="@color/white"
+            android:textColor="@color/white"
             android:autofillHints="password"
             android:inputType="textPassword"
             android:background="@drawable/borders"
-            android:padding="5dp"
+            android:padding="8dp"
+            android:layout_marginTop="40dp"
+            style="@style/login_text"
             app:layout_constraintTop_toBottomOf="@id/email_input"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="40dp" app:layout_constraintHorizontal_bias="0.5"/>
-    <Button
-            android:id="@+id/button_second"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:text="@string/login_button"
-            app:layout_constraintTop_toBottomOf="@id/password_input"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="32dp"/>
-    <TextView
-            android:id="@+id/sign_in_link"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/sign_up_link"
-            android:textColor="@color/button_purple"
-            android:textSize="14sp"
-            android:padding="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:orientation="horizontal"
+            android:background="@drawable/button_split"
+            app:layout_constraintTop_toBottomOf="@id/password_input"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" app:layout_constraintHorizontal_bias=".5"
-            android:layout_marginBottom="15dp"/>
+            android:layout_marginTop="60dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.button.MaterialButton
+            android:id="@+id/login_button"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/login_text"
+            android:textColor="@color/white"
+            android:backgroundTint="@android:color/transparent"
+            android:layout_margin="0dp"
+            android:shadowColor="#000000"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="2"
+            app:cornerRadius="0dp" tools:layout_editor_absoluteY="358dp" tools:layout_editor_absoluteX="185dp"/>
+
+        <View
+                android:layout_width="2dp"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_margin="0dp"
+                android:padding="0dp"/>
+
+    <com.google.android.material.button.MaterialButton
+            android:id="@+id/signup_button"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sign_up_text"
+            android:textColor="@color/white"
+            android:backgroundTint="@android:color/transparent"
+            android:layout_margin="0dp"
+            android:shadowColor="#000000"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="2"
+            app:cornerRadius="0dp" tools:layout_editor_absoluteY="358dp" tools:layout_editor_absoluteX="88dp"/> <!-- Remove individual corner radius -->
+</LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+

@@ -13,11 +13,13 @@ public:
 private:
 	void ConnectToDB();
 	void InterpretState(const SQLRETURN code, const char* name, const bool indented = true);
+	void CreateConnectionString();
 
 	SQLInterface();
 	~SQLInterface();
 
 	static SQLInterface* m_instance;
+	static char* m_inConnStr;
 	SQLHENV m_environment_handle = nullptr;
 	SQLHDBC m_database_connection_handle = nullptr;
 };

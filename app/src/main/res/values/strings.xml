@@ -45,12 +45,13 @@
     <string name="presentation_time_spent">0 hour\n0 minutes!</string>
 
 
-    <!-- Login text -->
+    <!-- Login and sign up text -->
     <string name="login_text">Login</string>
+    <string name="sign_up_text">Sign Up</string>
+    <string name="name_input">Enter Your Name</string>
     <string name="email_input_text">Enter Your Email</string>
     <string name="password_input_text">Enter Your Password</string>
-    <string name="login_button">Submit</string>
-    <string name="sign_up_link">"Don't have an account? Sign Up"</string>
+    <string name="reenter_password_input_text">Re Enter Your Password</string>
 
     <!-- Room finder text -->
     <string name="room_header">Room Finder</string>

@@ -7,10 +7,13 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.View
 import android.widget.ImageButton
 import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.NavHostFragment
 import com.example.myapplication.databinding.ActivityMainBinding
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,34 +25,43 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        //Setting the starting screen
-        bottomNavigation(SecondFragment())
-        //Changing the fragment to selected icon
-        binding.bottomNav.setOnItemSelectedListener {
-            when(it.itemId){
-                R.id.Home -> bottomNavigation(FirstFragment())
 
-                else ->{
+        val profile = findViewById<ImageButton>(R.id.user_avatar)
 
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
+
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
+
+        val navView : BottomNavigationView = binding.bottomNav
+
+        val navController = navHostFragment.navController
+
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.FirstFragment,
+            )
+        )
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.SecondFragment -> {
+                    bottomNav.visibility = View.GONE
+                    profile.visibility = View.GONE
+                }
+                else -> {
+                    bottomNav.visibility = View.VISIBLE
+                    profile.visibility = View.VISIBLE
                 }
             }
-            true
         }
-        //click register for making the popup
-        findViewById<ImageButton>(R.id.user_avatar).setOnClickListener {
-            val popup = PopupMenu(this, it)
-            val inflater: MenuInflater = popup.menuInflater
-            inflater.inflate(R.menu.menu_main, popup.menu)
-            popup.show()
-        }
-    }
 
-    // function for moving across the bottom nav
-    private fun bottomNavigation(fragment : Fragment){
-        val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.home_screen, fragment)
-        fragmentTransaction.commit()
+        //click register for making the popup
+       findViewById<ImageButton>(R.id.user_avatar).setOnClickListener {
+           val popup = PopupMenu(this, it)
+           val inflater: MenuInflater = popup.menuInflater
+           inflater.inflate(R.menu.menu_main, popup.menu)
+           popup.show()
+        }
     }
 
     //implement this when the screens (fragments???) exist
@@ -82,7 +94,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
+        val navController = findNavController(R.id.nav_host_fragment_activity_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
     }
