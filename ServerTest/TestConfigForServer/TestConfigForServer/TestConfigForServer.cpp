@@ -11,13 +11,31 @@ constexpr const char* options[] =
     "1) Login user",
     "2) New user",
     "3) Message To Server",
-    "4) End",
+    "4) New Discussion Post",
+    "5) End",
 };
 
 void PrintMenu() {
     for (const char* option : options) {
         std::cout << option << '\n';
     }
+}
+
+void RequestNewPost(ServerConnect &server, unsigned char* token) {
+    std::string username = "";
+    std::string post = "";
+    std::cout << "What is your username \n";
+    std::getline(std::cin.ignore(), username);
+    std::cout << "What is your post \n";
+    std::getline(std::cin.ignore(), post);
+    username += '\n';
+    post += '\0';
+    const int messageSize = username.size() + post.size();
+    char* message = new char[messageSize + 1];
+    memcpy_s(message, strlen(username.c_str()), username.c_str(), strlen(username.c_str()));
+    memcpy_s(message, strlen(post.c_str()), post.c_str(), strlen(post.c_str()));
+    server.SendToServer((int)Command::NewDiscussionPost, message);
+    delete[] message;
 }
 
 void CreateNewUser(ServerConnect &server, unsigned char* token) {
@@ -115,6 +133,10 @@ int main()
             SendMessageToServer(server, token);
             break;
         case 4:
+            RequestNewPost(server, token);
+            break;
+
+        case 5:
             keepAlive = false;
             break;
 

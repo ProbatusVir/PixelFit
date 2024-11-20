@@ -1,6 +1,8 @@
 #include "WindowsInterpreter.h"
 #include "iostream"
 #include "DiscussionPost.h"
+#include <functional>
+#include <thread>
 
 void WindowsInterpreter::InterpretMessage(const SOCKET& clientSocket, Command command)
 {
@@ -18,6 +20,9 @@ void WindowsInterpreter::InterpretMessage(const SOCKET& clientSocket, Command co
 		// test to send data to server.
 		// this could be removed at a later time or implemented to handle p2p messaging
 		MessageToServer(clientSocket);
+		break;
+	case Command::NewDiscussionPost:
+		NewDiscussionPost(clientSocket);
 		break;
 	case Command::GetUsers:
 		// function to return users to a client
@@ -128,7 +133,8 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 
 void WindowsInterpreter::MessageToServer(const SOCKET& clientSocket)
 {
-	if (VerifyUserAuth(clientSocket)) {
+	User user;
+	if (VerifyUserAuth(clientSocket, user)) {
 		unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
 		bool success = false;
 		char* buffer = new char[sizeOfHeader + 1];
@@ -196,7 +202,7 @@ unsigned int WindowsInterpreter::ReadByteHeader(const SOCKET& clientSocket)
 	return byteHeader;
 }
 
-bool WindowsInterpreter::VerifyUserAuth(const SOCKET& clientSocket)
+bool WindowsInterpreter::VerifyUserAuth(const SOCKET& clientSocket, User& user)
 {
 	unsigned int header = ReadByteHeader(clientSocket);
 	bool success = false;
@@ -212,6 +218,7 @@ bool WindowsInterpreter::VerifyUserAuth(const SOCKET& clientSocket)
 		}
 		else {
 			success = true;
+			user = existingToken->second.user;
 		}
 
 		if (token != nullptr) delete[] token;
@@ -243,24 +250,49 @@ std::string WindowsInterpreter::CreateToken(User& user)
 
 void WindowsInterpreter::NewDiscussionPost(const SOCKET& clientSocket)
 {
-	if (VerifyUserAuth(clientSocket)) {
+	// This needs to have test runs on it
+	User user;
+	if (VerifyUserAuth(clientSocket, user)) {
 		unsigned int byteHeader = ReadByteHeader(clientSocket);
 		if (byteHeader > 0) {
 			char* buffer = new char[byteHeader + 1];
 			recv(clientSocket, buffer, byteHeader , 0);
-			DiscussionPost infoToSend = _commands.NewDiscussionPost(buffer);
+			std::cout << buffer << '\n';
+
+			DiscussionPost infoToSend = _commands.NewDiscussionPost(buffer, user);
 			// distribution
+			unsigned int sizeOfUsername = strlen(infoToSend.GetAuthor());
+			unsigned int sizeOfPost = strlen(infoToSend.GetPost());
+			unsigned int command = (unsigned int) Command::NewDiscussionPost;
+			unsigned int sizeOfMessage = sizeOfUsername + sizeOfPost;
+			unsigned int packet = sizeof(command) + sizeOfPost +  sizeOfUsername;
+			packet++;
+			char* messageToSend = new char[packet];
+			memcpy_s(messageToSend, sizeOfInt, &command, sizeOfInt);
+			memcpy_s(messageToSend + sizeOfInt, sizeOfInt, &sizeOfMessage, sizeOfInt);
+			memcpy_s(messageToSend + sizeOfInt * 2, sizeOfUsername, infoToSend.GetAuthor(), sizeOfUsername);
+			memcpy_s(messageToSend + sizeOfInt * 2 + sizeOfUsername, sizeOfPost, infoToSend.GetPost(), sizeOfPost);
+			auto boundToClient = std::bind(&WindowsInterpreter::SendPostToClients, this, messageToSend);
+			std::thread notifyClients(boundToClient);
+			notifyClients.detach();
+			SendMessageToClient(clientSocket, true);
 		}
 	}
 	else {
-
+		SendMessageToClient(clientSocket, false);
 	}
 }
 
 void WindowsInterpreter::SendPostToClients(const char* buffer)
 {
 	// finish the distribution
-	char* message = new char[strlen(buffer) + 1];
+	char message[sizeOfInt] = { 0 };
+	auto clientIter = _clientPairs.begin();
+	for (; clientIter != _clientPairs.end(); clientIter++) {
+		send(clientIter->second.clientSocket, buffer, strlen(buffer), 0);
+		recv(clientIter->second.clientSocket, message, sizeOfInt, 0);
+
+	}
 
 }
 
