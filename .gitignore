@@ -19,4 +19,3 @@ local.properties
 /.vs
 /ServerTest/TestConfigForServer/.vs
 /ServerPackage/db_credentials.h
-/ServerTest/TestConfigForServer/enc_temp_folder/624627f8968632e4a838c38987bab
