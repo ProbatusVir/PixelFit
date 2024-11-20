@@ -25,5 +25,6 @@
 	static constexpr size_t usernameSize = 30;
 	static constexpr size_t passwordSize = 60;
 	static constexpr unsigned int sizeOfInt = 4;
+	static constexpr unsigned int sizeOfDiscussionPost = 1024;
 
 
