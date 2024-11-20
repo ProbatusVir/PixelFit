@@ -43,14 +43,4 @@ class SecondFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
-//    override fun onResume() {
-//        super.onResume()
-//
-//        val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav)
-//        bottomNav.visibility = View.GONE
-//
-//        val profile = requireActivity().findViewById<ImageButton>(R.id.user_avatar)
-//        profile.visibility = View.GONE
-//    }
 }
