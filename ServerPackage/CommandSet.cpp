@@ -131,6 +131,13 @@ User CommandSet::NewUser(const char* buffer, bool& success)
 
 }
 
+DiscussionPost CommandSet::NewDiscussionPost(char* buffer)
+{
+	DiscussionPost info = DiscussionPost(buffer);
+
+	return info;
+}
+
 uint64_t CommandSet::CreateID()
 {
 	idIncrement = 0;

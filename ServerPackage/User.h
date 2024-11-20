@@ -11,6 +11,7 @@ public:
 	User(const User& user);
 	~User();
 	char* Token() { return _token; }
+	void RemakeToken();
 
 	uint64_t Id() { return _id; }
 	static char* HashPassword(const char password[passwordSize]);
