@@ -52,9 +52,6 @@
     <string name="email_input_text">Enter Your Email</string>
     <string name="password_input_text">Enter Your Password</string>
     <string name="reenter_password_input_text">Re Enter Your Password</string>
-    <string name="login_button">Submit</string>
-    <string name="sign_up_link">"Don't have an account? Sign Up"</string>
-    <string name="login_link">"Have an account? Login"</string>
 
     <!-- Room finder text -->
     <string name="room_header">Room Finder</string>
