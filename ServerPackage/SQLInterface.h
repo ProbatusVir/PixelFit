@@ -19,8 +19,7 @@ private:
 	~SQLInterface();
 	
 	static SQLInterface* m_instance;
-	static char* m_inConnStr;
-	SQLHENV m_environment_handle = nullptr;
-	SQLHDBC m_database_connection_handle = nullptr;
+	SQLHENV m_hEnv = nullptr;	// Environment handle
+	SQLHDBC m_hDbc = nullptr;	// Database Connection handle
 };
 
