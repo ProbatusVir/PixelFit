@@ -22,18 +22,17 @@ void PrintMenu() {
 }
 
 void RequestNewPost(ServerConnect &server, unsigned char* token) {
-    std::string username = "";
+   
     std::string post = "";
-    std::cout << "What is your username \n";
-    std::getline(std::cin.ignore(), username);
     std::cout << "What is your post \n";
     std::getline(std::cin.ignore(), post);
-    username += '\n';
+   
     post += '\0';
-    const int messageSize = username.size() + post.size();
+    const int messageSize = post.size();
     char* message = new char[messageSize + 1];
-    memcpy_s(message, strlen(username.c_str()), username.c_str(), strlen(username.c_str()));
-    memcpy_s(message, strlen(post.c_str()), post.c_str(), strlen(post.c_str()));
+    
+    memcpy_s(message, messageSize, post.c_str(), post.size());
+
     server.SendToServer((int)Command::NewDiscussionPost, message);
     delete[] message;
 }

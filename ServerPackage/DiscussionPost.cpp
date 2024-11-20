@@ -9,7 +9,7 @@ DiscussionPost::DiscussionPost(char* buffer, User& user)
 	unsigned int startIdx = 0;
 	memcpy_s(_username, strlen(user.Username()), user.Username(), strlen(user.Username()));
 
-	char* data = GetDataFromBuffer('\n', buffer, sizeOfDiscussionPost, startIdx);
+	char* data = GetDataFromBuffer('\0', buffer, sizeOfDiscussionPost, startIdx);
 	memcpy_s(_post, sizeOfDiscussionPost, data, sizeOfDiscussionPost);
 	delete[] data;
 }
@@ -52,6 +52,8 @@ char* DiscussionPost::GetDataFromBuffer(char delimiter, char* buffer, const unsi
 	unsigned int writeToIdx = 0;
 	while (buffer[idx] != delimiter) {
 		data[writeToIdx] = buffer[idx];
+		idx++;
+		writeToIdx++;
 	}
 
 	return data;
