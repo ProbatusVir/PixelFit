@@ -11,7 +11,6 @@
 // https://www.ibm.com/docs/en/db2-for-zos/13?topic=functions-sqlallochandle-allocate-handle
 
 SQLInterface* SQLInterface::m_instance = nullptr;
-char* SQLInterface::m_inConnStr = nullptr;
 
 void getbobby(SQLHDBC _connection);
 
@@ -23,16 +22,19 @@ SQLInterface::SQLInterface()
 
 SQLInterface::~SQLInterface()
 {
-	delete m_environment_handle;
-	delete m_database_connection_handle;
+	SQLFreeHandle(SQL_HANDLE_DBC, m_hDbc);
+	SQLFreeHandle(SQL_HANDLE_ENV, m_hEnv);
+
+	if (m_hDbc)
+		delete m_hDbc; 
+	if (m_hEnv)
+		delete m_hEnv;
 }
 
 void SQLInterface::ConnectToDB()
 {
 	// The naming convention is:
 	// SQL + h(andle) + handleType
-	SQLHENV hEnv = nullptr;	// SQL Handle: Environment
-	SQLHDBC hDbc = nullptr;	// SQL Handle: Database Connection
 
 	SQLRETURN henvironment_state;
 	SQLRETURN hconnection_state;
@@ -40,8 +42,8 @@ void SQLInterface::ConnectToDB()
 	SQLRETURN driver_state;
 
 	//Set up environment
-	henvironment_state = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &hEnv);
-	SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, 0);
+	henvironment_state = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &m_hEnv);
+	SQLSetEnvAttr(m_hEnv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, 0);
 
 	// This code is for when the DSN is unknown for the device
 	// Configure your DSN in "ODBC Data Source Administrator (64-bit)"
@@ -58,19 +60,19 @@ void SQLInterface::ConnectToDB()
 		//InterpretState(data_source_state, "data source");
 	
 	//Get database connection handle
-	hconnection_state = SQLAllocHandle(SQL_HANDLE_DBC, hEnv, &hDbc);
+	hconnection_state = SQLAllocHandle(SQL_HANDLE_DBC, m_hEnv, &m_hDbc);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Connect to the database
 
 	char debug[1024] = { 0 };
 	SQLSMALLINT* new_len = nullptr;
-	driver_state = SQLDriverConnectA(hDbc, nullptr, (SQLCHAR*)inConnStr, SQL_NTS,
+	driver_state = SQLDriverConnectA(m_hDbc, nullptr, (SQLCHAR*)inConnStr, SQL_NTS,
 		(SQLCHAR*)debug, 1024, new_len, //Gives information
 		SQL_DRIVER_COMPLETE);
 
 	//Other connect to the database
-	connection_state = SQLConnectA(hDbc,
+	connection_state = SQLConnectA(m_hDbc,
 		(SQLCHAR*)db_name,			sizeof(db_name),
 		(SQLCHAR*)auth_username,	sizeof(auth_username),
 		(SQLCHAR*)auth_password,	sizeof(auth_password)
@@ -84,7 +86,7 @@ void SQLInterface::ConnectToDB()
 	InterpretState(connection_state, "connection");
 
 
-	getbobby(hDbc);
+	getbobby(m_hDbc);
 
 }
 
