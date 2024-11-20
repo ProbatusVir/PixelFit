@@ -31,8 +31,9 @@ int ServerConnect::SendToServer(int command, char* message)
 	if (_token != nullptr)
 		tokenSize = hashSize + 1;
 	
-	constexpr unsigned int lengthOfCommandAndMessageHeader = 9;
-	const int lengthOfMessage = (int)strlen(message) + 1 + lengthOfCommandAndMessageHeader;
+	
+	constexpr unsigned int lengthOfCommandAndMessageHeader = sizeOfInt + sizeOfInt + sizeof(tokenSize) + 1;
+	const int lengthOfMessage = (int)strlen(message) + lengthOfCommandAndMessageHeader;
 	
 	char messageToServer[1024] = { 0 };
 	

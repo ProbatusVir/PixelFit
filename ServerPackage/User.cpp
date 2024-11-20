@@ -38,6 +38,13 @@ User::~User()
 
 }
 
+void User::RemakeToken()
+{
+	CreateToken();
+}
+
+
+
 
 
  char* User::HashPassword(const char password[passwordSize])
@@ -67,7 +74,7 @@ User::~User()
 void User::CreateToken()
 {
 	srand(static_cast<unsigned int>(time(nullptr)));
-	unsigned char token[hashSize] = { 0 };
+	unsigned char token[hashSize + 1] = { 0 };
 	for (int i = 0; i < hashSize; i++) {
 		unsigned int random = rand() % 255 + 33;
 		token[i] = (char)random;

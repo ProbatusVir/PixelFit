@@ -89,10 +89,12 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 {
 	char* response = nullptr;
 	if (success) {
+		
+		std::string tokenAsStr = CreateToken(user);
+		
 		char* token = user.Token();
-		unsigned int sizeOfToken = strlen((char*)token);
+		unsigned int sizeOfToken = strlen(token) +1;
 		// This is necessary for our response array to be sized with null terminator
-		sizeOfToken++;
 		unsigned int sizeOfResponse = sizeOfInt * 2 + sizeOfToken;
 		response = new char[sizeOfResponse];
 		unsigned int msgSuccess = (int)MessageResult::LoginSuccess;
@@ -104,9 +106,10 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 		clientPair.user = user;
 		clientPair.clientSocket = clientSocket;
 		clientPair.token =  token;
-		std::string tokenAsStr = clientPair.token;
-		std::pair<std::string, WindowsUserPair> newPair(clientPair.token, clientPair);
+		
+		std::pair<std::string, WindowsUserPair> newPair(tokenAsStr, clientPair);
 		_clientPairs.insert(newPair);
+		
 
 	}
 	else {
@@ -214,6 +217,28 @@ bool WindowsInterpreter::VerifyUserAuth(const SOCKET& clientSocket)
 		if (token != nullptr) delete[] token;
 	}
 	return success;
+}
+
+bool WindowsInterpreter::EnsureSingleTokenInstance(std::string token)
+{
+	auto isValid = _clientPairs.find(token);
+	if (isValid == _clientPairs.end()) {
+		return true;
+	}
+	else return false;
+}
+
+std::string WindowsInterpreter::CreateToken(User& user)
+{
+	std::string checkToken = user.Token();
+
+	while (!EnsureSingleTokenInstance(checkToken)) {
+		user.RemakeToken();
+		checkToken = user.Token();
+
+	}
+
+	return checkToken;
 }
 
 

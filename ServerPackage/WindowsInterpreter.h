@@ -29,6 +29,8 @@ private:
 	void SendMessageToClient(const SOCKET& clientSocket, bool success);
 	unsigned int ReadByteHeader(const SOCKET& clientSocket);
 	bool VerifyUserAuth(const SOCKET& clientSocket);
+	bool EnsureSingleTokenInstance(std::string token);
+	std::string CreateToken( User& user);
 	std::unordered_map<std::string, WindowsUserPair> _clientPairs;
 
 	CommandSet _commands;
