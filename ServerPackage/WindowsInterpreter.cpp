@@ -1,6 +1,6 @@
 #include "WindowsInterpreter.h"
 #include "iostream"
-
+#include "DiscussionPost.h"
 
 void WindowsInterpreter::InterpretMessage(const SOCKET& clientSocket, Command command)
 {
@@ -239,6 +239,29 @@ std::string WindowsInterpreter::CreateToken(User& user)
 	}
 
 	return checkToken;
+}
+
+void WindowsInterpreter::NewDiscussionPost(const SOCKET& clientSocket)
+{
+	if (VerifyUserAuth(clientSocket)) {
+		unsigned int byteHeader = ReadByteHeader(clientSocket);
+		if (byteHeader > 0) {
+			char* buffer = new char[byteHeader + 1];
+			recv(clientSocket, buffer, byteHeader , 0);
+			DiscussionPost infoToSend = _commands.NewDiscussionPost(buffer);
+			// distribution
+		}
+	}
+	else {
+
+	}
+}
+
+void WindowsInterpreter::SendPostToClients(const char* buffer)
+{
+	// finish the distribution
+	char* message = new char[strlen(buffer) + 1];
+
 }
 
 
