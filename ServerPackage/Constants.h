@@ -8,6 +8,7 @@
 		NewUser,
 		GetUsers,
 		MessageServer,
+		NewDiscussionPost,
 		DiscussionPost,
 		GetUser,
 		BanUser,

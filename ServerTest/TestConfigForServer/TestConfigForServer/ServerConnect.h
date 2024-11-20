@@ -18,10 +18,14 @@ public:
 
 	void CreateSocket();
 	
+	void ListenForServer();
 
 private:
 
 	void SetTargetIp();
+	void HandleToken();
+	unsigned int ReadHeader();
+	void ReadMessageFromServer();
 
 	char _ipAddress[INET_ADDRSTRLEN] = { 0 };
 

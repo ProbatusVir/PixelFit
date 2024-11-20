@@ -1,18 +1,17 @@
 #include "DiscussionPost.h"
 #include <string>
 
-DiscussionPost::DiscussionPost(char* buffer)
+
+
+DiscussionPost::DiscussionPost(char* buffer, User& user)
 {
-	
 	CreateId();
 	unsigned int startIdx = 0;
-	char* data = GetDataFromBuffer('\n', buffer, usernameSize, startIdx);
-	delete[] data;
-	data = GetDataFromBuffer('\n', buffer, sizeOfDiscussionPost, startIdx);
-	delete[] data;
+	memcpy_s(_username, strlen(user.Username()), user.Username(), strlen(user.Username()));
 
-	SetAuthor(buffer, startIdx);
-	CreateId();
+	char* data = GetDataFromBuffer('\0', buffer, sizeOfDiscussionPost, startIdx);
+	memcpy_s(_post, sizeOfDiscussionPost, data, sizeOfDiscussionPost);
+	delete[] data;
 }
 
 void DiscussionPost::SetUsername(char* buffer)
@@ -53,6 +52,8 @@ char* DiscussionPost::GetDataFromBuffer(char delimiter, char* buffer, const unsi
 	unsigned int writeToIdx = 0;
 	while (buffer[idx] != delimiter) {
 		data[writeToIdx] = buffer[idx];
+		idx++;
+		writeToIdx++;
 	}
 
 	return data;

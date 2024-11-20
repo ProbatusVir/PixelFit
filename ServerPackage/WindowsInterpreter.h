@@ -28,11 +28,11 @@ private:
 	void MessageToServer(const SOCKET& clientSocket);
 	void SendMessageToClient(const SOCKET& clientSocket, bool success);
 	unsigned int ReadByteHeader(const SOCKET& clientSocket);
-	bool VerifyUserAuth(const SOCKET& clientSocket);
+	bool VerifyUserAuth(const SOCKET& clientSocket, User& user);
 	bool EnsureSingleTokenInstance(std::string token);
 	std::string CreateToken( User& user);
 	void NewDiscussionPost(const SOCKET& clientSocket);
-	void SendPostToClients(const char* buffer);
+	void SendPostToClients(const SOCKET&clientSocket, const char* buffer);
 	std::unordered_map<std::string, WindowsUserPair> _clientPairs;
 
 	CommandSet _commands;
