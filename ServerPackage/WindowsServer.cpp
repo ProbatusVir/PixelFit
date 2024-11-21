@@ -66,7 +66,7 @@ void WindowsServer::Start()
 
 	address.sin_family = AF_INET;
 
-	address.sin_port = htons(PORT);
+	address.sin_port = htons(port);
 	std::cout << "Binding to " << _ipAddress << '\n';
 
 	inet_pton(AF_INET, _ipAddress, &address.sin_addr);
@@ -282,7 +282,7 @@ void WindowsServer::AcquireIpAdress()
 
 	addrinfo* result = nullptr;
 
-	if (getaddrinfo(hostName, nullptr, &hints, &result) != 0) {
+	if (getaddrinfo("127.0.0.1", nullptr, &hints, &result) != 0) {
 		std::cerr << "Error getting IP address from hostname \n";
 		WSACleanup();
 		return;
