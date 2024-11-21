@@ -1,6 +1,6 @@
 #include "WindowsInterpreter.h"
 #include "iostream"
-#include "DiscussionPost.h"
+
 #include <functional>
 #include <thread>
 
@@ -260,23 +260,27 @@ void WindowsInterpreter::NewDiscussionPost(const SOCKET& clientSocket)
 			recv(clientSocket, buffer, byteHeader, 0);
 			std::cout << buffer << '\n';
 
-			DiscussionPost infoToSend = _commands.NewDiscussionPost(buffer, user);
+			DiscussionPost infoToSend = _commands.NewDiscussionPost(buffer, user, byteHeader);
+			delete[] buffer;
 			// distribution
-			unsigned int sizeOfUsername = strlen(infoToSend.GetAuthor());
-			unsigned int sizeOfPost = strlen(infoToSend.GetPost());
-			unsigned int command = (unsigned int)Command::NewDiscussionPost;
-			unsigned int sizeOfMessage = sizeOfUsername + sizeOfPost;
-			unsigned int packet = sizeof(command) + sizeOfPost + sizeOfUsername;
-			packet++;
-			char* messageToSend = new char[packet];
+			char* messageToSend = nullptr;
+			char* username = infoToSend.GetAuthor();
+			char* postDetails = infoToSend.GetPost();
+			unsigned int usernameSize = strlen(username) + 1;
+			unsigned int postSize = strlen(postDetails) + 1;
+			unsigned int detailHeader = usernameSize + postSize;
+			unsigned int command = (int) Command::NewDiscussionPost;
+			unsigned int packet = sizeOfInt + postSize + usernameSize + 1;
+			messageToSend = new char[packet + 1];
 			memcpy_s(messageToSend, sizeOfInt, &command, sizeOfInt);
-			memcpy_s(messageToSend + sizeOfInt, sizeOfInt, &sizeOfMessage, sizeOfInt);
-			memcpy_s(messageToSend + sizeOfInt * 2, sizeOfUsername, infoToSend.GetAuthor(), sizeOfUsername);
-			memcpy_s(messageToSend + sizeOfInt * 2 + sizeOfUsername, sizeOfPost, infoToSend.GetPost(), sizeOfPost);
-			auto boundToClient = std::bind(&WindowsInterpreter::SendPostToClients, this, clientSocket, messageToSend);
-			std::thread notifyclients(boundToClient);
-			notifyclients.detach();
+			memcpy_s(messageToSend + sizeOfInt, sizeOfInt, &detailHeader, sizeOfInt);
+			memcpy_s(messageToSend + sizeOfInt * 2, usernameSize, username, usernameSize);
+			memcpy_s(messageToSend + sizeOfInt * 2 + usernameSize, postSize, postDetails, postSize);
+			
+			SendPostToClients(clientSocket, messageToSend, packet);
+
 			SendMessageToClient(clientSocket, true);
+		//	delete[] messageToSend;
 		}
 	}
 	else {
@@ -284,15 +288,16 @@ void WindowsInterpreter::NewDiscussionPost(const SOCKET& clientSocket)
 	}
 }
 
-void WindowsInterpreter::SendPostToClients(const SOCKET& clientSocket, const char* buffer)
+void WindowsInterpreter::SendPostToClients(const SOCKET& clientSocket, const char* buffer, unsigned int sizeOfBuffer)
 {
 	// Does not entirely work
 	char message[sizeOfInt] = { 0 };
 	auto clientIter = _clientPairs.begin();
+	
 	for (; clientIter != _clientPairs.end(); clientIter++) {
 		if (clientIter->second.clientSocket != clientSocket) {
 			
-			send(clientIter->second.clientSocket, buffer, strlen(buffer), 0);
+			send(clientIter->second.clientSocket, buffer, sizeOfBuffer, 0);
 			recv(clientIter->second.clientSocket, message, sizeOfInt, 0);
 			unsigned int readback = 0;
 			memcpy_s(&readback, sizeOfInt, message, sizeOfInt);
@@ -304,5 +309,9 @@ void WindowsInterpreter::SendPostToClients(const SOCKET& clientSocket, const cha
 	}
 
 }
+
+
+
+
 
 

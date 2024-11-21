@@ -9,7 +9,7 @@ public:
 	CommandSet(User* user);
 	User LoginUser(const char * buffer, bool &success);
 	User NewUser(const char* buffer, bool& success);
-	DiscussionPost NewDiscussionPost( char* buffer, User& user);
+	DiscussionPost NewDiscussionPost( char* buffer, User& user, unsigned int headerSize);
 
 private:
 	//TODO: Add logic to save the next available id and load to the idIncrmenter
