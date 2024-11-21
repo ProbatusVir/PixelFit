@@ -52,7 +52,6 @@
     <string name="email_input_text">Enter Your Email</string>
     <string name="password_input_text">Enter Your Password</string>
     <string name="reenter_password_input_text">Re Enter Your Password</string>
-    <string name="back_button">back_button</string>
 
     <!-- Room finder text -->
     <string name="room_header">Room Finder</string>
@@ -60,4 +59,24 @@
     <!-- Fragment labels -->
     <string name="Home_fragment_label">HomeFragment</string>
     <string name="Login_fragment_label">LogInFragment</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="friends">Add Friends fragment</string>
+    <string name="groups">Group Finder fragment</string>
+    <string name="instructor">Instructor fragment</string>
+    <string name="settings">Setting fragment</string>
+
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails</string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
 </resources>
