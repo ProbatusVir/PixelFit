@@ -34,12 +34,12 @@ class SignUp : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.backButton.setOnClickListener {
-            findNavController().navigate(R.id.action_signUp_to_SecondFragment3)
+        binding.signupButton.setOnClickListener {
+            findNavController().navigate(R.id.action_signUp_to_HomeFragment)
         }
 
-        binding.signupButton.setOnClickListener {
-            findNavController().navigate(R.id.action_signUp_to_FirstFragment)
+        binding.backButton.setOnClickListener {
+            findNavController().navigate(R.id.action_signUp_to_LoginFragment2)
         }
 
     }

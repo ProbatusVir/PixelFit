@@ -52,6 +52,7 @@
     <string name="email_input_text">Enter Your Email</string>
     <string name="password_input_text">Enter Your Password</string>
     <string name="reenter_password_input_text">Re Enter Your Password</string>
+    <string name="back_button">Back Button</string>
 
     <!-- Room finder text -->
     <string name="room_header">Room Finder</string>
@@ -60,7 +61,6 @@
     <string name="Home_fragment_label">HomeFragment</string>
     <string name="Login_fragment_label">LogInFragment</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="friends">Add Friends fragment</string>
     <string name="groups">Group Finder fragment</string>
     <string name="instructor">Instructor fragment</string>
