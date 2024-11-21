@@ -134,48 +134,38 @@ void ServerConnect::CreateSocket()
 
 void ServerConnect::ListenForServer()
 {
-	fd_set notificationFromServer;
+
 	while (true) {
-		FD_ZERO(&notificationFromServer);
-		FD_SET(_client, &notificationFromServer);
-
-
-		int activity = select(_client + 1, &notificationFromServer, NULL, NULL, NULL);
-
-		if (activity < 0) {
-			std::cout << "Error in listening loop\n";
-		}
-
-		if (FD_ISSET(_client, &notificationFromServer)) {
-			char command[4] = { 0 };
-			int bytesRead = recv(_client, command, 4, 0);
-			if (bytesRead > 0) {
-				unsigned int cmd = 0;
-				memcpy_s(&cmd, sizeOfInt, command, sizeOfInt);
-				switch (cmd) {
-				case 1:
-					HandleToken();
-					break;
-				case 2:
-					ReadMessageFromServer();
-					break;
-				case (int) Command::NewDiscussionPost:
-					ReadMessageFromServer();
-					break;
-				}
-				
-				// Handle commands as necessary
-			}
-			else if (bytesRead == 0 || bytesRead == SOCKET_ERROR) {
-				std::cout << "Server Disconnected\n";
-					break;
-			}
-			else {
-				std::cout << "Recv failed breaking connection\n";
-				closesocket(_client);
+		char command[4] = { 0 };
+		unsigned int cmd= ReadHeader();
+		if (cmd > 0) {
+			
+			
+			switch (cmd) {
+			case 1:
+				HandleToken();
+				break;
+			case 2:
+				ReadMessageFromServer();
+				break;
+			case (int)Command::NewDiscussionPost:
+				ReadMessageFromServer();
 				break;
 			}
+
+			// Handle commands as necessary
 		}
+		else if (cmd == 0 || cmd == SOCKET_ERROR) {
+			std::cout << "Server Disconnected\n";
+			break;
+		}
+		else {
+			std::cout << "Recv failed breaking connection\n";
+			closesocket(_client);
+			break;
+		}
+
+	
 	}
 }
 
@@ -251,7 +241,7 @@ unsigned int ServerConnect::ReadHeader()
 void ServerConnect::ReadMessageFromServer()
 {
 	unsigned int byteHeader = ReadHeader();
-	if (byteHeader) {
+	if (byteHeader > 0) {
 		char* message = new char[byteHeader + 1];
 
 		recv(_client, message, byteHeader, 0);
@@ -259,7 +249,8 @@ void ServerConnect::ReadMessageFromServer()
 
 		delete[] message;
 		char sendBack[4] = { 0 };
-		*sendBack = 1;
+		unsigned int sendToServer = 1;
+		memcpy_s(sendBack, sizeOfInt, &sendToServer, sizeOfInt);
 		send(_client, sendBack, sizeOfInt, 0);
 	}
 }

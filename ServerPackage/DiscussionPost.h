@@ -5,7 +5,7 @@ class DiscussionPost
 {
 public:
 
-	DiscussionPost(char* buffer, User& user);
+	DiscussionPost(char* buffer, User& user, unsigned int headerSize);
 	char* GetAuthor() { return _username; };
 	char* GetPost() { return _post; };
 	uint64_t Id() { return _id; };

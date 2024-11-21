@@ -3,14 +3,17 @@
 
 
 
-DiscussionPost::DiscussionPost(char* buffer, User& user)
+DiscussionPost::DiscussionPost(char* buffer, User& user, unsigned int headerSize)
 {
 	CreateId();
 	unsigned int startIdx = 0;
 	memcpy_s(_username, strlen(user.Username()), user.Username(), strlen(user.Username()));
 
-	char* data = GetDataFromBuffer('\0', buffer, sizeOfDiscussionPost, startIdx);
-	memcpy_s(_post, sizeOfDiscussionPost, data, sizeOfDiscussionPost);
+	char* data = GetDataFromBuffer('\0', buffer, headerSize, startIdx);
+	unsigned int dataLength = strlen(data) + 1;
+
+	memcpy_s(_post, dataLength, data, dataLength);
+	_post[dataLength] = '\0';
 	delete[] data;
 }
 
@@ -47,15 +50,11 @@ void DiscussionPost::SetAuthor(char* buffer, const unsigned int bufferOffset)
 
 char* DiscussionPost::GetDataFromBuffer(char delimiter, char* buffer, const unsigned int expectedSize, unsigned int& startIdx)
 {
-	char* data = new char[expectedSize + 1];
-	unsigned int idx = startIdx;
-	unsigned int writeToIdx = 0;
-	while (buffer[idx] != delimiter) {
-		data[writeToIdx] = buffer[idx];
-		idx++;
-		writeToIdx++;
-	}
-
+	unsigned int sizeOfBuffer = strlen(buffer);
+	char* data = new char[sizeOfBuffer + 1];
+	memcpy_s(data, sizeOfBuffer, buffer, sizeOfBuffer);
+	
+	data[sizeOfBuffer] = '\0';
 	return data;
 }
 
