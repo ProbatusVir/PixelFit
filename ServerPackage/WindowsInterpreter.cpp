@@ -263,24 +263,25 @@ void WindowsInterpreter::NewDiscussionPost(const SOCKET& clientSocket)
 			DiscussionPost infoToSend = _commands.NewDiscussionPost(buffer, user, byteHeader);
 			delete[] buffer;
 			// distribution
-			char* messageToSend = nullptr;
+			char messageToSend[1024];
 			char* username = infoToSend.GetAuthor();
 			char* postDetails = infoToSend.GetPost();
 			unsigned int usernameSize = strlen(username) + 1;
+			username[usernameSize - 1] = '\n';
 			unsigned int postSize = strlen(postDetails) + 1;
 			unsigned int detailHeader = usernameSize + postSize;
-			unsigned int command = (int) Command::NewDiscussionPost;
+			unsigned int command = (unsigned int) Command::NewDiscussionPost;
 			unsigned int packet = sizeOfInt + postSize + usernameSize + 1;
-			messageToSend = new char[packet + 1];
-			memcpy_s(messageToSend, sizeOfInt, &command, sizeOfInt);
-			memcpy_s(messageToSend + sizeOfInt, sizeOfInt, &detailHeader, sizeOfInt);
-			memcpy_s(messageToSend + sizeOfInt * 2, usernameSize, username, usernameSize);
-			memcpy_s(messageToSend + sizeOfInt * 2 + usernameSize, postSize, postDetails, postSize);
-			
-			SendPostToClients(clientSocket, messageToSend, packet);
+			//messageToSend = new char[packet];
+			memcpy_s(messageToSend, packet, &command, sizeOfInt);
+			memcpy_s(messageToSend + sizeOfInt, packet, &detailHeader, sizeOfInt);
+			memcpy_s(messageToSend + sizeOfInt * 2, packet, username, usernameSize);
+			memcpy_s(messageToSend + sizeOfInt * 2 + usernameSize, packet, postDetails, postSize);
+			int length = usernameSize + postSize + sizeOfInt + sizeOfInt;
+			SendPostToClients(clientSocket, messageToSend, length);
 
 			SendMessageToClient(clientSocket, true);
-		//	delete[] messageToSend;
+			//delete[] messageToSend;
 		}
 	}
 	else {
