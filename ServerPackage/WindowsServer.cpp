@@ -228,8 +228,7 @@ void WindowsServer::AcquireIpAdress()
 
 	addrinfo* result = nullptr;
 
-	//TODO: THIS WAS NOT WHAT RYAN INTENDED
-	if (getaddrinfo("127.0.0.1", nullptr, &hints, &result) != 0) {
+	if (getaddrinfo(hostName, nullptr, &hints, &result) != 0) {
 		std::cerr << "Error getting IP address from hostname \n";
 		WSACleanup();
 		return;
