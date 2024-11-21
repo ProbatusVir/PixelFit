@@ -27,6 +27,27 @@ WindowsServer::WindowsServer()
 
 }
 
+WindowsServer::WindowsServer(int setupIPType)
+{
+	if (setupIPType == 1) {
+	AcquireIpAdress();
+	}
+	else {
+		char ip[] = "127.0.0.1\0";
+		memcpy_s(_ipAddress, strlen(ip), ip, strlen(ip));
+	}
+	
+	WSAData wsaData;
+
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+		std::cerr << "Startup failed \n";
+		return;
+	}
+	
+	serverFd = socket(AF_INET, SOCK_STREAM, 0);
+	_interpreter = WindowsInterpreter();
+}
+
 WindowsServer::~WindowsServer()
 {
 	Cleanup();
@@ -44,7 +65,10 @@ void WindowsServer::Start()
 	}
 
 	address.sin_family = AF_INET;
-	address.sin_port = htons(port);
+
+	address.sin_port = htons(PORT);
+	std::cout << "Binding to " << _ipAddress << '\n';
+
 	inet_pton(AF_INET, _ipAddress, &address.sin_addr);
 
 	if (bind(serverFd, (sockaddr*)&address, addrSize) == SOCKET_ERROR) {
@@ -68,7 +92,7 @@ void WindowsServer::Start()
 	// Handle thread for graceful shutdown
 
 	// Begins monitoring clients
-	std::thread monitorClients(&WindowsServer::MonitorClients, this);
+//	std::thread monitorClients(&WindowsServer::MonitorClients, this);
 
 
 	while (_keepAlive) {
@@ -76,24 +100,53 @@ void WindowsServer::Start()
 		FD_ZERO(&readFds);
 		FD_SET(serverFd, &readFds);
 
-		int activity = select(0, &readFds, NULL, NULL, &timeout);
+		int maxFd = serverFd;
+
+		for (const auto& client : _clients) {
+			FD_SET(client, &readFds);
+			if (client > maxFd) {
+				maxFd = client;
+			}
+		}
+
+		int activity = select(maxFd + 1, &readFds, NULL, NULL, &timeout);
+
+
 
 		if (activity != 0) {
-			SOCKET client;
+			bool activityFromConnectedClient = false;
+			auto clientIter = _clients.begin();
+			for (; clientIter != _clients.end(); clientIter++) {
+				if (FD_ISSET(*clientIter, &readFds)) {
 
-			sockaddr_in clientAddr = {};
-
-			int clientAddrSize = sizeof(clientAddr);
-
-			client = accept(serverFd, (sockaddr*)&clientAddr, &clientAddrSize);
-			std::cout << "Client accepted \n";
-			if (client == INVALID_SOCKET) {
-				std::cerr << "Socket accept failed\n";
-				closesocket(client);
-				continue;
+					char testData[4];
+					int bytesRead = recv(*clientIter, testData, sizeOfInt, MSG_PEEK);
+					if (bytesRead > 0 && testData[0] != 0) {
+						HandleClient(*clientIter);
+						activityFromConnectedClient = true;
+						EmptyClientBuffer(*clientIter);
+					}
+				}
 			}
 
-			_clients.push_back(client);
+			if (!activityFromConnectedClient) {
+
+				SOCKET client;
+
+				sockaddr_in clientAddr = {};
+
+				int clientAddrSize = sizeof(clientAddr);
+
+				client = accept(serverFd, (sockaddr*)&clientAddr, &clientAddrSize);
+				std::cout << "Client accepted \n";
+				if (client == INVALID_SOCKET) {
+					std::cerr << "Socket accept failed\n";
+					closesocket(client);
+					continue;
+				}
+				HandleNonBlocking(client);
+				_clients.push_back(client);
+			}
 
 
 
@@ -101,9 +154,11 @@ void WindowsServer::Start()
 
 
 
+
+
 	}
-	
-	monitorClients.join();
+
+
 }
 
 void WindowsServer::Cleanup()
@@ -127,38 +182,24 @@ const bool WindowsServer::IPSetupComplete()
 void WindowsServer::HandleClient(const SOCKET clientSocket)
 {
 
-	// TODO: Make this look better (rs)
-	Command command;
-	unsigned int amountToRead = 0;
+
 	char readCmd[sizeof(Command)];
-	char bytesToRead[5] = { 0 };
-	char response[4] = { 0 };
-
-	//Receive file header
-
-	const int readBuffer = recv(clientSocket, readCmd, sizeOfInt, 0);
-	command = static_cast<Command>(readCmd[0]);
-
-
+	int readBuffer = recv(clientSocket, readCmd, sizeof(Command), MSG_PEEK);
 
 	if (readBuffer > 0) {
-	
+		recv(clientSocket, readCmd, sizeof(Command), 0); // Consume the bytes
+		Command command = static_cast<Command>(readCmd[0]);
 		_interpreter.InterpretMessage(clientSocket, command);
 	}
-	else if (readBuffer == 0 || readBuffer == SOCKET_ERROR) {
-		std::cout << "Client disconnected \n";
-		
-		
-		auto client = _clients.begin();
-		for (; client != _clients.end();) {
-			if (*client == clientSocket) {
-				client = _clients.erase(client);
-			}
-			else client++;
-		}
+	else if (readBuffer == 0) {
+		std::cout << "Client disconnected\n";
 		_interpreter.DisconnectClient(clientSocket);
 	}
-	
+	else if (readBuffer == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
+		std::cerr << "Socket error: " << WSAGetLastError() << "\n";
+		_interpreter.DisconnectClient(clientSocket);
+	}
+
 }
 // Handles the login of each client to pair them to a user object and their respective socket
 // Following this process, our CheckClient function will be able to contact the correct clients.
@@ -168,34 +209,47 @@ void WindowsServer::MonitorClients()
 
 	while (_keepAlive) {
 		FD_ZERO(&clientFds);
-		std::vector<SOCKET> clientTemp = _clients;
 
-		for (auto client : clientTemp) {
+		for (auto client : _clients) {
 			FD_SET(client, &clientFds);
 		}
 
-		if (_clients.size() > 0) {
-
+		if (!_clients.empty()) {
 			int maxFds = static_cast<int>(*std::max_element(_clients.begin(), _clients.end())) + 1;
-
 			int activity = select(maxFds, &clientFds, NULL, NULL, NULL);
 
-
-		
-				auto client = clientTemp.begin();
-				for (; client != clientTemp.end();client++) {
-					if (FD_ISSET(*client, &clientFds)) {
-						HandleClient(*client);
+			if (activity > 0) {
+				for (auto& client : _clients) {
+					if (FD_ISSET(client, &clientFds)) {
+						HandleClient(client);
 					}
-					
 				}
-			
-
+			}
 		}
-
-
 	}
 
+}
+void WindowsServer::HandleNonBlocking(SOCKET& clientSocket)
+{
+	// changes to non-blocking
+	u_long mode = 1; // 1 to enable non-blocking
+	if (ioctlsocket(clientSocket, FIONBIO, &mode) != 0) {
+		std::cerr << "Failed to set non-blocking mode: " << WSAGetLastError() << std::endl;
+		closesocket(clientSocket);
+	}
+
+
+}
+void WindowsServer::EmptyClientBuffer(const SOCKET& clientSocket)
+{
+	char throwAway[1];
+	int bytesRead = 0;
+	while (bytesRead > -1) {
+		bytesRead = recv(clientSocket, throwAway, 1, MSG_PEEK);
+		if (bytesRead > 0) {
+			bytesRead = recv(clientSocket, throwAway, 1, 0);
+		}
+	}
 }
 // This checks on every logged in client
 // If there are incoming requests from logged in clients

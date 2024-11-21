@@ -13,6 +13,7 @@ class WindowsServer
 public:
 
 	WindowsServer();
+	WindowsServer(int setupIPType);
 	~WindowsServer();
 	void Start();
 	void Cleanup();
@@ -25,6 +26,8 @@ private:
 	void AcquireIpAdress();
 	void HandleClient(const SOCKET clientSocket);
 	void MonitorClients();
+	void HandleNonBlocking(SOCKET &clientSocket);
+	void EmptyClientBuffer(const SOCKET& clientSocket);
 	
 	char _ipAddress[INET_ADDRSTRLEN] = {0};
 	bool _keepAlive = true;
