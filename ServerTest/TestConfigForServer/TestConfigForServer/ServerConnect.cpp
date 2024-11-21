@@ -95,7 +95,7 @@ void ServerConnect::CreateSocket()
 	}
 
 	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(5930);
+	serverAddr.sin_port = htons(port);
 
 	// Convert IPV4 and IPV6 to binary
 
