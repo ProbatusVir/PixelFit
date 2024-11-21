@@ -30,9 +30,9 @@ open class User {
     }
 
     // TODO: Possible variables???
-    // physique
-    // achievements
-    // namesOnOtherPlatforms
+    //  physique
+    //  achievements
+    //  namesOnOtherPlatforms
 
     private fun randomPath() : String {
         val pathSize = 8

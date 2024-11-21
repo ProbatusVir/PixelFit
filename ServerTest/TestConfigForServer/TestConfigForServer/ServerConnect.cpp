@@ -192,7 +192,8 @@ void ServerConnect::SetTargetIp()
 
 	addrinfo* result = nullptr;
 
-	if (getaddrinfo(hostName, nullptr, &hints, &result) != 0) {
+	//TODO: THIS IS NOT WHAT RYAN INTENDED
+	if (getaddrinfo("127.0.0.1", nullptr, &hints, &result) != 0) {
 		std::cerr << "Error getting IP address from hostname \n";
 		WSACleanup();
 		return;
