@@ -16,12 +16,9 @@ public:
 
 	int SendToServer(int command, char* message);
 
-	void CreateSocket();
-	
-	void ListenForServer();
-
 private:
-
+	void CreateSocket();
+	void ListenForServer();
 	void SetTargetIp();
 	void HandleToken();
 	unsigned int ReadHeader();

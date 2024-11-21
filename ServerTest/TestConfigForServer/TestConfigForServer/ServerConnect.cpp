@@ -136,16 +136,14 @@ void ServerConnect::ListenForServer()
 {
 
 	while (true) {
-		char command[4] = { 0 };
-		unsigned int cmd= ReadHeader();
+		int cmd= ReadHeader();
 		if (cmd > 0) {
 			
-			
 			switch (cmd) {
-			case 1:
+			case (int)Command::Login:
 				HandleToken();
 				break;
-			case 2:
+			case (int)MessageResult::Success:
 				ReadMessageFromServer();
 				break;
 			case (int)Command::NewDiscussionPost:
