@@ -16,8 +16,17 @@
             android:label="@string/Login_fragment_label"
             tools:layout="@layout/fragment_second">
 
+
         <action
                 android:id="@+id/action_SecondFragment_to_FirstFragment"
                 app:destination="@id/FirstFragment"/>
+        <action android:id="@+id/action_SecondFragment_to_signUp" app:destination="@id/signUp"/>
     </fragment>
+    <fragment android:id="@+id/signUp" android:name="com.example.myapplication.SignUp" android:label="fragment_sign_up"
+              tools:layout="@layout/fragment_sign_up">
+        <action android:id="@+id/action_signUp_to_SecondFragment3" app:destination="@id/SecondFragment"
+        />
+        <action android:id="@+id/action_signUp_to_FirstFragment" app:destination="@id/FirstFragment"/>
+    </fragment>
+
 </navigation>

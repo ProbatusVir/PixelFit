@@ -37,6 +37,9 @@ class SecondFragment : Fragment() {
         binding.loginButton.setOnClickListener {
             findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment)
         }
+        binding.signupButton.setOnClickListener {
+            findNavController().navigate(R.id.action_SecondFragment_to_signUp)
+        }
     }
 
     override fun onDestroyView() {
