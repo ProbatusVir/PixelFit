@@ -32,10 +32,10 @@
               android:label="fragment_group_finder"
               tools:layout="@layout/fragment_group_finder"/>
 
-    <fragment android:id="@+id/CommunityFragment"
-              android:name="com.example.myapplication.CommunityBoard"
+    <fragment android:id="@+id/InstructorFragment"
+              android:name="com.example.myapplication.Instructor"
               android:label="fragment_community_board"
-              tools:layout="@layout/fragment_community_board"/>
+              tools:layout="@layout/fragment_instructor"/>
 
     <fragment android:id="@+id/SettingsFragment"
               android:name="com.example.myapplication.SettingsFragment"

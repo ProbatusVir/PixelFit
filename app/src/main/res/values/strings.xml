@@ -63,7 +63,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="friends">Add Friends fragment</string>
     <string name="groups">Group Finder fragment</string>
-    <string name="community">Community Board fragment</string>
+    <string name="instructor">Instructor fragment</string>
     <string name="settings">Setting fragment</string>
 
     <!-- Preference Titles -->

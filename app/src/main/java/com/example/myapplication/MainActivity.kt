@@ -37,10 +37,11 @@ class MainActivity : AppCompatActivity() {
         val navView : BottomNavigationView = binding.bottomNav
 
         val navController = navHostFragment.navController
+        navView.setupWithNavController(navController)
 
         val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.HomeFragment, R.id.FriendsFragment, R.id.GroupFragment, R.id.CommunityFragment
+                R.id.HomeFragment, R.id.FriendsFragment, R.id.GroupFragment, R.id.InstructorFragment
             )
         )
 
