@@ -52,6 +52,7 @@
     <string name="email_input_text">Enter Your Email</string>
     <string name="password_input_text">Enter Your Password</string>
     <string name="reenter_password_input_text">Re Enter Your Password</string>
+    <string name="back_button">back_button</string>
 
     <!-- Room finder text -->
     <string name="room_header">Room Finder</string>

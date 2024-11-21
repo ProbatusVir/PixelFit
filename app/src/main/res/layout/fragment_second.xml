@@ -102,7 +102,7 @@
             android:shadowDx="0"
             android:shadowDy="0"
             android:shadowRadius="2"
-            app:cornerRadius="0dp" tools:layout_editor_absoluteY="358dp" tools:layout_editor_absoluteX="88dp"/> <!-- Remove individual corner radius -->
+            app:cornerRadius="0dp" tools:layout_editor_absoluteY="358dp" tools:layout_editor_absoluteX="88dp"/>
 </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
