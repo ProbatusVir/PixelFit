@@ -2,7 +2,7 @@
 #include <openssl/sha.h>
 
 
-	enum class Command : unsigned int
+	enum class Command : int
 	{
 		Login = 1,
 		NewUser,
@@ -14,7 +14,7 @@
 		BanUser,
 	};
 
-	enum class MessageResult : unsigned int {
+	enum class MessageResult : int {
 		Failed,
 		LoginSuccess,
 		Success
