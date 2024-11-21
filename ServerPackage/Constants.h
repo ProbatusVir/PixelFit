@@ -19,6 +19,10 @@
 		Success
 	};
 
+	// use port numbers from 3500 - 65000. 
+	// Avoid using ports lower than 3500 due to IATA protocols
+	static constexpr int port = 5930;
+	
 	static constexpr size_t packetSize = 1024;
 	static constexpr size_t hashSize = SHA256_DIGEST_LENGTH;
 	static constexpr size_t nameSize = 50;

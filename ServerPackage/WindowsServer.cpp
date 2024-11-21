@@ -12,12 +12,6 @@
 #include <filesystem>
 #include "Constants.h"
 
-
-// use port numbers from 3500 - 65000. 
-// Avoid using ports lower than 3500 due to IATA protocols
-
-#define PORT 5930
-
 WindowsServer::WindowsServer()
 {
 	AcquireIpAdress();
@@ -50,7 +44,7 @@ void WindowsServer::Start()
 	}
 
 	address.sin_family = AF_INET;
-	address.sin_port = htons(PORT);
+	address.sin_port = htons(port);
 	inet_pton(AF_INET, _ipAddress, &address.sin_addr);
 
 	if (bind(serverFd, (sockaddr*)&address, addrSize) == SOCKET_ERROR) {
