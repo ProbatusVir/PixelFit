@@ -131,9 +131,9 @@ User CommandSet::NewUser(const char* buffer, bool& success)
 
 }
 
-DiscussionPost CommandSet::NewDiscussionPost(char* buffer)
+DiscussionPost CommandSet::NewDiscussionPost(char* buffer, User& user, unsigned int headerSize)
 {
-	DiscussionPost info = DiscussionPost(buffer);
+	DiscussionPost info = DiscussionPost(buffer, user, headerSize);
 
 	return info;
 }

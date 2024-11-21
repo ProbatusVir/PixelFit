@@ -10,6 +10,7 @@ public:
 	User();
 	User(const User& user);
 	~User();
+	char* Username() { return _userName; };
 	char* Token() { return _token; }
 	void RemakeToken();
 

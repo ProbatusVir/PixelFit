@@ -55,7 +55,7 @@ int ServerConnect::SendToServer(int command, char* message)
 		memcpy_s(messageToServer + sizeOfInt * 2, lengthOfMessage, message, lengthOfMessage);
 
 	}
-
+	// This is creating the entire packet size to send
 	const unsigned int packetSize = tokenSize + lengthOfMessage;
 	std::cout << '\n' << messageToServer << '\n';
 	send(_client, messageToServer, packetSize , 0);
@@ -63,34 +63,7 @@ int ServerConnect::SendToServer(int command, char* message)
 	char response[4] = { 0 };
 
 
-	const int readBufferSize = recv(_client, response, 4, 0);
 
-	if (readBufferSize > 0) {
-
-		memcpy_s(&codeFromServer, sizeof(int), response, sizeof(int));
-		if (codeFromServer > 0 && codeFromServer < 2) {
-			recv(_client, response, sizeof(int), 0);
-			int tokenSize = 0;
-			memcpy_s(&tokenSize, sizeof(int), response, sizeof(int));
-			
-			
-			recv(_client, _token, tokenSize, 0);
-			std::cout << _token << '\n';
-		
-
-		}
-		else {
-			char* recvMessage = nullptr;
-			unsigned int byteHeaderSize = 0;
-			recv(_client, (char*)&byteHeaderSize, sizeOfInt, 0);			
-			recvMessage = new char[byteHeaderSize + 1];
-
-			recv(_client, recvMessage, byteHeaderSize, 0);
-			std::cout << recvMessage << '\n';
-			if (recvMessage != nullptr) delete[] recvMessage;
-		}
-
-	}
 	
 
 	return codeFromServer;
@@ -155,6 +128,45 @@ void ServerConnect::CreateSocket()
 	}
 
 	_client = socketFd;
+	std::thread serverListen(&ServerConnect::ListenForServer, this);
+	serverListen.detach();
+}
+
+void ServerConnect::ListenForServer()
+{
+
+	while (true) {
+		char command[4] = { 0 };
+		unsigned int cmd= ReadHeader();
+		if (cmd > 0) {
+			
+			
+			switch (cmd) {
+			case 1:
+				HandleToken();
+				break;
+			case 2:
+				ReadMessageFromServer();
+				break;
+			case (int)Command::NewDiscussionPost:
+				ReadMessageFromServer();
+				break;
+			}
+
+			// Handle commands as necessary
+		}
+		else if (cmd == 0 || cmd == SOCKET_ERROR) {
+			std::cout << "Server Disconnected\n";
+			break;
+		}
+		else {
+			std::cout << "Recv failed breaking connection\n";
+			closesocket(_client);
+			break;
+		}
+
+	
+	}
 }
 
 void ServerConnect::SetTargetIp()
@@ -201,4 +213,44 @@ void ServerConnect::SetTargetIp()
 	freeaddrinfo(result);
 
 	WSACleanup();
+}
+
+void ServerConnect::HandleToken()
+{
+	unsigned int bytesToRead = ReadHeader();
+	if (bytesToRead > 0) {
+		char* token = new char[hashSize + 1];
+		recv(_client, token, bytesToRead, 0);
+
+		memcpy_s(_token, hashSize + 1, token, bytesToRead);
+
+		std::cout << _token << '\n';
+	}
+}
+
+unsigned int ServerConnect::ReadHeader()
+{
+	char buffer[4] = { 0 };
+	recv(_client, buffer, 4, 0);
+	unsigned int header = 0;
+	memcpy_s(&header, sizeOfInt, buffer, sizeOfInt);
+
+	return header;
+}
+
+void ServerConnect::ReadMessageFromServer()
+{
+	unsigned int byteHeader = ReadHeader();
+	if (byteHeader > 0) {
+		char* message = new char[byteHeader + 1];
+
+		recv(_client, message, byteHeader, 0);
+		std::cout << message << '\n';
+
+		delete[] message;
+		char sendBack[4] = { 0 };
+		unsigned int sendToServer = 1;
+		memcpy_s(sendBack, sizeOfInt, &sendToServer, sizeOfInt);
+		send(_client, sendBack, sizeOfInt, 0);
+	}
 }

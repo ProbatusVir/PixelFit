@@ -1,11 +1,11 @@
 #pragma once
 #include "Constants.h"
-
+#include "User.h"
 class DiscussionPost
 {
 public:
 
-	DiscussionPost(char* buffer);
+	DiscussionPost(char* buffer, User& user, unsigned int headerSize);
 	char* GetAuthor() { return _username; };
 	char* GetPost() { return _post; };
 	uint64_t Id() { return _id; };
