@@ -4,12 +4,16 @@
 
 #include "WindowsServer.h"
 #include "SQLInterface.h"
+#include <iostream>
 
 int main()
 {
 #if defined(_WIN32)
 
-	WindowsServer server;
+	int selectLan = 1;
+	std::cout << "Press 1 for LAN connection, 2 for localhost\n";
+	std::cin >> selectLan;
+	WindowsServer server(selectLan);
 	SQLInterface* sql_interface = SQLInterface::Instance();
 	if (server.IPSetupComplete()) {
 		server.Start();
