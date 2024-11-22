@@ -31,14 +31,13 @@ class SecondFragment : Fragment() {
             val password = binding.passwordInput.text.toString()
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
-                // Save email and password to SharedPreferences
+
                 val sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
                 val editor = sharedPreferences.edit()
                 editor.putString("email", email)
                 editor.putString("password", password)
                 editor.apply()
 
-                // Navigate to HomeFragment
                 findNavController().navigate(R.id.action_LoginFragment_to_HomeFragment)
             } else {
                 Toast.makeText(context, "Please enter both email and password", Toast.LENGTH_SHORT).show()
