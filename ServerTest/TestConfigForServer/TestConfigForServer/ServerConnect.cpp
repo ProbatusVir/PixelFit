@@ -223,7 +223,7 @@ void ServerConnect::HandleToken()
 
 		memcpy_s(_token, hashSize + 1, token, bytesToRead);
 
-		std::cout << _token << '\n';
+		
 	}
 }
 

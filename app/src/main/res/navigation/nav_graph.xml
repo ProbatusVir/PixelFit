@@ -3,21 +3,44 @@
             xmlns:app="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/nav_graph"
-            app:startDestination="@id/SecondFragment">
+            app:startDestination="@id/LoginFragment">
 
     <fragment
-            android:id="@+id/FirstFragment"
+            android:id="@+id/HomeFragment"
             android:name="com.example.myapplication.FirstFragment"
             android:label="@string/Home_fragment_label"
             tools:layout="@layout/fragment_first"/>
+
     <fragment
-            android:id="@+id/SecondFragment"
+            android:id="@+id/LoginFragment"
             android:name="com.example.myapplication.SecondFragment"
             android:label="@string/Login_fragment_label"
             tools:layout="@layout/fragment_second">
+        <action android:id="@+id/action_LoginFragment_to_HomeFragment" app:destination="@id/HomeFragment"/>
+        <action android:id="@+id/action_LoginFragment_to_signUp" app:destination="@id/signUp"/>
+    </fragment>
 
-        <action
-                android:id="@+id/action_SecondFragment_to_FirstFragment"
-                app:destination="@id/FirstFragment"/>
+    <fragment android:id="@+id/FriendsFragment"
+              android:name="com.example.myapplication.AddFriends"
+              android:label="fragment_add_friends"
+              tools:layout="@layout/fragment_add_friends"/>
+
+    <fragment android:id="@+id/GroupFragment"
+              android:name="com.example.myapplication.GroupFinder"
+              android:label="fragment_group_finder"
+              tools:layout="@layout/fragment_group_finder"/>
+
+    <fragment android:id="@+id/InstructorFragment"
+              android:name="com.example.myapplication.Instructor"
+              android:label="fragment_community_board"
+              tools:layout="@layout/fragment_instructor"/>
+
+    <fragment android:id="@+id/SettingsFragment"
+              android:name="com.example.myapplication.SettingsFragment"
+              android:label="fragment_settings"
+              tools:layout="@layout/fragment_settings"/>
+    <fragment android:id="@+id/signUp" android:name="com.example.myapplication.SignUp" android:label="SignUp">
+        <action android:id="@+id/action_signUp_to_HomeFragment" app:destination="@id/HomeFragment"/>
+        <action android:id="@+id/action_signUp_to_LoginFragment2" app:destination="@id/LoginFragment"/>
     </fragment>
 </navigation>

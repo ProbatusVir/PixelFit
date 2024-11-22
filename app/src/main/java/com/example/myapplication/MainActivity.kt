@@ -12,6 +12,8 @@ import android.widget.ImageButton
 import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
+import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -37,17 +39,22 @@ class MainActivity : AppCompatActivity() {
         val navView : BottomNavigationView = binding.bottomNav
 
         val navController = navHostFragment.navController
+        navView.setupWithNavController(navController)
 
         val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.FirstFragment,
+                R.id.HomeFragment, R.id.FriendsFragment, R.id.GroupFragment, R.id.InstructorFragment
             )
 
         )
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.SecondFragment -> {
+                R.id.LoginFragment -> {
+                    bottomNav.visibility = View.GONE
+                    profile.visibility = View.GONE
+                }
+                R.id.signUp-> {
                     bottomNav.visibility = View.GONE
                     profile.visibility = View.GONE
                 }

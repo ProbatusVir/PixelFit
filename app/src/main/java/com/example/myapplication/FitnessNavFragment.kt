@@ -33,7 +33,7 @@ class FitnessNavFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.loginButton.setOnClickListener {
-            findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment)
+            findNavController().navigate(R.id.action_LoginFragment_to_HomeFragment)
         }
     }
 
