@@ -88,6 +88,8 @@ void WindowsInterpreter::HandleNewUser(const SOCKET& clientSocket)
 		if (buffer != nullptr) delete[] buffer;
 	}
 
+	else SendMessageToClient(clientSocket, false);
+
 }
 
 void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& user, const bool success)

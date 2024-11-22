@@ -106,7 +106,8 @@ class ServerConnect() {
 
         var buffer : ByteArray = ByteArray(0)
         //Write command
-        buffer += ByteBuffer.allocate(Int.SIZE_BYTES).putInt(command).order(ENDIAN).array()
+
+        buffer += ByteBuffer.allocate(Int.SIZE_BYTES).order(ENDIAN).putInt(command).array()
 
         if (token != null) {
             buffer += ByteBuffer.allocate(Int.SIZE_BYTES).putInt(tokenSize).order(ENDIAN).array()
@@ -115,7 +116,7 @@ class ServerConnect() {
             buffer += message.toByteArray() + 0x00
         }
         else {
-            buffer += ByteBuffer.allocate(Int.SIZE_BYTES).putInt(lengthOfMessage).order(ENDIAN).array()
+            buffer += ByteBuffer.allocate(Int.SIZE_BYTES).order(ENDIAN).putInt(lengthOfMessage).array()
             buffer += message.toByteArray() + 0x00
         }
 
@@ -132,8 +133,9 @@ class ServerConnect() {
                 Command.NewUser.int,
                 "bobby\nBobIsAwesome\n123BOB"
             )
-            handleToken()
+
             listenForServer()
+            handleToken()
         }.start()
     }
 
@@ -146,6 +148,6 @@ class ServerConnect() {
         private const val PASSWORD_SIZE = 60
         private const val LENGTH_OF_COMMAND_AND_MESSAGE_HEADER = Int.SIZE_BYTES * 3 + 1
         //server endian
-        private val ENDIAN = ByteOrder.BIG_ENDIAN
+        private val ENDIAN = ByteOrder.LITTLE_ENDIAN
     }
 }
