@@ -61,6 +61,7 @@ class ServerConnect() {
 
     private fun listenForServer()
     {
+        handleToken()
         while (true)
         {
             val command = readHeader()
@@ -110,14 +111,11 @@ class ServerConnect() {
 
         if (token != null) {
             buffer += ByteBuffer.allocate(Int.SIZE_BYTES).order(ENDIAN).putInt(tokenSize).array()
-            buffer += token?: "".toByteArray() //This is literal nonsense
+            buffer += token!!
+        }
+
             buffer += ByteBuffer.allocate(Int.SIZE_BYTES).order(ENDIAN).putInt(lengthOfMessage).array()
             buffer += message.toByteArray() + 0x00
-        }
-        else {
-            buffer += ByteBuffer.allocate(Int.SIZE_BYTES).order(ENDIAN).putInt(lengthOfMessage).array()
-            buffer += message.toByteArray() + 0x00
-        }
 
         outputStream?.write(buffer)
         outputStream?.flush()
@@ -133,7 +131,6 @@ class ServerConnect() {
                 "bobby\nBobIsAwesome\n123BOB"
             )
 
-            handleToken()
             listenForServer()
         }.start()
     }
