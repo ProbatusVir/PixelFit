@@ -9,16 +9,15 @@
             android:id="@+id/textview_first"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="80dp"
             android:text="@string/login_text"
-            android:textColor="@color/white"
             android:textSize="50sp"
             android:fontFamily="sans-serif-medium"
             android:gravity="center"
             style="@style/login_text"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintHorizontal_bias="0.497" android:layout_marginTop="60dp"/>
 
     <EditText
             android:id="@+id/email_input"
