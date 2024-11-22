@@ -10,6 +10,7 @@
     <color name="light_text">#2E2E2E</color>
     <color name="accent">#FFD700</color>
 
+    <color name="icon">#1E90FF</color>
 
     <!-- Fitness parts model colors -->
     <!-- We'll get more specific later -->
@@ -20,4 +21,5 @@
     <color name="torso">#0000FF</color>
     <color name="head">#00FFFF</color>
     <color name="button_purple">#6851A5</color>
+    <color name="light_blue">#ADD8E6</color>
 </resources>

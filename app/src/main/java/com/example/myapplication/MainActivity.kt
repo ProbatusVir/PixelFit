@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
                     bottomNav.visibility = View.GONE
                     profile.visibility = View.GONE
                 }
-                R.id.signUp -> {
+                R.id.signUp-> {
                     bottomNav.visibility = View.GONE
                     profile.visibility = View.GONE
                 }
