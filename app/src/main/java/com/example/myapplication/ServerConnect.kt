@@ -81,9 +81,8 @@ class ServerConnect() {
     }
 
     private fun handleToken() {
-        val sizeBuffer = ByteArray(Int.SIZE_BYTES)
-        inputStream?.read(sizeBuffer)
-        val bytesToRead = ByteBuffer.wrap(sizeBuffer).order(ENDIAN).getInt()
+        inputStream?.skip(Int.SIZE_BYTES.toLong())
+        val bytesToRead = readHeader()
 
         token = ByteArray(bytesToRead + 1 )
         inputStream?.read(token, 0, bytesToRead)
@@ -134,8 +133,8 @@ class ServerConnect() {
                 "bobby\nBobIsAwesome\n123BOB"
             )
 
-            listenForServer()
             handleToken()
+            listenForServer()
         }.start()
     }
 
