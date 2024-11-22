@@ -66,23 +66,24 @@ class ServerConnect() {
             val command = readHeader()
             when (command)
             {
-                Command.SocketError.ordinal -> error("Socket error")
-                Command.Failed.ordinal -> error("Server disconnected")
-                Command.Login.ordinal -> handleToken()
+                Command.SocketError.int -> error("Socket error")
+                Command.Failed.int -> error("Server disconnected")
+                Command.Login.int -> handleToken()
                 else -> error("Received unexpected command")
             }
         }
     }
 
     private fun readHeader() : Int {
-        val scanner = Scanner(inputStream)
-        return if (scanner.hasNextInt())
-            scanner.nextInt() else 0
+        val buffer = ByteArray(Int.SIZE_BYTES)
+        inputStream?.read(buffer)
+        return ByteBuffer.wrap(buffer).order(ENDIAN).getInt()
     }
 
     private fun handleToken() {
-        val scanner = Scanner(socket?.getInputStream())
-        val bytesToRead = scanner.nextInt()
+        val sizeBuffer = ByteArray(Int.SIZE_BYTES)
+        inputStream?.read(sizeBuffer)
+        val bytesToRead = ByteBuffer.wrap(sizeBuffer).order(ENDIAN).getInt()
 
         token = ByteArray(bytesToRead + 1 )
         inputStream?.read(token, 0, bytesToRead)
@@ -106,13 +107,12 @@ class ServerConnect() {
 
         var buffer : ByteArray = ByteArray(0)
         //Write command
-
         buffer += ByteBuffer.allocate(Int.SIZE_BYTES).order(ENDIAN).putInt(command).array()
 
         if (token != null) {
-            buffer += ByteBuffer.allocate(Int.SIZE_BYTES).putInt(tokenSize).order(ENDIAN).array()
+            buffer += ByteBuffer.allocate(Int.SIZE_BYTES).order(ENDIAN).putInt(tokenSize).array()
             buffer += token?: "".toByteArray() //This is literal nonsense
-            buffer += ByteBuffer.allocate(Int.SIZE_BYTES).putInt(lengthOfMessage).order(ENDIAN).array()
+            buffer += ByteBuffer.allocate(Int.SIZE_BYTES).order(ENDIAN).putInt(lengthOfMessage).array()
             buffer += message.toByteArray() + 0x00
         }
         else {
