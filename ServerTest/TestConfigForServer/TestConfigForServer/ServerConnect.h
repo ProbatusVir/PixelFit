@@ -10,7 +10,7 @@
 class ServerConnect
 {
 public: 
-	ServerConnect();
+	ServerConnect(int lanOrLocalhost);
 
 	~ServerConnect();
 

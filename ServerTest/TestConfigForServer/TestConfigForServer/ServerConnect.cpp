@@ -12,9 +12,14 @@
 #include <iostream>
 
 
-ServerConnect::ServerConnect()
+ServerConnect::ServerConnect(int lanOrLocalhost)
 {
-	SetTargetIp();
+	if (lanOrLocalhost == 1)
+		SetTargetIp();
+	else {
+		char ip[] = "127.0.0.1\0";
+		memcpy_s(_ipAddress, strlen(ip), ip, strlen(ip));
+	}
 	CreateSocket();
 
 }
@@ -166,6 +171,7 @@ void ServerConnect::ListenForServer()
 		std::this_thread::sleep_for(std::chrono::seconds(2));
 	
 	}
+	closesocket(_client);
 }
 
 void ServerConnect::SetTargetIp()

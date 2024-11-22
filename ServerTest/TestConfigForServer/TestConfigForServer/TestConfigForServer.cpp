@@ -106,9 +106,13 @@ void SendMessageToServer(ServerConnect& server, unsigned char* token) {
 
 int main()
 {
-    ServerConnect server;
+    int selectLan = 1;
+    std::cout << "Press 1 for LAN connection, 2 for localhost\n";
+    std::cin >> selectLan;
+    ServerConnect server(selectLan);
     bool keepAlive = true;
     unsigned char* token = nullptr;
+
     while (keepAlive) {
         int response = 0;
         PrintMenu();
