@@ -3,7 +3,6 @@ package com.example.myapplication
 import ActiveUser
 import ActiveUser.partsWorked
 import android.graphics.Color
-import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
@@ -81,7 +80,7 @@ class FirstFragment : Fragment() {
         if (partsWorked[part.ordinal])
             layer.setTint(Color.RED)
         else
-            layer.setTintMode(PorterDuff.Mode.SRC_IN)
+            layer.setTint(Color.WHITE)
     }
 
     override fun onDestroyView() {
