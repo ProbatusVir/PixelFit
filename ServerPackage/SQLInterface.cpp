@@ -1,5 +1,5 @@
 #include "SQLInterface.h"
-
+#include <iostream>
 #include <sql.h>
 #include <iostream>
 #include <odbcss.h>		
