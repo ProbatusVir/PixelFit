@@ -149,6 +149,7 @@
     <ClInclude Include="WindowsUserPair.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".env" />
     <None Include=".gitignore" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

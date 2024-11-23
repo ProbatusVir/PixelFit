@@ -1,5 +1,5 @@
 #pragma once
-
+#include <fstream>
 // If you don't know how to access your database credentials:
 // https://www.dropbox.com/scl/fi/wlozzlt77ib21d1wdj22n/login_credentials.png?rlkey=wkqn7m9pv9rc1ob8fk8qw0lfx&st=w7pg8y69&dl=0
 // Make sure your server is properly started before you attempt to log in, or it simply won't work.
@@ -17,4 +17,6 @@
 
 //DSN=LOCAL_DSN;UID=USER;Trusted_Connection=Yes;WSID=SERVERHOST;
 
-constexpr const char* inConnStr = field1 dsn field2 auth_username field3 field4 db_name;
+
+//const char* inConnStr = LoadCredentials(".env");
+//constexpr const char* inConnStr = field1 dsn field2 auth_username field3 field4 db_name;

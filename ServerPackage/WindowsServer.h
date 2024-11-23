@@ -25,7 +25,6 @@ private:
 
 	void AcquireIpAdress();
 	void HandleClient(const SOCKET clientSocket);
-	void MonitorClients();
 	void HandleNonBlocking(SOCKET &clientSocket);
 	void EmptyClientBuffer(const SOCKET& clientSocket);
 	

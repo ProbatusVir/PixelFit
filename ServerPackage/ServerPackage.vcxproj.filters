@@ -30,6 +30,12 @@
     <ClCompile Include="WindowsInterpreter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DiscussionPost.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SQLInterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WindowsServer.h">
@@ -50,8 +56,20 @@
     <ClInclude Include="WindowsInterpreter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="db_credentials.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DiscussionPost.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SQLInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
+    <None Include=".env">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

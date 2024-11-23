@@ -20,6 +20,7 @@ public:
 	void InterpretMessage(const SOCKET &clientSocket, Command command);
 	void DisconnectClient(const SOCKET& clientSocket);
 private:
+
 	void HandleLoginUser(const SOCKET& clientSocket);
 	void HandleNewUser(const SOCKET& clientSocket);
 	void LoginResponseToUser(const SOCKET& clientSocket, User& user, const bool success);
