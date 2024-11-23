@@ -18,4 +18,6 @@ local.properties
 *x64
 /.vs
 /ServerTest/TestConfigForServer/.vs
-/ServerPackage/db_credentials.h
+./ServerPackage/db_credentials.h
+./ServerPackage/*.env
+*.env
