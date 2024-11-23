@@ -81,6 +81,7 @@ void WindowsInterpreter::HandleNewUser(const SOCKET& clientSocket)
 		if (bytesRead != 0) {
 			bool success = false;
 			User newUser = _commands.NewUser(buffer, success);
+			if (newUser.Username()[0] == ' ') LoginResponseToUser(clientSocket, newUser, false);
 			LoginResponseToUser(clientSocket, newUser, success);
 
 
