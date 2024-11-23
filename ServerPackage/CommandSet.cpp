@@ -1,13 +1,13 @@
 #include "CommandSet.h"
 #include <iostream>
-
+#include "SQLInterface.h"
 CommandSet::CommandSet()
 {
 }
 
 CommandSet::CommandSet(User* user)
 {
-	
+
 }
 
 
@@ -49,7 +49,7 @@ User CommandSet::LoginUser(const char* buffer, bool& success)
 
 		buff_seeker++;
 	}
-	 char* checkPass = User::HashPassword(password);
+	char* checkPass = User::HashPassword(password);
 
 
 	error = !(strlen((char*)checkPass) <= passwordSize) && (strlen(username) <= usernameSize);
@@ -59,7 +59,8 @@ User CommandSet::LoginUser(const char* buffer, bool& success)
 		//TODO: When SQL calls can be made for our user objects, we need to contact the db
 		// to get the user object. We then need to compare the hashed passwords against eachother
 		// if they match, then allow the user login, otherwise prevent it.
-		 char* removeAfterDebug = User::HashPassword("abcdef");
+
+		char* removeAfterDebug = User::HashPassword("abcdef");
 		comparedPass = strcmp((char*)checkPass, (char*)removeAfterDebug);
 		if (comparedPass == 0) success = true;
 		else success = false;
@@ -86,7 +87,7 @@ User CommandSet::NewUser(const char* buffer, bool& success)
 	bool fullReadOnPassword = false;
 	size_t sizeOfName = 0;
 	size_t sizeOfUsername = 0;
-	
+
 
 	size_t buffSeeker = 0;
 
@@ -112,25 +113,36 @@ User CommandSet::NewUser(const char* buffer, bool& success)
 		buffSeeker++;
 
 	}
-
 	int verifyReadName = strlen(name);
 	int verifyReadUsername = strlen(username);
 	int verifyReadPassword = strlen(password);
+	
 	if (verifyReadName && verifyReadUsername && verifyReadPassword != 0) {
+
+		char* hashed = User::HashPassword(password);
 		uint64_t id = CreateID();
-		 char* hashed = User::HashPassword(password);
-		char transferToCharHash[passwordSize] = { 0 };
-		memcpy_s(transferToCharHash, strlen((char*)hashed), hashed, strlen((char*)hashed));
+		// This tells us that we are or are not able to make a database entry. If we cannot, then we tell the user.
+		bool ableToCreateNewUser = SQLInterface::Instance()->InsertNewUser(name, username, hashed, id);
+		if (ableToCreateNewUser) {
+			char transferToCharHash[passwordSize] = { 0 };
+			memcpy_s(transferToCharHash, strlen((char*)hashed), hashed, strlen((char*)hashed));
 
-		//TODO: Send to database once we have database connection
-
-		User newUser =  User(name, username, transferToCharHash , id);
-		success = true;
-		return newUser;
+			User newUser = User(name, username, transferToCharHash, id);
+			success = true;
+			return newUser;
+		}
+		else {
+			success = false;
+			return User();
+		}
+	}
+	else {
+		success = false;
+		return User();
 	}
 
 }
-
+// This will handle the creation of discussion posts
 DiscussionPost CommandSet::NewDiscussionPost(char* buffer, User& user, unsigned int headerSize)
 {
 	DiscussionPost info = DiscussionPost(buffer, user, headerSize);
