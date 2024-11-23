@@ -1,5 +1,4 @@
 #include "SQLInterface.h"
-
 #include <sql.h>
 #include <iostream>
 #include <odbcss.h>		
@@ -7,18 +6,16 @@
 #include <sqlext.h>
 #include <fstream>
 #include <string>
+#include "Constants.h"
 
-//#define db_name "MSI"
-//#define auth_username "MSI/Rsube"
-//#define auth_password ""
-//#define dsn "DB"
+
 
 
 // https://www.ibm.com/docs/en/db2-for-zos/13?topic=functions-sqlallochandle-allocate-handle
 
 SQLInterface* SQLInterface::m_instance = nullptr;
 
-void getbobby(SQLHDBC _connection);
+
 
 SQLInterface::SQLInterface()
 {
@@ -42,6 +39,8 @@ void SQLInterface::ConnectToDB()
 {
 	// The naming convention is:
 	// SQL + h(andle) + handleType
+
+	// This looks for the .env file in the directory and will load your credentials to then get access to the db
 	LoadCredentials(".env");
 	SQLRETURN henvironment_state;
 	SQLRETURN hconnection_state;
@@ -55,44 +54,26 @@ void SQLInterface::ConnectToDB()
 	// This code is for when the DSN is unknown for the device
 	// Configure your DSN in "ODBC Data Source Administrator (64-bit)"
 	//		and put your defined name in the dsn field of `db_credentials.h`
-
-		////Fetch data source
-		//SQLRETURN data_source_state;
-		//char DSN_buffer[255] = { 0 };
-		//short int buffer_size;
-		//data_source_state = SQLDataSourcesA(hEnv, SQL_FETCH_NEXT, (SQLCHAR*)DSN_buffer, sizeof(DSN_buffer) - 1, (SQLSMALLINT*)&buffer_size,
-		//	nullptr, 0, nullptr); //This is for the DB description, which we don't really need.
-		//if (data_source_state == SQL_SUCCESS)
-		//	std::cout << "\t\t" << DSN_buffer << '\n';
-		//InterpretState(data_source_state, "data source");
 	
 	//Get database connection handle
 	hconnection_state = SQLAllocHandle(SQL_HANDLE_DBC, m_hEnv, &m_hDbc);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
 	//Connect to the database
-
 	char debug[1024] = { 0 };
 	SQLSMALLINT new_len;
 	driver_state = SQLDriverConnectA(m_hDbc, nullptr, (SQLCHAR*)connStr, SQL_NTS,
 		(SQLCHAR*)debug, 1024, &new_len, //Gives information
 		SQL_DRIVER_COMPLETE);
 
-	//Other connect to the database
-	// Only one of these methods should be used
-	// The driver connect is better and easier to use as it uses trusted setting
-	// The method below can work if you have login credentials, the one below is more so if you have cloud database
-	//connection_state = SQLConnectA(m_hDbc,);
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	std::cerr << "SQL Server diagnostics:\n";
 	InterpretState(henvironment_state, "environment handle");
 	InterpretState(hconnection_state, "connection handle");
 	InterpretState(driver_state, "driver state");
-	//InterpretState(connection_state, "connection");
-
-
-//	getbobby(m_hDbc);
+	
 
 }
 
@@ -161,9 +142,151 @@ void SQLInterface::LoadCredentials(const char* path)
 
 	
 }
+/// <summary>
+/// Attempts to make a new user, if the username already exists this will fail and kick back a false 
+/// This forces users to have different usernames
+/// </summary>
+/// <param name="name"></param>
+/// <param name="username"></param>
+/// <param name="password"></param>
+/// <param name="id"></param>
+/// <returns></returns>
+bool SQLInterface::InsertNewUser(const char* name, const char* username, const char* password, uint64_t id)
+{
+	bool userNotRegistered = true;
+	bool isValid = false;
+	const char* checkForAvailableUsername = "SELECT username FROM dbo.[User]";
+	SQLHSTMT statement = SetupAlloc();
+	SQLRETURN result = SQLExecDirectA(statement, (SQLCHAR*)checkForAvailableUsername, SQL_NTS);
+	std::vector<std::string> usernames =  ReturnEval(result, statement);
+	
+	
 
+	for (std::string registered : usernames) {
+		int compareResult = strcmp(username, registered.c_str());
+		// We want to compare the usernames to enforce one username is registered to one person.
+		// We do not want multiple usernames to multiple users so instead of wanting strcmp to == 0 we want -1 or 1
+		if (compareResult == 0) {
+
+			// Indicates the user is already existing and we will not bind this name to the new person
+			userNotRegistered = false;
+			break;
+		}
+	}
+	// This must be done as a statement is only good for one use.
+	// Due to checking on if a user exists, that consumes one use and therefore we must reset it.
+	ResetHandle(statement);
+
+	// This section handles if the user does not exist and puts them into the db
+	if (userNotRegistered) {
+		const char* insertSqlCmd = "INSERT INTO dbo.[User] (name, username, password, id) VALUES (?,?,?,?)";
+		result = SQLPrepareA(statement, (SQLCHAR*)insertSqlCmd, SQL_NTS);
+		if (result != SQL_SUCCESS) {
+			std::cerr << "Error with adding to db \n";
+			ErrorLogFromSQL(statement);
+			SQLFreeHandle(SQL_HANDLE_STMT, statement);
+			return false;
+		}
+	
+
+		// SQLBindParameter binds to the insertSQLCmd string which fills in each of the (?) in the paranthesis.
+		// Each parameter must be bound and I did not find a a better way to handle this.
+		HandleBindOfChars(statement, 1, 100, name);
+		HandleBindOfChars(statement, 2, 255, username);
+		HandleBindOfChars(statement, 3, 255, password);
+		HandleBindOfIntegers(statement, 4, 0, id);
+
+		result = SQLExecute(statement);
+		if (result == SQL_SUCCESS || result == SQL_SUCCESS_WITH_INFO) {
+			isValid = true;
+		}
+		else {
+			ErrorLogFromSQL(statement);
+		}
+	}
+
+	// Always free the handle when we are done with the function
+	SQLFreeHandle(SQL_HANDLE_STMT, statement);
+	return isValid;
+}
+/// <summary>
+/// This method is because typing the same three lines is redundant
+/// </summary>
+/// <returns></returns>
+SQLHSTMT SQLInterface::SetupAlloc()
+{
+	SQLHSTMT statement = nullptr;
+	SQLAllocHandle(SQL_HANDLE_STMT, m_hDbc, &statement);
+	return statement;
+}
+
+// Since nearly every SQL call that goes to the database will need evaluated
+// This is made a little specific to users at this point though
+std::vector<std::string> SQLInterface::ReturnEval(SQLRETURN result, SQLHSTMT& statement)
+{
+	std::vector<std::string> data;
+	if (result == SQL_SUCCESS || result == SQL_SUCCESS_WITH_INFO) {
+		SQLCHAR columnData[passwordSize];
+		SQLLEN indicator;
+		SQLBindCol(statement,
+			1,
+			SQL_C_CHAR,
+			columnData,
+			sizeof(columnData),
+			&indicator);
+		while (SQLFetch(statement) == SQL_SUCCESS) {
+			if (indicator == SQL_NULL_DATA) {
+
+			}
+			else {
+				data.push_back((char*)columnData);
+			}
+		}
+	}
+	else {
+		data.push_back("Error");
+	}
+	return data;
+}
+// The entire purpose of this is to again reduce redundancies and bury stuff that isnt going to change
+void SQLInterface::HandleBindOfChars(SQLHSTMT& statement, int param, int columnWidth, const char* data)
+{
+	SQLBindParameter(statement, param, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, columnWidth, 0, (SQLPOINTER)data, sizeof(data), nullptr);
+}
+
+
+// This is to abstract some of the annoyance of needing 10 parameters everytime down to about four parameters
+void SQLInterface::HandleBindOfIntegers(SQLHSTMT& statement, int param, int columnWidth, const int data)
+{
+	SQLLEN dataLength = sizeof(SQLINTEGER);
+	SQLBindParameter(statement, param, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&data, 0, &dataLength);
+}
+// Handles all errors that happen when the SQL call result is not success or success with info
+// Abastraction layer
+void SQLInterface::ErrorLogFromSQL(SQLHSTMT& statement)
+{
+	SQLWCHAR sqlState[100]; // Ensure size is 6 (5 chars + null terminator)
+	SQLINTEGER nativeError;
+	SQLWCHAR message[SQL_MAX_MESSAGE_LENGTH];
+	SQLSMALLINT textLength;
+
+	SQLGetDiagRec(SQL_HANDLE_STMT, statement, 1, sqlState, &nativeError, message, sizeof(message), &textLength);
+	std::wcout << L"SQL State: " << sqlState << L", Native Error: " << nativeError << L", Message: " << message << std::endl;
+}
+
+// Because Microsofts version of this does not work so I made one that does
+void SQLInterface::ResetHandle(SQLHSTMT& statement)
+{
+	SQLFreeHandle(SQL_HANDLE_STMT, statement);
+	statement = SetupAlloc();
+}
+
+
+// As it implies, it fetches users. NOTE: This has a statement that needs adjusted because I could not integrate the mdf file
 void SQLInterface::FetchUser(const char* query)
 {
+
+	// This function needs slight modification to be useful for our needs
 	SQLHSTMT statement = nullptr;
 	SQLAllocHandle(SQL_HANDLE_STMT, m_hDbc, &statement);
 
@@ -191,35 +314,10 @@ void SQLInterface::FetchUser(const char* query)
 		std::cout << "End of data or no data exists \n";
 	}
 	else {
-		SQLWCHAR sqlState[100]; // Ensure size is 6 (5 chars + null terminator)
-		SQLINTEGER nativeError;
-		SQLWCHAR message[SQL_MAX_MESSAGE_LENGTH];
-		SQLSMALLINT textLength;
-
-		SQLGetDiagRec(SQL_HANDLE_STMT, statement, 1, sqlState, &nativeError,  message, sizeof(message), &textLength);
-		std::wcout << L"SQL State: " << sqlState << L", Native Error: " << nativeError << L", Message: " << message << std::endl;
+		ErrorLogFromSQL(statement);
 
 	}
 
 	SQLFreeHandle(SQL_HANDLE_STMT, statement);
 
-}
-
-
-void getbobby(SQLHDBC _connection)
-{
-	SQLHSTMT statement = nullptr;
-	SQLAllocHandle(SQL_HANDLE_STMT, _connection, &statement);
-	if (!statement)
-		std::cerr << "Couldn't get bobby :(" << '\n';
-
-	char query[] = "SELECT 1";
-	SQLRETURN result = SQLExecDirectA(statement,  (SQLCHAR*)query, sizeof(query));
-
-	//if (result == SQL_SUCCESS) {
-	//	std::cout << query << '\n';
-	//}
-	//else {
-	//	std::cout << "See more info \n";
-	//}
 }

@@ -15,9 +15,6 @@ int main()
 	std::cin >> selectLan;
 	WindowsServer server(selectLan);
 	SQLInterface* sql_interface = SQLInterface::Instance();
-	// Strictly testing purposes
-	const char* testData = "SELECT name FROM dbo.[User]";
-	sql_interface->FetchUser(testData);
 	if (server.IPSetupComplete()) {
 		server.Start();
 	}

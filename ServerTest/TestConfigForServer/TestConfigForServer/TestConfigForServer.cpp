@@ -5,152 +5,160 @@
 #include "ServerConnect.h"
 #include <string>
 #include "../../../ServerPackage/Constants.h"
+#include <limits.h>
 
 constexpr const char* options[] =
 {
-    "1) Login user",
-    "2) New user",
-    "3) Message To Server",
-    "4) New Discussion Post",
-    "5) End",
+	"1) Login user",
+	"2) New user",
+	"3) Message To Server",
+	"4) New Discussion Post",
+	"5) End",
 };
 
 void PrintMenu() {
-    for (const char* option : options) {
-        std::cout << option << '\n';
-    }
+	for (const char* option : options) {
+		std::cout << option << '\n';
+	}
+	
 }
 
-void RequestNewPost(ServerConnect &server, unsigned char* token) {
-   
-    std::string post = "";
-    std::cout << "What is your post \n";
-    std::getline(std::cin.ignore(), post);
-   
-    post += '\0';
-    const int messageSize = post.size();
-    char* message = new char[messageSize + 1];
-    
-    memcpy_s(message, messageSize, post.c_str(), post.size());
-
-    server.SendToServer((int)Command::NewDiscussionPost, message);
-    delete[] message;
+std::string GetUserInput(std::string question) {
+	std::string response = "";
+	
+	std::cout << question;
+	std::cout << "\nInput: ";
+	std::cin >> response;
+	return response;
 }
 
-void CreateNewUser(ServerConnect &server, unsigned char* token) {
-    std::string name = "";
-    std::string username = "";
-    std::string password = "";
-   
-    std::cout << "Please input your name \n";
-    std::getline(std::cin.ignore(), name);
-    std::cout << "Please enter your username\n";
-    std::getline(std::cin.ignore(), username);
-    std::cout << "Please enter your password\n";
-    std::getline(std::cin.ignore(), password);
-    name += '\n';
-    name += username;
-    name += '\n';
-    name += password;
+void RequestNewPost(ServerConnect& server, unsigned char* token) {
 
-    name += '\0';
-    char* messageToServer = new char[name.size() + 1];
-    memcpy_s(messageToServer, name.size(), name.c_str(), name.size());
+	std::string post = "";
+	std::cout << "What is your post \n";
+	std::getline(std::cin.ignore(), post);
 
-    server.SendToServer((int)Command::NewUser, messageToServer);
+	post += '\0';
+	const int messageSize = post.size();
+	char* message = new char[messageSize + 1];
 
-    delete[] messageToServer;
+	memcpy_s(message, messageSize, post.c_str(), post.size());
+
+	server.SendToServer((int)Command::NewDiscussionPost, message);
+	delete[] message;
+}
+
+void CreateNewUser(ServerConnect& server, unsigned char* token) {
+	std::string name = "";
+	std::string username = "";
+	std::string password = "";
+
+	name = GetUserInput("What is your name");
+	username = GetUserInput("\nWhat is your username?");
+	password = GetUserInput("\nWhat is your password?");
+	name += '\n';
+	name += username;
+	name += '\n';
+	name += password;
+
+	name += '\0';
+	char* messageToServer = new char[name.size() + 1];
+	memcpy_s(messageToServer, name.size(), name.c_str(), name.size());
+
+	server.SendToServer((int)Command::NewUser, messageToServer);
+
+	delete[] messageToServer;
 
 }
 
 
-void LoginInfo(ServerConnect &server, unsigned char* token) {
+void LoginInfo(ServerConnect& server, unsigned char* token) {
 
-    std::string username = "";
-    std::string password = "";
-    std::string response;
-    std::cout << "Please type in your username.\n";
-    std::getline(std::cin.ignore(), response);
-    username = response;
-    response = "";
-    std::cout << "Please type in your password.\n";
-    std::getline(std::cin, response);
-    password = response;
-    username += '\n';
-    username += password;
-    username += '\0';
-   unsigned int lengthOfMessage = username.size() + password.size();
-   char* messageToServer = new char[lengthOfMessage + 1];
+	std::string username = "";
+	std::string password = "";
+	std::string response;
+	std::cout << "Please type in your username.\n";
+	std::getline(std::cin.ignore(), response);
+	username = response;
+	response = "";
+	std::cout << "Please type in your password.\n";
+	std::getline(std::cin, response);
+	password = response;
+	username += '\n';
+	username += password;
+	username += '\0';
+	unsigned int lengthOfMessage = username.size() + password.size();
+	char* messageToServer = new char[lengthOfMessage + 1];
 
-   memcpy_s(messageToServer, username.size(), username.c_str(), username.size());
-   messageToServer[lengthOfMessage] = '\0';
-   server.SendToServer((int)Command::Login, messageToServer);
+	memcpy_s(messageToServer, username.size(), username.c_str(), username.size());
+	messageToServer[lengthOfMessage] = '\0';
+	server.SendToServer((int)Command::Login, messageToServer);
 
-   delete[] messageToServer;
+	delete[] messageToServer;
 }
 
 void SendMessageToServer(ServerConnect& server, unsigned char* token) {
 
-    char message[1024];
-    std::string response;
-    std::cout << "Please enter your message to the server";
-    std::getline(std::cin.ignore(), response);
+	char message[1024];
+	std::string response;
+	std::cout << "Please enter your message to the server";
+	std::getline(std::cin.ignore(), response);
 
 
-    strcpy_s(message, response.c_str());
-    
-   
-    server.SendToServer((int) Command::MessageServer, message);
+	strcpy_s(message, response.c_str());
+
+
+	server.SendToServer((int)Command::MessageServer, message);
 
 }
 
 int main()
 {
-    int selectLan = 1;
-    std::cout << "Press 1 for LAN connection, 2 for localhost\n";
-    std::cin >> selectLan;
-    ServerConnect server(selectLan);
-    bool keepAlive = true;
-    unsigned char* token = nullptr;
+	int selectLan = 1;
+	std::cout << "Press 1 for LAN connection, 2 for localhost\n";
+	std::cin >> selectLan;
+	ServerConnect server(selectLan);
+	bool keepAlive = true;
+	unsigned char* token = nullptr;
 
-    while (keepAlive) {
-        int response = 0;
-        PrintMenu();
-        std::cout << "Please select a option \n";
-        std::cin >> response;
-        
-        switch (response) {
+	while (keepAlive) {
+		int response = 0;
+		PrintMenu();
+		std::cout << "Please select a option \n";
+		std::cin >> response;
 
-        case 1: 
+		switch (response) {
 
-            LoginInfo(server, token);
+		case 1:
 
-            break;
+			LoginInfo(server, token);
 
-        case 2:
-            CreateNewUser(server, token);
-            break;
+			break;
 
-        case 3:
+		case 2:
+			CreateNewUser(server, token);
+			break;
 
-            SendMessageToServer(server, token);
-            break;
-        case 4:
-            RequestNewPost(server, token);
-            break;
+		case 3:
 
-        case 5:
-            keepAlive = false;
-            break;
+			SendMessageToServer(server, token);
+			break;
+		case 4:
+			RequestNewPost(server, token);
+			break;
 
-        default:
-            std::cout << "Wrong input \n";
-            break;
-        }
-        
+		case 5:
+			keepAlive = false;
+			break;
+
+		default:
+			std::cout << "Wrong input \n";
+			break;
+		}
 
 
-    }
-    if (token != nullptr) delete[] token;
-    
+
+	}
+	if (token != nullptr) delete[] token;
+
 }
