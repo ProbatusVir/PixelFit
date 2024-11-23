@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/fitness_legs"
+          android:drawable="@drawable/fitness_model_legs"/>
+    <item android:id="@+id/fitness_arms"
+          android:drawable="@drawable/fitness_model_arms"/>
+    <item android:id="@+id/fitness_torso"
+          android:drawable="@drawable/fitness_model_torso"/>
+    <item android:id="@+id/fitness_head"
+          android:drawable="@drawable/fitness_model_head"/>
+</layer-list>
