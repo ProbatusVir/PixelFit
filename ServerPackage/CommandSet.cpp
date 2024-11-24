@@ -82,52 +82,31 @@ User CommandSet::NewUser(const char* buffer, bool& success)
 	char name[nameSize] = { 0 };
 	char username[usernameSize] = { 0 };
 	char password[hashSize] = { 0 };
-	bool fullReadOnName = false;
-	bool fullReadOnUsername = false;
-	bool fullReadOnPassword = false;
-	size_t sizeOfName = 0;
-	size_t sizeOfUsername = 0;
+
+	//Find the length of the three fields
+	const char* seeker = buffer;
+	const char name_length = strpbrk(seeker, "\n") - seeker;
+	const char username_length = strpbrk(seeker += name_length + 1, "\n") - (seeker);
+	const char password_length = strlen(seeker += username_length + 1);
+	
+	//Copy the three fields to their buffers
+	seeker = buffer;
+	memcpy_s(name, name_length + 1, seeker, name_length);
+	memcpy_s(username, username_length + 1, seeker += name_length + 1, username_length);
+	memcpy_s(password, password_length + 1, seeker += username_length + 1, password_length);
 
 
-	size_t buffSeeker = 0;
-
-	while (buffer[buffSeeker] != '\0' && buffSeeker <= strlen(buffer)) {
-		if (!fullReadOnName) {
-			sizeOfName++;
-			if (buffer[buffSeeker] != '\n')
-				name[buffSeeker] = buffer[buffSeeker];
-
-			else fullReadOnName = true;
-
-		}
-		else if (!fullReadOnUsername) {
-			if (buffer[buffSeeker] != '\n')
-				username[buffSeeker - sizeOfName] = buffer[buffSeeker];
-			else fullReadOnUsername = true;
-			sizeOfUsername++;
-		}
-		else {
-			password[buffSeeker - sizeOfUsername - sizeOfName] = buffer[buffSeeker];
-		}
-
-		buffSeeker++;
-
-	}
-	int verifyReadName = strlen(name);
-	int verifyReadUsername = strlen(username);
-	int verifyReadPassword = strlen(password);
-
-	if (verifyReadName && verifyReadUsername && verifyReadPassword != 0) {
+	if (name_length + username_length + password_length == strlen(buffer) - 2) { //Verify the size of the fields
 
 		char* hashed = User::HashPassword(password);
-		uint64_t id = CreateID();
 		// This tells us that we are or are not able to make a database entry. If we cannot, then we tell the user.
-		bool ableToCreateNewUser = SQLInterface::Instance()->InsertNewUser(name, username, hashed, id);
+		bool ableToCreateNewUser = SQLInterface::Instance()->InsertNewUser(name, username, "email", hashed);
 		if (ableToCreateNewUser) {
 			char transferToCharHash[passwordSize] = { 0 };
 			memcpy_s(transferToCharHash, strlen((char*)hashed), hashed, strlen((char*)hashed));
 
-			User newUser = User(name, username, transferToCharHash, id);
+			//TODO: This is wrong.
+			User newUser = User(name, username, transferToCharHash, 1);
 			success = true;
 			return newUser;
 		}
@@ -148,11 +127,4 @@ DiscussionPost CommandSet::NewDiscussionPost(char* buffer, User& user, unsigned 
 	DiscussionPost info = DiscussionPost(buffer, user, headerSize);
 
 	return info;
-}
-
-uint64_t CommandSet::CreateID()
-{
-	idIncrement = 0;
-	idIncrement++;
-	return idIncrement;
 }
