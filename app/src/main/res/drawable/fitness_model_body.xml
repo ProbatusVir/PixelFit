@@ -2,10 +2,18 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/fitness_legs"
           android:drawable="@drawable/fitness_model_legs"/>
+    <item android:drawable="@drawable/fitness_model_legs_outline"/>
+
     <item android:id="@+id/fitness_arms"
           android:drawable="@drawable/fitness_model_arms"/>
+    <item android:drawable="@drawable/fitness_model_arms_outline"/>
+
     <item android:id="@+id/fitness_torso"
           android:drawable="@drawable/fitness_model_torso"/>
+    <item android:drawable="@drawable/fitness_model_torso_outline"/>
+
     <item android:id="@+id/fitness_head"
           android:drawable="@drawable/fitness_model_head"/>
+    <item android:drawable="@drawable/fitness_model_head_outline"/>
+
 </layer-list>

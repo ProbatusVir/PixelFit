@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="210dp"
+    android:height="297dp"
+    android:viewportWidth="210"
+    android:viewportHeight="297">
+  <!-- legs -->
+  <path
+      android:name="left_leg"
+      android:pathData="m80.97,146.71c0.07,-4.63 23.33,-4.25 23.33,0.09l-0.52,101.15c0,7.5 -5.23,11.86 -11.76,11.81 -5.85,-0.05 -11.48,-4.15 -11.08,-11.49z"
+      android:strokeWidth="@integer/fitness_model_stroke_width"
+      android:strokeColor="#000000"/>
+  <path
+      android:pathData="m104.55,147.19c0.07,-4.63 23.33,-4.25 23.33,0.09l-0.52,101.15c0,7.5 -5.23,11.86 -11.76,11.81 -5.85,-0.05 -11.48,-4.15 -11.08,-11.49z"
+      android:strokeWidth="@integer/fitness_model_stroke_width"
+      android:strokeColor="#000000"
+      android:name="right_leg"/>
+</vector>
