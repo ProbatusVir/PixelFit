@@ -65,8 +65,15 @@ void WindowsInterpreter::HandleLoginUser(const SOCKET& clientSocket)
 			User user = _commands.LoginUser(buffer, success);
 			LoginResponseToUser(clientSocket, user, success);
 		}
+		else {
+			User user;
+			LoginResponseToUser(clientSocket,user , false);
+		}
 
 		if (buffer != nullptr) delete[] buffer;
+	}
+	else {
+		SendMessageToClient(clientSocket, false);
 	}
 }
 

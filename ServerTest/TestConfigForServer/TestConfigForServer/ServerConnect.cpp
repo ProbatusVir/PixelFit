@@ -35,13 +35,13 @@ int ServerConnect::SendToServer(int command, char* message)
 	unsigned int tokenSize = 0;
 	if (_token != nullptr)
 		tokenSize = hashSize + 1;
-	
-	
+
+
 	constexpr unsigned int lengthOfCommandAndMessageHeader = sizeOfInt + sizeOfInt + sizeof(tokenSize) + 1;
 	const int lengthOfMessage = (int)strlen(message) + lengthOfCommandAndMessageHeader;
-	
+
 	char messageToServer[1024] = { 0 };
-	
+
 
 	// writes command
 	memcpy_s(messageToServer, sizeOfInt, &command, sizeof(command));
@@ -63,13 +63,13 @@ int ServerConnect::SendToServer(int command, char* message)
 	// This is creating the entire packet size to send
 	const unsigned int packetSize = tokenSize + lengthOfMessage;
 	std::cout << '\n' << messageToServer << '\n';
-	send(_client, messageToServer, packetSize , 0);
+	send(_client, messageToServer, packetSize, 0);
 
 	char response[4] = { 0 };
 
 
 
-	
+
 
 	return codeFromServer;
 
@@ -119,10 +119,10 @@ void ServerConnect::CreateSocket()
 
 		switch (errorCode)
 		{
-			case (WSAECONNREFUSED): std::cerr << "Connection refused. Ensure the server is running and accessible.\n"; break;
-			case (WSAETIMEDOUT): std::cerr << "Connection timed out. The server might be down or not responding.\n"; break;
-			case (WSAEHOSTUNREACH): std::cerr << "No route to host. Check your network connection.\n"; break;
-			case (WSAENETUNREACH): std::cerr << "Network is unreachable.\n"; break;
+		case (WSAECONNREFUSED): std::cerr << "Connection refused. Ensure the server is running and accessible.\n"; break;
+		case (WSAETIMEDOUT): std::cerr << "Connection timed out. The server might be down or not responding.\n"; break;
+		case (WSAEHOSTUNREACH): std::cerr << "No route to host. Check your network connection.\n"; break;
+		case (WSAENETUNREACH): std::cerr << "Network is unreachable.\n"; break;
 		}
 
 		closesocket(socketFd);
@@ -141,9 +141,9 @@ void ServerConnect::ListenForServer()
 {
 
 	while (true) {
-		int cmd= ReadHeader();
-		if (cmd > 0) {
-			
+		int cmd = ReadHeader();
+		
+
 			switch (cmd) {
 			case (int)Command::Login:
 				HandleToken();
@@ -154,22 +154,17 @@ void ServerConnect::ListenForServer()
 			case (int)Command::NewDiscussionPost:
 				ReadMessageFromServer();
 				break;
+			case (int) MessageResult::Failed:
+				ReadMessageFromServer();
+				break;
 			}
 
-			// Handle commands as necessary
-		}
-		else if (cmd == 0 || cmd == SOCKET_ERROR) {
-			std::cout << "Server Disconnected\n";
-			break;
-		}
-		else {
-			std::cout << "Recv failed breaking connection\n";
-			closesocket(_client);
-			break;
-		}
+			
 		
+
+
 		std::this_thread::sleep_for(std::chrono::seconds(2));
-	
+
 	}
 	closesocket(_client);
 }
@@ -229,16 +224,30 @@ void ServerConnect::HandleToken()
 
 		memcpy_s(_token, hashSize + 1, token, bytesToRead);
 
-		
+
 	}
 }
 
 unsigned int ServerConnect::ReadHeader()
 {
 	char buffer[4] = { 0 };
-	recv(_client, buffer, 4, 0);
+	int bytesRead = 0;
 	unsigned int header = 0;
-	memcpy_s(&header, sizeOfInt, buffer, sizeOfInt);
+	bytesRead = recv(_client, buffer, 4, 0);
+	if (bytesRead > 0) {
+
+		memcpy_s(&header, sizeOfInt, buffer, sizeOfInt);
+
+	}
+	else if (bytesRead == 0 || bytesRead == SOCKET_ERROR) {
+		std::cout << "Server Disconnected\n";
+		
+	}
+	else {
+		std::cout << "Recv failed breaking connection\n";
+		closesocket(_client);
+		
+	}
 
 	return header;
 }
