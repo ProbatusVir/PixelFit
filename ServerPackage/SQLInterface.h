@@ -18,11 +18,13 @@ public:
 	static void Destroy() { if (m_instance) delete m_instance; std::cerr << "destroyed SQL interface instance."; };
 	void FetchUser(const char* query);
 	bool InsertNewUser(const char* name, const char* username, const char* password, uint64_t id);
+	bool LoginRequest(const char* username, const char* password);
 
 private:
 	void ConnectToDB();
 	void InterpretState(const SQLRETURN code, const char* name, const bool indented = true);
 	void LoadCredentials(const char* path);
+	
 	// I (Ryan) got tired of writng the same 2 lines and large macros so I buried it into a function call
 	SQLHSTMT SetupAlloc();
 	std::vector<std::string> ReturnEval(SQLRETURN result, SQLHSTMT& statement);

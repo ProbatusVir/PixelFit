@@ -8,6 +8,7 @@ class User
 public:
 	User(const char name[nameSize], const char userName[usernameSize], const char password[passwordSize], uint64_t id);
 	User();
+	User(const char* username);
 	User(const User& user);
 	~User();
 	char* Username() { return _userName; };

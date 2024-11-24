@@ -142,6 +142,31 @@ void SQLInterface::LoadCredentials(const char* path)
 
 	
 }
+bool SQLInterface::LoginRequest(const char* username, const char* password)
+{
+	SQLHSTMT statement = SetupAlloc();
+	bool isValid = false;
+	// TODO: UPDATE THE [User] to target your dbo.[insert db table name here]
+	const char* checkForUsername = "SELECT username, password FROM dbo.[User] WHERE username = ? AND password = ?";
+
+	SQLRETURN result = SQLPrepareA(statement, (SQLCHAR*)checkForUsername, SQL_NTS);
+
+	HandleBindOfChars(statement, 1, 100, username);
+	HandleBindOfChars(statement, 2, 255, password);
+
+	result = SQLExecDirectA(statement, (SQLCHAR*)checkForUsername, SQL_NTS);
+	
+	result = SQLFetch(statement);
+	if (result == SQL_SUCCESS || result == SQL_SUCCESS_WITH_INFO) {
+		return true;
+	}
+	else {
+		ErrorLogFromSQL(statement);
+		return false;
+	}
+
+
+}
 /// <summary>
 /// Attempts to make a new user, if the username already exists this will fail and kick back a false 
 /// This forces users to have different usernames

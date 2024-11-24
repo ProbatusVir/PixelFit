@@ -60,20 +60,20 @@ User CommandSet::LoginUser(const char* buffer, bool& success)
 		// to get the user object. We then need to compare the hashed passwords against eachother
 		// if they match, then allow the user login, otherwise prevent it.
 
-		char* removeAfterDebug = User::HashPassword("abcdef");
-		comparedPass = strcmp((char*)checkPass, (char*)removeAfterDebug);
-		if (comparedPass == 0) success = true;
+
+
+		if (SQLInterface::Instance()->LoginRequest(username, checkPass)) {
+			success = true;
+			User user(username);
+			return user;
+		}
 		else success = false;
 		delete[] checkPass;
-		delete[] removeAfterDebug;
-		// TODO: remove name after SQL integration
-		char name[20] = "someone";
-		uint64_t id = CreateID();
-		User newUser = User(name, username, password, id);
-		return newUser;
+		return User();
+
 	}
 
-
+	return User();
 
 }
 
@@ -116,7 +116,7 @@ User CommandSet::NewUser(const char* buffer, bool& success)
 	int verifyReadName = strlen(name);
 	int verifyReadUsername = strlen(username);
 	int verifyReadPassword = strlen(password);
-	
+
 	if (verifyReadName && verifyReadUsername && verifyReadPassword != 0) {
 
 		char* hashed = User::HashPassword(password);
