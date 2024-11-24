@@ -22,6 +22,11 @@ User::User()
 {
 }
 
+User::User(const char* username)
+{
+	memcpy_s(_userName, strlen(username) + 1, username, strlen(username) + 1);
+}
+
 User::User(const User& user)
 {
 	memcpy_s(_name, sizeof(_name), user._name, sizeof(_name));
