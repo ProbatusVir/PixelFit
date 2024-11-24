@@ -158,13 +158,17 @@ bool SQLInterface::LoginRequest(const char* username, const char* password)
 	
 	result = SQLFetch(statement);
 	if (result == SQL_SUCCESS || result == SQL_SUCCESS_WITH_INFO) {
+		SQLFreeHandle(SQL_HANDLE_STMT, statement);
 		return true;
 	}
 	else {
 		ErrorLogFromSQL(statement);
+		SQLFreeHandle(SQL_HANDLE_STMT, statement);
 		return false;
 	}
 
+
+	
 
 }
 /// <summary>
