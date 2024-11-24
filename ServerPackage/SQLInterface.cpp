@@ -19,6 +19,7 @@ SQLInterface* SQLInterface::m_instance = nullptr;
 
 SQLInterface::SQLInterface()
 {
+	LoadCredentials(".env");
 	ConnectToDB();
 }
 
@@ -41,7 +42,6 @@ void SQLInterface::ConnectToDB()
 	// SQL + h(andle) + handleType
 
 	// This looks for the .env file in the directory and will load your credentials to then get access to the db
-	LoadCredentials(".env");
 	SQLRETURN henvironment_state;
 	SQLRETURN hconnection_state;
 	SQLRETURN connection_state;
@@ -81,15 +81,15 @@ void SQLInterface::InterpretState(const SQLRETURN code, const char* name, const 
 {
 	const char* error_message;
 	char succcssWithInfo[1024] = { 0 };
-	SQLWCHAR sqlState[6];
+	SQLCHAR sqlState[6];
 	SQLINTEGER nativeError;
 	SQLCHAR message[1024];
 	SQLSMALLINT textLength;
 
 
 	if (code == SQL_SUCCESS_WITH_INFO) {
-		SQLGetDiagRec(SQL_HANDLE_DBC, m_hDbc, 1, (SQLWCHAR*)sqlState, &nativeError, (SQLWCHAR*)message, sizeof(message), &textLength);
-		std::cout << "Warning: " << message << " (SQL State: " << (char*)sqlState << ")\n";
+		SQLGetDiagRecA(SQL_HANDLE_DBC, m_hDbc, 1, sqlState, &nativeError, message, sizeof(message), &textLength);
+		std::cout << "Warning: " << (char*)message << " (SQL State: " << (char*)sqlState << ")\n";
 	}
 	for (int i = 0; i < SQL_MAX_MESSAGE_LENGTH; i++) {
 		if (message[i] = '\0') {
@@ -180,11 +180,11 @@ bool SQLInterface::LoginRequest(const char* username, const char* password)
 /// <param name="password"></param>
 /// <param name="id"></param>
 /// <returns></returns>
-bool SQLInterface::InsertNewUser(const char* name, const char* username, const char* password, uint64_t id)
+bool SQLInterface::InsertNewUser(const char* name, const char* username, const char* email, const char* password)
 {
 	bool userNotRegistered = true;
 	bool isValid = false;
-	const char* checkForAvailableUsername = "SELECT username FROM dbo.[User]";
+	const char* checkForAvailableUsername = "SELECT nvcUserName FROM [dbo].[tblUser]";
 	SQLHSTMT statement = SetupAlloc();
 	SQLRETURN result = SQLExecDirectA(statement, (SQLCHAR*)checkForAvailableUsername, SQL_NTS);
 	std::vector<std::string> usernames =  ReturnEval(result, statement);
@@ -208,10 +208,10 @@ bool SQLInterface::InsertNewUser(const char* name, const char* username, const c
 
 	// This section handles if the user does not exist and puts them into the db
 	if (userNotRegistered) {
-		const char* insertSqlCmd = "INSERT INTO dbo.[User] (name, username, password, id) VALUES (?,?,?,?)";
+		const char* insertSqlCmd = "INSERT INTO [dbo].[tblUser] (nvcName, nvcEmailAddress, nvcUserName, nvcPasswordHash) VALUES (?,?,?,?)";
 		result = SQLPrepareA(statement, (SQLCHAR*)insertSqlCmd, SQL_NTS);
 		if (result != SQL_SUCCESS) {
-			std::cerr << "Error with adding to db \n";
+			std::cerr << "Error with adding to db\n";
 			ErrorLogFromSQL(statement);
 			SQLFreeHandle(SQL_HANDLE_STMT, statement);
 			return false;
@@ -220,10 +220,13 @@ bool SQLInterface::InsertNewUser(const char* name, const char* username, const c
 
 		// SQLBindParameter binds to the insertSQLCmd string which fills in each of the (?) in the paranthesis.
 		// Each parameter must be bound and I did not find a a better way to handle this.
-		HandleBindOfChars(statement, 1, 100, name);
-		HandleBindOfChars(statement, 2, 255, username);
-		HandleBindOfChars(statement, 3, 255, password);
-		HandleBindOfIntegers(statement, 4, 0, id);
+
+		//iUserID	nvcName	nvcEmailAddress	nvcUserName nvcPasswordHash
+
+		HandleBindOfChars(statement, 1, nameSize, name);
+		HandleBindOfChars(statement, 2, emailSize, email);
+		HandleBindOfChars(statement, 3, usernameSize, username);
+		HandleBindOfChars(statement, 4, hashSize, password);
 
 		result = SQLExecute(statement);
 		if (result == SQL_SUCCESS || result == SQL_SUCCESS_WITH_INFO) {
@@ -294,13 +297,13 @@ void SQLInterface::HandleBindOfIntegers(SQLHSTMT& statement, int param, int colu
 // Abastraction layer
 void SQLInterface::ErrorLogFromSQL(SQLHSTMT& statement)
 {
-	SQLWCHAR sqlState[100]; // Ensure size is 6 (5 chars + null terminator)
+	SQLCHAR sqlState[100]; // Ensure size is 6 (5 chars + null terminator)
 	SQLINTEGER nativeError;
-	SQLWCHAR message[SQL_MAX_MESSAGE_LENGTH];
+	SQLCHAR message[SQL_MAX_MESSAGE_LENGTH];
 	SQLSMALLINT textLength;
 
-	SQLGetDiagRec(SQL_HANDLE_STMT, statement, 1, sqlState, &nativeError, message, sizeof(message), &textLength);
-	std::wcout << L"SQL State: " << sqlState << L", Native Error: " << nativeError << L", Message: " << message << std::endl;
+	SQLGetDiagRecA(SQL_HANDLE_STMT, statement, 1, sqlState, &nativeError, message, sizeof(message), &textLength);
+	std::cout << "SQL State: " << sqlState << ", Native Error: " << nativeError << ", Message: " << message << std::endl;
 }
 
 // Because Microsofts version of this does not work so I made one that does
