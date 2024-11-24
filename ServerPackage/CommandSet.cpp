@@ -81,26 +81,29 @@ User CommandSet::NewUser(const char* buffer, bool& success)
 {
 	char name[nameSize] = { 0 };
 	char username[usernameSize] = { 0 };
+	char email[emailSize] = { 0 };
 	char password[hashSize] = { 0 };
 
 	//Find the length of the three fields
 	const char* seeker = buffer;
 	const char name_length = strpbrk(seeker, "\n") - seeker;
-	const char username_length = strpbrk(seeker += name_length + 1, "\n") - (seeker);
-	const char password_length = strlen(seeker += username_length + 1);
+	const char username_length = strpbrk(seeker += name_length + 1, "\n") - seeker;
+	const char email_length = strpbrk(seeker += username_length + 1, "\n") - seeker;
+	const char password_length = strlen(seeker += email_length + 1);
 	
 	//Copy the three fields to their buffers
 	seeker = buffer;
-	memcpy_s(name, name_length + 1, seeker, name_length);
-	memcpy_s(username, username_length + 1, seeker += name_length + 1, username_length);
-	memcpy_s(password, password_length + 1, seeker += username_length + 1, password_length);
+	memcpy_s(name,		name_length + 1,		seeker,							name_length);
+	memcpy_s(username,	username_length + 1,	seeker += name_length + 1,		username_length);
+	memcpy_s(email,		email_length + 1,		seeker += username_length + 1,	email_length);
+	memcpy_s(password,	password_length + 1,	seeker += email_length + 1,		password_length);
 
 
-	if (name_length + username_length + password_length == strlen(buffer) - 2) { //Verify the size of the fields
+	if (name_length + username_length + password_length + email_length == strlen(buffer) - 3) { //Verify the size of the fields
 
 		char* hashed = User::HashPassword(password);
 		// This tells us that we are or are not able to make a database entry. If we cannot, then we tell the user.
-		bool ableToCreateNewUser = SQLInterface::Instance()->InsertNewUser(name, username, "email", hashed);
+		bool ableToCreateNewUser = SQLInterface::Instance()->InsertNewUser(name, username, email, hashed);
 		if (ableToCreateNewUser) {
 			char transferToCharHash[passwordSize] = { 0 };
 			memcpy_s(transferToCharHash, strlen((char*)hashed), hashed, strlen((char*)hashed));

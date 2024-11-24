@@ -7,7 +7,7 @@
 #include "../../../ServerPackage/Constants.h"
 #include <limits.h>
 
-constexpr const char* options[] =
+static constexpr const char* options[] =
 {
 	"1) Login user",
 	"2) New user",
@@ -51,17 +51,21 @@ void RequestNewPost(ServerConnect& server, unsigned char* token) {
 void CreateNewUser(ServerConnect& server, unsigned char* token) {
 	std::string name = "";
 	std::string username = "";
+	std::string email = "";
 	std::string password = "";
 
 	name = GetUserInput("What is your name");
 	username = GetUserInput("\nWhat is your username?");
+	email = GetUserInput("\nWhat is your email?");
 	password = GetUserInput("\nWhat is your password?");
 	name += '\n';
 	name += username;
 	name += '\n';
+	name += email;
+	name += '\n';
 	name += password;
-
 	name += '\0';
+
 	char* messageToServer = new char[name.size() + 1];
 	memcpy_s(messageToServer, name.size(), name.c_str(), name.size());
 
