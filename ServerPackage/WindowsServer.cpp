@@ -133,6 +133,14 @@ void WindowsServer::Start()
 						activityFromConnectedClient = true;
 						EmptyClientBuffer(*clientIter);
 					}
+					else if (bytesRead == 0) {
+						std::cout << "Client disconnected\n";
+						_interpreter.DisconnectClient(*clientIter);
+					}
+					else if (bytesRead == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
+						std::cerr << "Socket error: " << WSAGetLastError() << "\n";
+						_interpreter.DisconnectClient(*clientIter);
+					}
 				}
 			}
 			// Prevents clients from being added a second time to the server

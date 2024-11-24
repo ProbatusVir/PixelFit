@@ -143,7 +143,7 @@ void ServerConnect::ListenForServer()
 	while (true) {
 		int cmd = ReadHeader();
 		
-
+		if (cmd > 0) {
 			switch (cmd) {
 			case (int)Command::Login:
 				HandleToken();
@@ -159,11 +159,9 @@ void ServerConnect::ListenForServer()
 				break;
 			}
 
-			
-		
+		}
 
-
-		std::this_thread::sleep_for(std::chrono::seconds(2));
+			std::this_thread::sleep_for(std::chrono::seconds(2));
 
 	}
 	closesocket(_client);
