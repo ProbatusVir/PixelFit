@@ -1,4 +1,3 @@
-package com.example.myapplication
 import android.os.StrictMode
 import java.io.InputStream
 import java.io.OutputStream
@@ -102,7 +101,9 @@ class ServerConnect {
 
     }
 
-    fun sendToServer(command : Int, message : String)
+    // I have decided to make this a private function in order to
+    // more specific functions for the fragments
+    private fun sendToServer(command : Int, message : String)
     {
         val tokenSize = if (token != null)
             HASH_SIZE + 1 else 0
