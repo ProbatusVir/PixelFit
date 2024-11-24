@@ -28,6 +28,7 @@
 	static constexpr size_t hashSize = SHA256_DIGEST_LENGTH;
 	static constexpr size_t nameSize = 50;
 	static constexpr size_t usernameSize = 30;
+	static constexpr size_t emailSize = 60;
 	static constexpr size_t passwordSize = 60;
 	static constexpr unsigned int sizeOfInt = 4;
 	static constexpr unsigned int sizeOfDiscussionPost = 1024;
