@@ -140,7 +140,6 @@
   <ItemGroup>
     <ClInclude Include="CommandSet.h" />
     <ClInclude Include="Constants.h" />
-    <ClInclude Include="db_credentials.h" />
     <ClInclude Include="DiscussionPost.h" />
     <ClInclude Include="SQLInterface.h" />
     <ClInclude Include="User.h" />

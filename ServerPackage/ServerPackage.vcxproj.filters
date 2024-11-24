@@ -56,9 +56,6 @@
     <ClInclude Include="WindowsInterpreter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="db_credentials.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DiscussionPost.h">
       <Filter>Header Files</Filter>
     </ClInclude>
