@@ -77,52 +77,77 @@ User CommandSet::LoginUser(const char* buffer, bool& success)
 
 }
 
+//Parses '\n' delimited tokens. Might change.
+
+char** Tokenize(const char* message, const unsigned int fields)
+{
+	char** container = new char* [fields];
+	const char* seeker = message;
+	char token_length = 0;
+
+	for (unsigned int i = 0; i < fields; i++)
+	{
+		if (i < fields - 1)
+			token_length = strpbrk(seeker, "\n") - seeker;
+		else
+			token_length = strlen(seeker);
+
+		container[i] = new char[token_length + 1];
+
+		memcpy_s(container[i], token_length + 1, seeker, token_length);
+		container[i][token_length] = '\0';
+
+		seeker += token_length + 1;
+	}
+
+	return container;
+}
+
+void DestroyTokens(char** container, const unsigned int fields)
+{
+	for (int i = 0; i < fields; i++)
+		delete[] container[i];
+
+	delete[] container;
+}
+
+
+
 User CommandSet::NewUser(const char* buffer, bool& success)
 {
-	char name[nameSize] = { 0 };
-	char username[usernameSize] = { 0 };
-	char email[emailSize] = { 0 };
-	char password[hashSize] = { 0 };
+	success = false;
+	static constexpr unsigned int fields = 4;
+	char** tokens = Tokenize(buffer, fields);
+	const char* name = tokens[0];
+	const char* username = tokens[1];
+	const char* email = tokens[2];
+	const char* password = tokens[3];
 
-	//Find the length of the three fields
-	const char* seeker = buffer;
-	const char name_length = strpbrk(seeker, "\n") - seeker;
-	const char username_length = strpbrk(seeker += name_length + 1, "\n") - seeker;
-	const char email_length = strpbrk(seeker += username_length + 1, "\n") - seeker;
-	const char password_length = strlen(seeker += email_length + 1);
+	const int name_length = strlen(name);
+	const int username_length = strlen(username);
+	const int email_length = strlen(email);
+	const int password_length = strlen(password);
+
+	const bool dataFits = !(name_length > nameSize || username_length > usernameSize || email_length > emailSize || password_length > passwordSize);
+	const bool dataParsedProperly = name_length + username_length + email_length + password_length == strlen(buffer) - (fields - 1);
 	
-	//Copy the three fields to their buffers
-	seeker = buffer;
-	memcpy_s(name,		name_length + 1,		seeker,							name_length);
-	memcpy_s(username,	username_length + 1,	seeker += name_length + 1,		username_length);
-	memcpy_s(email,		email_length + 1,		seeker += username_length + 1,	email_length);
-	memcpy_s(password,	password_length + 1,	seeker += email_length + 1,		password_length);
-
-
-	if (name_length + username_length + password_length + email_length == strlen(buffer) - 3) { //Verify the size of the fields
-
-		char* hashed = User::HashPassword(password);
-		// This tells us that we are or are not able to make a database entry. If we cannot, then we tell the user.
-		bool ableToCreateNewUser = SQLInterface::Instance()->InsertNewUser(name, username, email, hashed);
-		if (ableToCreateNewUser) {
-			char transferToCharHash[passwordSize] = { 0 };
-			memcpy_s(transferToCharHash, strlen((char*)hashed), hashed, strlen((char*)hashed));
-
-			//TODO: This is wrong.
-			User newUser = User(name, username, transferToCharHash, 1);
-			success = true;
-			return newUser;
-		}
-		else {
-			success = false;
-			return User();
-		}
-	}
-	else {
-		success = false;
+	if (!dataFits || !dataParsedProperly)
+	{
+		DestroyTokens(tokens, fields);
 		return User();
 	}
 
+	const char* hashed = User::HashPassword(password);
+	// This tells us that we are or are not able to make a database entry. If we cannot, then we tell the user.
+	const bool ableToCreateNewUser = SQLInterface::Instance()->InsertNewUser(name, username, email, hashed);
+	if (ableToCreateNewUser) {
+		DestroyTokens(tokens, fields);
+		success = true;
+		return User(name, username, hashed, 1);
+	}
+	
+	DestroyTokens(tokens, fields);
+	return User();
 }
 // This will handle the creation of discussion posts
 DiscussionPost CommandSet::NewDiscussionPost(char* buffer, User& user, unsigned int headerSize)
