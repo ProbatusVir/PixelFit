@@ -1,6 +1,10 @@
 #include "CommandSet.h"
-#include <iostream>
+#include "TokenHelper.h"
 #include "SQLInterface.h"
+
+#include <iostream>
+
+
 CommandSet::CommandSet()
 {
 }
@@ -11,48 +15,19 @@ CommandSet::CommandSet(User* user)
 }
 
 
-
 User CommandSet::LoginUser(const char* buffer, bool& success)
 {
-	constexpr size_t expectedBufferSize = usernameSize + passwordSize;
+	success = false;
 
-	char username[usernameSize] = { 0 };
-	char password[passwordSize] = { 0 };
+	constexpr unsigned int fields = 2;
+	char** tokens = Tokenize(buffer, fields);
 
-	bool fullReadOfUsername = false;
-	bool error = false;
-	User attemptLogin;
-	size_t buff_seeker = 0;
-	size_t sizeOfUsername = 0;
+	const char* username = tokens[0];
+	const char* password = tokens[1];
 
-	//seek until End of Stream at null terminator, or until expected buffer size, to prevent fatal stack corruption
-	while ((char)buffer[buff_seeker] != '\0' || buff_seeker >= expectedBufferSize) {
-		// If the username hasn't been read, add the next character or terminate the username read 
-		if (!fullReadOfUsername) {
-
-			if (buffer[buff_seeker] != '\n') {
-				username[buff_seeker] = buffer[buff_seeker];
-			}
-			else {
-				fullReadOfUsername = true;
-			}
-
-			//Offset needs to be applied regardless here so we don't double count the newline
-			sizeOfUsername++;
-
-		}
-
-		//Fill password buffer with whatever remains until null terminator
-		else {
-			password[buff_seeker - sizeOfUsername] = buffer[buff_seeker];
-		}
-
-		buff_seeker++;
-	}
 	char* checkPass = User::HashPassword(password);
 
-
-	error = !(strlen((char*)checkPass) <= passwordSize) && (strlen(username) <= usernameSize);
+	const bool error = !(strlen((char*)checkPass) <= passwordSize) && (strlen(username) <= usernameSize);
 
 	if (!error) {
 		int comparedPass = -1;
@@ -75,40 +50,6 @@ User CommandSet::LoginUser(const char* buffer, bool& success)
 
 	return User();
 
-}
-
-//Parses '\n' delimited tokens. Might change.
-
-static char** Tokenize(const char* message, const unsigned int fields)
-{
-	char** container = new char* [fields];
-	const char* seeker = message;
-	char token_length = 0;
-
-	for (unsigned int i = 0; i < fields; i++)
-	{
-		if (i < fields - 1)
-			token_length = strpbrk(seeker, "\n") - seeker;
-		else
-			token_length = strlen(seeker);
-
-		container[i] = new char[token_length + 1];
-
-		memcpy_s(container[i], token_length + 1, seeker, token_length);
-		container[i][token_length] = '\0';
-
-		seeker += token_length + 1;
-	}
-
-	return container;
-}
-
-static void DestroyTokens(char** container, const unsigned int fields)
-{
-	for (int i = 0; i < fields; i++)
-		delete[] container[i];
-
-	delete[] container;
 }
 
 User CommandSet::NewUser(const char* buffer, bool& success)
