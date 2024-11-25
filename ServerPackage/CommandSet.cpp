@@ -127,9 +127,10 @@ User CommandSet::NewUser(const char* buffer, bool& success)
 	const int password_length = strlen(password);
 
 	const bool dataFits = !(name_length > nameSize || username_length > usernameSize || email_length > emailSize || password_length > passwordSize);
+	const bool dataNonZero = name_length && username_length && email_length && password_length;
 	const bool dataParsedProperly = name_length + username_length + email_length + password_length == strlen(buffer) - (fields - 1);
 	
-	if (!dataFits || !dataParsedProperly)
+	if (!dataFits || !dataParsedProperly || !dataNonZero)
 	{
 		DestroyTokens(tokens, fields);
 		return User();
