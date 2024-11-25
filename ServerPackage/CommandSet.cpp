@@ -79,7 +79,7 @@ User CommandSet::LoginUser(const char* buffer, bool& success)
 
 //Parses '\n' delimited tokens. Might change.
 
-char** Tokenize(const char* message, const unsigned int fields)
+static char** Tokenize(const char* message, const unsigned int fields)
 {
 	char** container = new char* [fields];
 	const char* seeker = message;
@@ -103,15 +103,13 @@ char** Tokenize(const char* message, const unsigned int fields)
 	return container;
 }
 
-void DestroyTokens(char** container, const unsigned int fields)
+static void DestroyTokens(char** container, const unsigned int fields)
 {
 	for (int i = 0; i < fields; i++)
 		delete[] container[i];
 
 	delete[] container;
 }
-
-
 
 User CommandSet::NewUser(const char* buffer, bool& success)
 {
@@ -143,7 +141,7 @@ User CommandSet::NewUser(const char* buffer, bool& success)
 	if (ableToCreateNewUser) {
 		DestroyTokens(tokens, fields);
 		success = true;
-		return User(name, username, hashed, 1);
+		return User(username);
 	}
 	
 	DestroyTokens(tokens, fields);
