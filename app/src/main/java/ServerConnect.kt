@@ -136,7 +136,7 @@ class ServerConnect {
             outputStream = socket?.getOutputStream()
             sendToServer(
                 Command.NewUser.int,
-                "bobby\nBobIsAwesome\n123BOB"
+                "bobby\nBobIsAwesome\nbob@bobberson.bob\n123BOB" + 0.toChar()
             )
 
             listenForServer()
