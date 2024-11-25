@@ -142,6 +142,7 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="DiscussionPost.h" />
     <ClInclude Include="SQLInterface.h" />
+    <ClInclude Include="TokenHelper.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="WindowsInterpreter.h" />
     <ClInclude Include="WindowsServer.h" />
