@@ -147,7 +147,7 @@ bool SQLInterface::LoginRequest(const char* username, const char* password)
 	SQLHSTMT statement = SetupAlloc();
 	bool isValid = false;
 	// TODO: UPDATE THE [User] to target your dbo.[insert db table name here]
-	const char* checkForUsername = "SELECT username, password FROM dbo.[User] WHERE username = ? AND password = ?";
+	const char* checkForUsername = "SELECT nvcUserName, nvcPasswordHash FROM dbo.[tblUser] WHERE nvcUserName = ? AND nvcPasswordHash = ?";
 
 	SQLRETURN result = SQLPrepareA(statement, (SQLCHAR*)checkForUsername, SQL_NTS);
 
