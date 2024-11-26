@@ -83,12 +83,9 @@ void WindowsInterpreter::HandleNewUser(const SOCKET& clientSocket)
 		buffer = new char[sizeOfHeader + 1];
 		unsigned int bytesRead = recv(clientSocket, buffer, sizeOfHeader, 0);
 		if (bytesRead != 0) {
-			bool success = false;
+			bool success = true;
 			User newUser = _commands.NewUser(buffer, success);
-			if (newUser.Username()[0] == ' ') LoginResponseToUser(clientSocket, newUser, false);
 			LoginResponseToUser(clientSocket, newUser, success);
-
-
 		}
 		if (buffer != nullptr) delete[] buffer;
 	}
@@ -102,14 +99,14 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 	char* response = nullptr;
 	if (success) {
 
-		std::string tokenAsStr = CreateToken(user);
+		static constexpr unsigned int sizeOfToken = hashSize + 1;
+		static constexpr unsigned int sizeOfResponse = sizeOfInt * 2 + sizeOfToken;
+		static constexpr unsigned int msgSuccess = (int)MessageResult::LoginSuccess;
+		char response[sizeOfResponse];
 
+		std::string tokenAsStr = CreateToken(user);
 		char* token = user.Token();
-		unsigned int sizeOfToken = strlen(token) + 1;
 		// This is necessary for our response array to be sized with null terminator
-		unsigned int sizeOfResponse = sizeOfInt * 2 + sizeOfToken;
-		response = new char[sizeOfResponse];
-		unsigned int msgSuccess = (int)MessageResult::LoginSuccess;
 		memcpy_s(response, sizeOfInt, &msgSuccess, sizeOfInt);
 		memcpy_s(response + sizeOfInt, sizeOfInt, &sizeOfToken, sizeOfInt);
 		memcpy_s(response + sizeOfInt * 2, sizeOfToken, token, sizeOfToken);
@@ -125,17 +122,18 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 
 	}
 	else {
-		char failedAttempt[] = "Unauthorized username or password \0";
-		unsigned int sizeOfResponse = sizeOfInt * 2 + strlen(failedAttempt) + 1;
-		response = new char[sizeOfResponse];
-		unsigned int failed = (unsigned int)MessageResult::Failed;
-		unsigned int lengthOfFailedAttempt = strlen(failedAttempt);
+		static constexpr const char* failedAttempt = "Unauthorized username or password";
+		static constexpr const unsigned int sizeOfResponse = sizeOfInt * 2 + sizeof(failedAttempt);
+		static constexpr unsigned int failed = (unsigned int)MessageResult::Failed;
+		static constexpr unsigned int lengthOfFailedAttempt = sizeof(failedAttempt) - 1;
+
+		char response[sizeOfResponse];
+
 		memcpy_s(response, sizeOfInt, &failed, sizeOfInt);
 		memcpy_s(response + sizeOfInt, sizeOfInt, &lengthOfFailedAttempt, sizeOfInt);
 		memcpy_s(response + sizeOfInt * 2, lengthOfFailedAttempt, failedAttempt, lengthOfFailedAttempt);
 		send(clientSocket, response, sizeOfResponse, 0);
 	}
-	if (response != nullptr) delete[] response;
 }
 
 void WindowsInterpreter::MessageToServer(const SOCKET& clientSocket)
@@ -158,10 +156,11 @@ void WindowsInterpreter::MessageToServer(const SOCKET& clientSocket)
 	else SendMessageToClient(clientSocket, false);
 }
 
+//TODO: Can probably clean this up too.
 void WindowsInterpreter::SendMessageToClient(const SOCKET& clientSocket, bool success)
 {
 	if (success) {
-		char message[] = "Message Recieved\0";
+		static constexpr const char* message = "Message Recieved";
 		unsigned int messageLength = strlen((char*)message);
 
 		messageLength++;
@@ -179,7 +178,7 @@ void WindowsInterpreter::SendMessageToClient(const SOCKET& clientSocket, bool su
 
 	}
 	else {
-		char message[] = "Error reading message\0";
+		static constexpr const char* message = "Error reading message";
 		unsigned int messageLength = strlen((char*)message);
 
 		messageLength++;

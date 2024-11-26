@@ -29,13 +29,10 @@ WindowsServer::WindowsServer()
 
 WindowsServer::WindowsServer(int setupIPType)
 {
-	if (setupIPType == 1) {
-	AcquireIpAdress();
-	}
-	else {
-		char ip[] = "127.0.0.1\0";
-		memcpy_s(_ipAddress, strlen(ip), ip, strlen(ip));
-	}
+	if (setupIPType == 1)
+		AcquireIpAdress();
+	else
+		memcpy_s(_ipAddress, sizeof(_ipAddress), localhost, sizeof(localhost));
 	
 	WSAData wsaData;
 
@@ -278,7 +275,7 @@ void WindowsServer::AcquireIpAdress()
 	addrinfo* result = nullptr;
 
 	if (getaddrinfo(hostName, nullptr, &hints, &result) != 0) {
-		std::cerr << "Error getting IP address from hostname \n";
+		std::cerr << "Error getting IP address from hostname\n";
 		WSACleanup();
 		return;
 	}
