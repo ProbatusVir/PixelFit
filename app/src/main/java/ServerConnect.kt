@@ -30,8 +30,7 @@ enum class MessageResult(val int : Int) {
 }
 
 
-class ServerConnect {
-
+class ServerConnect private constructor() {
 
     private val serverAddress = getMyServerAddress()
     //TODO: add some error handling
