@@ -40,6 +40,8 @@ class ServerConnect {
     private var outputStream : OutputStream? = null
     private var token : ByteArray? = null
 
+
+
     private fun getMyServerAddress() : InetAddress {
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
@@ -144,6 +146,8 @@ class ServerConnect {
     }
 
     companion object {
+        fun instance() = INSTANCE
+        private val INSTANCE = ServerConnect()
         private const val SERVER_NAME = "10.0.2.2"
         private const val PORT = 5930
         private const val HASH_SIZE = 32
