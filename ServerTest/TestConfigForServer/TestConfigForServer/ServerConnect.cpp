@@ -17,8 +17,8 @@ ServerConnect::ServerConnect(int lanOrLocalhost)
 	if (lanOrLocalhost == 1)
 		SetTargetIp();
 	else {
-		char ip[] = "127.0.0.1\0";
-		memcpy_s(_ipAddress, strlen(ip), ip, strlen(ip));
+		static constexpr const char ip[] = "127.0.0.1";
+		memcpy_s(_ipAddress, sizeof(ip), ip, sizeof(ip));
 	}
 	CreateSocket();
 
@@ -154,11 +154,10 @@ void ServerConnect::ListenForServer()
 			case (int)Command::NewDiscussionPost:
 				ReadMessageFromServer();
 				break;
-			case (int) MessageResult::Failed:
+			case (int)MessageResult::Failed:
 				ReadMessageFromServer();
 				break;
 			}
-
 		}
 
 			std::this_thread::sleep_for(std::chrono::seconds(2));
