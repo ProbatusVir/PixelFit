@@ -12,6 +12,9 @@
 		DiscussionPost,
 		GetUser,
 		BanUser,
+
+		//Might delete later.
+		SendImageToServer
 	};
 
 	enum class MessageResult : int {
