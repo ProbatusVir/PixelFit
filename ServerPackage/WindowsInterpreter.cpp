@@ -53,6 +53,8 @@ void WindowsInterpreter::DisconnectClient(const SOCKET& clientSocket)
 	closesocket(clientSocket);
 }
 
+//TODO: There is still a user with a gnarly username if this fails, we should make sure not to push bad clients to the user map.
+//	interestingly, they aren't added to the DB, so that's good...
 void WindowsInterpreter::HandleLoginUser(const SOCKET& clientSocket)
 {
 
@@ -67,7 +69,7 @@ void WindowsInterpreter::HandleLoginUser(const SOCKET& clientSocket)
 		}
 		
 
-		if (buffer != nullptr) delete[] buffer;
+		delete[] buffer;
 	}
 	else {
 		SendMessageToClient(clientSocket, false);
@@ -79,15 +81,15 @@ void WindowsInterpreter::HandleNewUser(const SOCKET& clientSocket)
 	unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
 
 	if (sizeOfHeader != 0) {
-		char* buffer = nullptr;
-		buffer = new char[sizeOfHeader + 1];
+		char* buffer = new char[sizeOfHeader + 1];
 		unsigned int bytesRead = recv(clientSocket, buffer, sizeOfHeader, 0);
 		if (bytesRead != 0) {
 			bool success = true;
 			User newUser = _commands.NewUser(buffer, success);
 			LoginResponseToUser(clientSocket, newUser, success);
 		}
-		if (buffer != nullptr) delete[] buffer;
+		
+		delete[] buffer;
 	}
 
 	else SendMessageToClient(clientSocket, false);
