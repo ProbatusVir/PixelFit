@@ -1,4 +1,6 @@
 #include "SQLInterface.h"
+#include "Constants.h"
+
 #include <sql.h>
 #include <iostream>
 #include <odbcss.h>		
@@ -6,10 +8,6 @@
 #include <sqlext.h>
 #include <fstream>
 #include <string>
-#include "Constants.h"
-
-
-
 
 // https://www.ibm.com/docs/en/db2-for-zos/13?topic=functions-sqlallochandle-allocate-handle
 

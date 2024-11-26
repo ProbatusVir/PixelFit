@@ -1,11 +1,10 @@
 #pragma once
-#include <WinSock2.h>
-#include <winsock.h>
-#include <WS2tcpip.h>
-#include <vector>
 #include "CommandSet.h"
 #include "WindowsUserPair.h"
 #include "WindowsInterpreter.h"
+
+#include <WS2tcpip.h>
+
 //#include <string>
 #pragma comment(lib, "Ws2_32.lib")
 class WindowsServer

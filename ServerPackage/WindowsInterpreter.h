@@ -1,13 +1,12 @@
 #pragma once
-#include <WinSock2.h>
-#include <winsock.h>
 #include "WindowsUserPair.h"
-#include <vector>
 #include "Constants.h"
 #include "CommandSet.h"
+#include "DiscussionPost.h"
+
+#include <WinSock2.h>
 #include <unordered_map>
 #include <string>
-#include "DiscussionPost.h"
 // This class will handle communication and distribution of information
 // to clients. The pair vector will be here so if we need to contact a client
 // from another client we can loop through and find the information.
@@ -35,7 +34,8 @@ private:
 	std::string CreateToken( User& user);
 	void NewDiscussionPost(const SOCKET& clientSocket);
 	void SendPostToClients(const SOCKET&clientSocket, const char* buffer, unsigned int sizeOfBuffer);
-	void CreateMessagePacket(DiscussionPost& post , unsigned int & packetSize);
+	void CreateMessagePacket(DiscussionPost& post , unsigned int& packetSize);
+	void ReceiveImage(const SOCKET& clientSocket, const char* buffer);
 	std::unordered_map<std::string, WindowsUserPair> _clientPairs;
 
 	CommandSet _commands;
