@@ -1,11 +1,10 @@
 // TestConfigForServer.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
+#include "ServerConnect.h"
+#include "../../../ServerPackage/Constants.h"
 
 #include <iostream>
-#include "ServerConnect.h"
 #include <string>
-#include "../../../ServerPackage/Constants.h"
-#include <limits.h>
 
 static constexpr const char* options[] =
 {
