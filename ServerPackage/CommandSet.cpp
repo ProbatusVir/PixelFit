@@ -71,23 +71,24 @@ User CommandSet::NewUser(const char* buffer, bool& success)
 	const bool dataNonZero = name_length && username_length && email_length && password_length;
 	const bool dataParsedProperly = name_length + username_length + email_length + password_length == strlen(buffer) - (fields - 1);
 	
+	User user = User();
+
 	if (!dataFits || !dataParsedProperly || !dataNonZero)
 	{
 		DestroyTokens(tokens, fields);
-		return User();
+		return user;
 	}
 
 	const char* hashed = User::HashPassword(password);
 	// This tells us that we are or are not able to make a database entry. If we cannot, then we tell the user.
 	const bool ableToCreateNewUser = SQLInterface::Instance()->InsertNewUser(name, username, email, hashed);
 	if (ableToCreateNewUser) {
-		DestroyTokens(tokens, fields);
+		user = User(username);
 		success = true;
-		return User(username);
 	}
 	
 	DestroyTokens(tokens, fields);
-	return User();
+	return user;
 }
 // This will handle the creation of discussion posts
 DiscussionPost CommandSet::NewDiscussionPost(char* buffer, User& user, unsigned int headerSize)
