@@ -16,12 +16,10 @@ ServerConnect::ServerConnect(int lanOrLocalhost)
 {
 	if (lanOrLocalhost == 1)
 		SetTargetIp();
-	else {
-		static constexpr const char ip[] = "127.0.0.1";
-		memcpy_s(_ipAddress, sizeof(ip), ip, sizeof(ip));
-	}
-	CreateSocket();
+	else 
+		memcpy_s(_ipAddress, sizeof(_ipAddress), localhost, sizeof(localhost));
 
+	CreateSocket();
 }
 
 ServerConnect::~ServerConnect()
@@ -29,7 +27,7 @@ ServerConnect::~ServerConnect()
 	WSACleanup();
 }
 
-int ServerConnect::SendToServer(int command, char* message)
+int ServerConnect::SendToServer(int command, const char* message)
 {
 	int codeFromServer = 0;
 	unsigned int tokenSize = 0;
@@ -225,7 +223,7 @@ void ServerConnect::HandleToken()
 	}
 }
 
-unsigned int ServerConnect::ReadHeader()
+unsigned int ServerConnect::ReadHeader() const
 {
 	char buffer[4] = { 0 };
 	int bytesRead = 0;
@@ -249,7 +247,7 @@ unsigned int ServerConnect::ReadHeader()
 	return header;
 }
 
-void ServerConnect::ReadMessageFromServer()
+void ServerConnect::ReadMessageFromServer() const
 {
 	unsigned int byteHeader = ReadHeader();
 	if (byteHeader > 0) {
