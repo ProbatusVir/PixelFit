@@ -1,4 +1,6 @@
 #include "ServerConnect.h"
+#include "../../../ServerPackage/Constants.h"
+
 #include <thread>
 #include <fstream>
 #include <chrono>
@@ -10,6 +12,7 @@
 #include <functional>
 #include <filesystem>
 #include <iostream>
+
 
 
 ServerConnect::ServerConnect(int lanOrLocalhost)

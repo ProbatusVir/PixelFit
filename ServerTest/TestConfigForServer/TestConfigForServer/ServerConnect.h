@@ -1,10 +1,6 @@
 #pragma once
 
-#include <WinSock2.h>
-#include <winsock.h>
 #include <WS2tcpip.h>
-#include <vector>
-#include "../../../ServerPackage/Constants.h"
 #pragma comment(lib, "Ws2_32.lib")
 
 class ServerConnect
