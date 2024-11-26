@@ -129,16 +129,16 @@ class ServerConnect {
         outputStream?.flush()
     }
 
+    fun signUp(name : String, username : String, email : String, password : String) {
+        val message = "$name\n$username\n$email\n$password" + 0.toChar()
+        sendToServer(Command.NewUser.int, message)
+    }
+
     init {
         Thread {
             getMySocket()
             inputStream = socket?.getInputStream()
             outputStream = socket?.getOutputStream()
-            sendToServer(
-                Command.NewUser.int,
-                "bobby\nBobIsAwesome\nbob@bobberson.bob\n123BOB" + 0.toChar()
-            )
-
             listenForServer()
         }.start()
     }
