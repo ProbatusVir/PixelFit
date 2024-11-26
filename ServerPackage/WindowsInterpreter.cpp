@@ -161,38 +161,27 @@ void WindowsInterpreter::SendMessageToClient(const SOCKET& clientSocket, bool su
 {
 	if (success) {
 		static constexpr const char* message = "Message Recieved";
-		unsigned int messageLength = strlen((char*)message);
-
-		messageLength++;
-
-		unsigned int command = (unsigned int)MessageResult::Success;
-
-		char* response = nullptr;
-		unsigned int packetSize = messageLength + sizeOfInt * 2;
-		response = new char[packetSize];
+		static constexpr unsigned int messageLength = sizeof(message);
+		static constexpr unsigned int command = (unsigned int)MessageResult::Success;
+		static constexpr unsigned int packetSize = messageLength + sizeOfInt * 2;
+		
+		char response[packetSize];
 		memcpy_s(response, sizeOfInt, &command, sizeOfInt);
 		memcpy_s(response + sizeOfInt, sizeOfInt, &messageLength, sizeOfInt);
 		memcpy_s(response + sizeOfInt * 2, messageLength, message, messageLength);
 		send(clientSocket, response, packetSize, 0);
-		delete[] response;
-
 	}
 	else {
-		static constexpr const char* message = "Error reading message";
-		unsigned int messageLength = strlen((char*)message);
-
-		messageLength++;
-
-		unsigned int command = (unsigned int)MessageResult::Failed;
-
-		char* response = nullptr;
-		unsigned int packetSize = messageLength + sizeOfInt * 2;
-		response = new char[packetSize];
+		static constexpr const char message[] = "Error reading message";
+		static constexpr const unsigned int messageLength = sizeof(message);
+		static constexpr const unsigned int command = (unsigned int)MessageResult::Failed;
+		static constexpr const unsigned int packetSize = messageLength + sizeOfInt * 2;
+		
+		char response[packetSize];
 		memcpy_s(response, sizeOfInt, &command, sizeOfInt);
 		memcpy_s(response + sizeOfInt, sizeOfInt, &messageLength, sizeOfInt);
 		memcpy_s(response + sizeOfInt * 2, messageLength, message, messageLength);
 		send(clientSocket, response, packetSize, 0);
-		delete[] response;
 	}
 }
 
@@ -205,35 +194,31 @@ unsigned int WindowsInterpreter::ReadByteHeader(const SOCKET& clientSocket)
 
 bool WindowsInterpreter::VerifyUserAuth(const SOCKET& clientSocket, User& user)
 {
-	unsigned int header = ReadByteHeader(clientSocket);
+	const unsigned int header = ReadByteHeader(clientSocket);
 	bool success = false;
 	if (header) {
-		char* token = nullptr;
-		token = new char[header];
+		char* token = new char[header];
 
 		recv(clientSocket, (char*)token, header, 0);
 		std::string tokenAsStr = token;
 		auto existingToken = _clientPairs.find(tokenAsStr);
-		if (existingToken == _clientPairs.end()) {
-
-		}
-		else {
+		if (existingToken != _clientPairs.end()) 
+		{
 			success = true;
 			user = existingToken->second.user;
 		}
 
-		if (token != nullptr) delete[] token;
+		delete[] token;
 	}
 	return success;
 }
 
-bool WindowsInterpreter::EnsureSingleTokenInstance(std::string token)
+bool WindowsInterpreter::EnsureSingleTokenInstance(const std::string& token)
 {
-	auto isValid = _clientPairs.find(token);
-	if (isValid == _clientPairs.end()) {
+	if (_clientPairs.find(token) == _clientPairs.end())
 		return true;
-	}
-	else return false;
+	
+	return false;
 }
 
 std::string WindowsInterpreter::CreateToken(User& user)

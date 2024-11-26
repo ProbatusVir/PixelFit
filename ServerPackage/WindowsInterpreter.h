@@ -31,7 +31,7 @@ private:
 	void SendMessageToClient(const SOCKET& clientSocket, bool success);
 	unsigned int ReadByteHeader(const SOCKET& clientSocket);
 	bool VerifyUserAuth(const SOCKET& clientSocket, User& user);
-	bool EnsureSingleTokenInstance(std::string token);
+	bool EnsureSingleTokenInstance(const std::string& token);
 	std::string CreateToken( User& user);
 	void NewDiscussionPost(const SOCKET& clientSocket);
 	void SendPostToClients(const SOCKET&clientSocket, const char* buffer, unsigned int sizeOfBuffer);
