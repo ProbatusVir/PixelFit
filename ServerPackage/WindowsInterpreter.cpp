@@ -199,12 +199,7 @@ void WindowsInterpreter::SendMessageToClient(const SOCKET& clientSocket, bool su
 unsigned int WindowsInterpreter::ReadByteHeader(const SOCKET& clientSocket)
 {
 	unsigned int byteHeader = 0;
-	char response[4] = { 0 };
-	// This may break, it would be nice if it worked.
-
-	recv(clientSocket, response, sizeOfInt, 0);
-	byteHeader = (unsigned int)response[0];
-
+	recv(clientSocket, (char*)&byteHeader, sizeOfInt, 0);
 	return byteHeader;
 }
 
