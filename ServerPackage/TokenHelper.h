@@ -6,7 +6,7 @@
 	{
 		char** container = new char* [fields];
 		const char* seeker = message;
-		char token_length = 0;
+		unsigned char token_length = 0;
 
 		for (unsigned int i = 0; i < fields; i++)
 		{
