@@ -131,6 +131,7 @@
   <ItemGroup>
     <ClCompile Include="CommandSet.cpp" />
     <ClCompile Include="DiscussionPost.cpp" />
+    <ClCompile Include="FileOps.cpp" />
     <ClCompile Include="ServerPackage.cpp" />
     <ClCompile Include="SQLInterface.cpp" />
     <ClCompile Include="User.cpp" />
@@ -141,6 +142,7 @@
     <ClInclude Include="CommandSet.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="DiscussionPost.h" />
+    <ClInclude Include="FileOps.h" />
     <ClInclude Include="SQLInterface.h" />
     <ClInclude Include="TokenHelper.h" />
     <ClInclude Include="User.h" />
