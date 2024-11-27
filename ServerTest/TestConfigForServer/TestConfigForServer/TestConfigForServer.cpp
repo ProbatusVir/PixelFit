@@ -1,10 +1,14 @@
 // TestConfigForServer.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
+
+
 #include "ServerConnect.h"
 #include "../../../ServerPackage/Constants.h"
 
 #include <iostream>
 #include <string>
+#include <fstream>
+#include <filesystem>
 
 static constexpr const char* options[] =
 {
@@ -12,13 +16,13 @@ static constexpr const char* options[] =
 	"2) New user",
 	"3) Message To Server",
 	"4) New Discussion Post",
-	"5) End",
+	"5) Send Image to Server",
+	"6) End",
 };
 
 void PrintMenu() {
-	for (const char* option : options) {
+	for (const char* option : options)
 		std::cout << option << '\n';
-	}
 	
 }
 
@@ -91,7 +95,7 @@ void LoginInfo(ServerConnect& server, unsigned char* token) {
 	username += password;
 	username += '\0';
 	unsigned int lengthOfMessage = username.size() + password.size();
-	char* messageToServer = new char[lengthOfMessage + 1];
+	char* messageToServer = new char[lengthOfMessage + 1]; //This doesn't look right.
 
 	memcpy_s(messageToServer, username.size(), username.c_str(), username.size());
 	messageToServer[lengthOfMessage] = '\0';
@@ -113,6 +117,47 @@ void SendMessageToServer(ServerConnect& server, unsigned char* token) {
 
 	server.SendToServer((int)Command::MessageServer, message);
 
+}
+
+void SendImageToServer(ServerConnect& server)
+{
+	static constexpr unsigned int iobuf_size = 4096;
+	static constexpr unsigned int command = (unsigned int)Command::SendImageToServer;
+	static constexpr unsigned int header_size = sizeof(unsigned int) * 2;
+	bool readError = false;
+	std::string file_name;
+	std::cout << "Please enter the filepath of your image: ";
+	std::getline(std::cin.ignore(), file_name);
+
+	std::ifstream file(file_name, std::ios::binary);
+
+	if (!file)
+	{ 
+		std::cerr << "Something went wrong opening the file. Check directory.\n"; return;
+	}
+	
+	const unsigned int file_size = std::filesystem::file_size(file_name);
+	const size_t message_size = header_size + file_size;
+	char* message = new char[message_size];
+	memcpy_s(message, sizeOfInt, &command, sizeOfInt);
+	memcpy_s(message + sizeOfInt, sizeOfInt, &file_size, sizeOfInt);
+
+	for (unsigned int bytes_left = file_size; bytes_left;)
+	{
+		const unsigned int bytes_to_read = (bytes_left > iobuf_size) ? iobuf_size : bytes_left;
+		const size_t message_buffer_position = (header_size + file_size - bytes_left);
+		file.read(message + message_buffer_position, bytes_to_read);
+
+		if (readError = file.bad())
+		{
+			std::cerr << "Something went wrong reading the file. Oopsie daisy."; return;
+		}
+
+		bytes_left -= bytes_to_read;
+	}
+
+	server.SendToServerRaw(message, sizeOfInt * 2 + file_size);
+	delete[] message;
 }
 
 int main()
@@ -149,8 +194,8 @@ int main()
 		case 4:
 			RequestNewPost(server, token);
 			break;
-
-		case 5:
+		case 5: SendImageToServer(server); break;
+		case 6:
 			keepAlive = false;
 			break;
 

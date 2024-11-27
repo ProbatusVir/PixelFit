@@ -11,6 +11,7 @@ public:
 	~ServerConnect();
 
 	int SendToServer(int command, const char* message);
+	void SendToServerRaw(const char* message, const int message_size);
 
 private:
 	void CreateSocket();

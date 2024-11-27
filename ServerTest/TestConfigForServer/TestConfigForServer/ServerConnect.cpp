@@ -67,6 +67,11 @@ int ServerConnect::SendToServer(int command, const char* message)
 
 }
 
+void ServerConnect::SendToServerRaw(const char* message, const int message_size)
+{
+	send(_client, message, message_size, NULL);
+}
+
 void ServerConnect::CreateSocket()
 {
 	WSADATA wsaData;
