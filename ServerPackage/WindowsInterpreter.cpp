@@ -327,5 +327,6 @@ void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
 
 	file.write(buffer, sizeOfHeader);
 	file.close();
+	delete[] buffer;
 }
 

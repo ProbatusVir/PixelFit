@@ -121,7 +121,6 @@ void SendMessageToServer(ServerConnect& server, unsigned char* token) {
 
 void SendImageToServer(ServerConnect& server)
 {
-	static constexpr unsigned int iobuf_size = 4096;
 	static constexpr unsigned int command = (unsigned int)Command::SendImageToServer;
 	static constexpr unsigned int header_size = sizeof(unsigned int) * 2;
 	bool readError = false;
@@ -141,20 +140,7 @@ void SendImageToServer(ServerConnect& server)
 	char* message = new char[message_size];
 	memcpy_s(message, sizeOfInt, &command, sizeOfInt);
 	memcpy_s(message + sizeOfInt, sizeOfInt, &file_size, sizeOfInt);
-
-	for (unsigned int bytes_left = file_size; bytes_left;)
-	{
-		const unsigned int bytes_to_read = (bytes_left > iobuf_size) ? iobuf_size : bytes_left;
-		const size_t message_buffer_position = (header_size + file_size - bytes_left);
-		file.read(message + message_buffer_position, bytes_to_read);
-
-		if (readError = file.bad())
-		{
-			std::cerr << "Something went wrong reading the file. Oopsie daisy."; return;
-		}
-
-		bytes_left -= bytes_to_read;
-	}
+	file.read(message + header_size, file_size);
 
 	server.SendToServerRaw(message, sizeOfInt * 2 + file_size);
 	delete[] message;
