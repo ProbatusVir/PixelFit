@@ -307,23 +307,23 @@ void WindowsInterpreter::SendPostToClients(const SOCKET& clientSocket, const cha
 
 void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
 {
+	//TODO: This is the result of a systemic problem, I'll have to find an efficient way to get the User so we can use the username as the filename
+	static constexpr const char TMPFILENAME[] = "temporary_file_name.png";
 	const unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
 
 	if (!sizeOfHeader)
 		return;
-
-	char* buffer = new char[sizeOfHeader];
-	recv(clientSocket, buffer, sizeOfHeader, 0);
-
-	//TODO: This is the result of a systemic problem, I'll have to find an efficient way to get the User so we can use the username as the filename
-	static constexpr const char TMPFILENAME[] = "temporary_file_name.png";
-
 	std::ofstream file = std::ofstream(TMPFILENAME, std::ios::binary);
 	if (!file)
 	{
 		std::cerr << "Error opening file.\n";
 		return;
 	}
+
+	char* buffer = new char[sizeOfHeader];
+	recv(clientSocket, buffer, sizeOfHeader, 0);
+
+
 
 	file.write(buffer, sizeOfHeader);
 	file.close();
