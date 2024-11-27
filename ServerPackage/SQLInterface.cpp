@@ -78,7 +78,7 @@ void SQLInterface::ConnectToDB()
 void SQLInterface::InterpretState(const SQLRETURN code, const char* name, const bool indented)
 {
 	const char* error_message;
-	char succcssWithInfo[1024] = { 0 };
+	char successWithInfo[1024] = { 0 };
 	SQLCHAR sqlState[6];
 	SQLINTEGER nativeError;
 	SQLCHAR message[1024];
@@ -91,12 +91,12 @@ void SQLInterface::InterpretState(const SQLRETURN code, const char* name, const 
 	}
 	for (int i = 0; i < SQL_MAX_MESSAGE_LENGTH; i++) {
 		if (message[i] = '\0') {
-			succcssWithInfo[i] = ' ';
+			successWithInfo[i] = ' ';
 		}
-		else succcssWithInfo[i] = message[i];
+		else successWithInfo[i] = message[i];
 	}
 
-	std::cout << succcssWithInfo << '\n';
+	std::cout << successWithInfo << '\n';
 
 	switch (code)
 	{
