@@ -31,13 +31,13 @@ private:
 	unsigned int ReadByteHeader(const SOCKET& clientSocket);
 	bool VerifyUserAuth(const SOCKET& clientSocket, User& user);
 	bool EnsureSingleTokenInstance(const std::string& token);
-	std::string CreateToken( User& user);
+	std::string CreateToken(User& user);
 	void NewDiscussionPost(const SOCKET& clientSocket);
 	void SendPostToClients(const SOCKET&clientSocket, const char* buffer, unsigned int sizeOfBuffer);
 	void CreateMessagePacket(DiscussionPost& post , unsigned int& packetSize);
-	void ReceiveImage(const SOCKET& clientSocket, const char* buffer);
+	void ReceiveImage(const SOCKET& clientSocket);
+	
 	std::unordered_map<std::string, WindowsUserPair> _clientPairs;
-
 	CommandSet _commands;
 };
 

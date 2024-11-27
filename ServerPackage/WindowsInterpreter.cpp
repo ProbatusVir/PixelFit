@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <thread>
+#include <fstream>
 
 void WindowsInterpreter::InterpretMessage(const SOCKET& clientSocket, Command command)
 {
@@ -33,6 +34,10 @@ void WindowsInterpreter::InterpretMessage(const SOCKET& clientSocket, Command co
 
 	case Command::BanUser:
 		// restrictive function only allowing certain people to ban users, likely from group, or altogether from the app.
+		break;
+
+	case Command::SendImageToServer:
+		ReceiveImage(clientSocket);
 		break;
 	}
 }
@@ -98,7 +103,6 @@ void WindowsInterpreter::HandleNewUser(const SOCKET& clientSocket)
 
 void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& user, const bool success)
 {
-	char* response = nullptr;
 	if (success) {
 
 		static constexpr unsigned int sizeOfToken = hashSize + 1;
@@ -301,6 +305,27 @@ void WindowsInterpreter::SendPostToClients(const SOCKET& clientSocket, const cha
 
 
 
+void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
+{
+	const unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
 
+	if (!sizeOfHeader)
+		return;
 
+	char* buffer = new char[sizeOfHeader];
+	recv(clientSocket, buffer, sizeOfHeader, 0);
+
+	//TODO: This is the result of a systemic problem, I'll have to find an efficient way to get the User so we can use the username as the filename
+	static constexpr const char TMPFILENAME[] = "temporary_file_name.png";
+
+	std::ofstream file = std::ofstream(TMPFILENAME, std::ios::binary);
+	if (!file)
+	{
+		std::cerr << "Error opening file.\n";
+		return;
+	}
+
+	file.write(buffer, sizeOfHeader);
+	file.close();
+}
 
