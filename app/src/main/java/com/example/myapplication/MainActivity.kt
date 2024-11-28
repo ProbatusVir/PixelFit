@@ -65,6 +65,7 @@ class MainActivity : AppCompatActivity() {
 
         val popup = PopupMenu(this, view)
         val inflater: MenuInflater = popup.menuInflater
+
         inflater.inflate(R.menu.menu_main, popup.menu)
 
         // Handle menu item clicks
