@@ -9,7 +9,9 @@
             android:id="@+id/HomeFragment"
             android:name="com.example.myapplication.FirstFragment"
             android:label="@string/Home_fragment_label"
-            tools:layout="@layout/fragment_first"/>
+            tools:layout="@layout/fragment_first">
+        <action android:id="@+id/action_HomeFragment_to_SettingsFragment" app:destination="@id/SettingsFragment"/>
+    </fragment>
 
     <fragment
             android:id="@+id/LoginFragment"
