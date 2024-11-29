@@ -266,11 +266,10 @@ void WindowsInterpreter::NewDiscussionPost(const SOCKET& clientSocket)
 			memcpy_s(messageToSend + sizeOfInt, packet, &detailHeader, sizeOfInt);
 			memcpy_s(messageToSend + sizeOfInt * 2, packet, username, usernameSize);
 			memcpy_s(messageToSend + sizeOfInt * 2 + usernameSize, packet, postDetails, postSize);
-			int length = usernameSize + postSize + sizeOfInt + sizeOfInt;
+			const int length = usernameSize + postSize + sizeOfInt + sizeOfInt;
 			SendPostToClients(clientSocket, messageToSend, length);
 
 			SendMessageToClient(clientSocket, true);
-			delete[] messageToSend;
 		}
 	}
 	else {
