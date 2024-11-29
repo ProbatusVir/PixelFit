@@ -20,7 +20,7 @@ User CommandSet::LoginUser(const char* buffer, bool& success)
 	success = false;
 
 	constexpr const unsigned int fields = 2;
-	char** tokens = Tokenize(buffer, fields);
+	Tokenizer tokens(buffer, fields);
 
 	const char* username = tokens[0];
 	const char* password = tokens[1];
@@ -56,7 +56,7 @@ User CommandSet::NewUser(const char* buffer, bool& success)
 {
 	success = false;
 	static constexpr const unsigned int fields = 4;
-	char** tokens = Tokenize(buffer, fields);
+	Tokenizer tokens(buffer, fields);
 	const char* name = tokens[0];
 	const char* username = tokens[1];
 	const char* email = tokens[2];
@@ -75,7 +75,6 @@ User CommandSet::NewUser(const char* buffer, bool& success)
 
 	if (!dataFits || !dataParsedProperly || !dataNonZero)
 	{
-		DestroyTokens(tokens, fields);
 		return user;
 	}
 
@@ -87,7 +86,6 @@ User CommandSet::NewUser(const char* buffer, bool& success)
 		success = true;
 	}
 	
-	DestroyTokens(tokens, fields);
 	return user;
 }
 // This will handle the creation of discussion posts

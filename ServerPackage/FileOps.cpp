@@ -10,14 +10,14 @@ FileOps* FileOps::m_instance = new FileOps();
 
 const char* FileOps::FetchEnvironmentVariable(const char* variable)
 {
-    unsigned int* fields = new unsigned int;
-    char** tokens = Tokenize(m_environment, fields);
-    
+    Tokenizer tokens(m_environment);
+    unsigned int fields = tokens.Fields();
+
     //Find the token that starts with the string you're looking for. If it's "DSN" and there is "DSN=DB", return "DB".
-    char** seeker = tokens;
-    for (; seeker < tokens + *fields; seeker++)
+    char** seeker = tokens.Tokens();
+    for (; seeker < tokens + fields; seeker++)
     {
-        char** split = Tokenize(*seeker, 2, '=');
+        Tokenizer split(*seeker, 2, '=');
         if (!strcmp(split[0], variable))
         {
             unsigned int token_length = strlen(split[1]);
@@ -25,14 +25,10 @@ const char* FileOps::FetchEnvironmentVariable(const char* variable)
             value[token_length] = '\0';
             memcpy_s(value, token_length, split[1], token_length);
             
-            DestroyTokens(tokens, *fields);
-            delete fields;
             return value;
         }
     }
 
-    DestroyTokens(tokens, *fields);
-    delete fields;
     return nullptr;
 }
 
