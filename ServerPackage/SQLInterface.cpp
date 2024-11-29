@@ -118,7 +118,7 @@ void SQLInterface::InterpretState(const SQLRETURN code, const char* name, const 
 // The order of data is as shown inside the function
 void SQLInterface::LoadCredentials(const char* path)
 {
-	FileOps* loader = FileOps::Instance();
+	EnvironmentFile* loader = EnvironmentFile::Instance();
 
 	constexpr const char field1[] = "DSN=";
 	constexpr const char field2[] = ";Trusted_Connection=Yes;WSID=";
