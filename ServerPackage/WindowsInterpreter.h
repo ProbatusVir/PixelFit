@@ -36,7 +36,9 @@ private:
 	void SendPostToClients(const SOCKET&clientSocket, const char* buffer, unsigned int sizeOfBuffer);
 	void CreateMessagePacket(DiscussionPost& post , unsigned int& packetSize);
 	void ReceiveImage(const SOCKET& clientSocket);
-	
+	User* FindUserByToken(const char* clientSocket);
+	inline User* FindUserByToken (const std::string& clientSocket);
+
 	std::unordered_map<std::string, WindowsUserPair> _clientPairs;
 	CommandSet _commands;
 };

@@ -166,7 +166,7 @@ void WindowsInterpreter::MessageToServer(const SOCKET& clientSocket)
 void WindowsInterpreter::SendMessageToClient(const SOCKET& clientSocket, bool success)
 {
 	if (success) {
-		static constexpr const char* message = "Message Recieved";
+		static constexpr const char* message = "Message Received";
 		static constexpr unsigned int messageLength = sizeof(message);
 		static constexpr unsigned int command = (unsigned int)MessageResult::Success;
 		static constexpr unsigned int packetSize = messageLength + sizeOfInt * 2;
@@ -202,17 +202,12 @@ bool WindowsInterpreter::VerifyUserAuth(const SOCKET& clientSocket, User& user)
 {
 	const unsigned int header = ReadByteHeader(clientSocket);
 	bool success = false;
+
 	if (header) {
 		char* token = new char[header];
 
 		recv(clientSocket, (char*)token, header, 0);
-		std::string tokenAsStr = token;
-		auto existingToken = _clientPairs.find(tokenAsStr);
-		if (existingToken != _clientPairs.end()) 
-		{
-			success = true;
-			user = existingToken->second.user;
-		}
+		return success = (FindUserByToken(token)) ? true : false;
 
 		delete[] token;
 	}
@@ -242,6 +237,8 @@ std::string WindowsInterpreter::CreateToken(User& user)
 
 void WindowsInterpreter::NewDiscussionPost(const SOCKET& clientSocket)
 {
+	static constexpr unsigned int command = (unsigned int)Command::NewDiscussionPost;
+
 	// TODO: run more test to get the discussion posts sending out to other clients.
 	User user;
 	
@@ -257,13 +254,13 @@ void WindowsInterpreter::NewDiscussionPost(const SOCKET& clientSocket)
 			// distribution
 			char messageToSend[1024];
 			char* username = infoToSend.GetAuthor();
-			char* postDetails = infoToSend.GetPost();
-			unsigned int usernameSize = strlen(username) + 1;
+			const char* postDetails = infoToSend.GetPost();
+			const unsigned int usernameSize = strlen(username) + 1;
 			username[usernameSize - 1] = '\n';
-			unsigned int postSize = strlen(postDetails) + 1;
-			unsigned int detailHeader = usernameSize + postSize;
-			unsigned int command = (unsigned int) Command::NewDiscussionPost;
-			unsigned int packet = sizeOfInt + postSize + usernameSize + 1;
+			
+			const unsigned int postSize = strlen(postDetails) + 1;
+			const unsigned int detailHeader = usernameSize + postSize;
+			const unsigned int packet = sizeOfInt + postSize + usernameSize + 1;
 			//messageToSend = new char[packet];
 			memcpy_s(messageToSend, packet, &command, sizeOfInt);
 			memcpy_s(messageToSend + sizeOfInt, packet, &detailHeader, sizeOfInt);
@@ -273,7 +270,7 @@ void WindowsInterpreter::NewDiscussionPost(const SOCKET& clientSocket)
 			SendPostToClients(clientSocket, messageToSend, length);
 
 			SendMessageToClient(clientSocket, true);
-			//delete[] messageToSend;
+			delete[] messageToSend;
 		}
 	}
 	else {
@@ -328,5 +325,20 @@ void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
 	file.write(buffer, sizeOfHeader);
 	file.close();
 	delete[] buffer;
+}
+
+User* WindowsInterpreter::FindUserByToken(const char* token)
+{
+	std::string tokenAsStr(token);
+	return FindUserByToken(tokenAsStr);
+}
+
+User* WindowsInterpreter::FindUserByToken(const std::string& token)
+{
+	auto existingToken = _clientPairs.find(token);
+	if (existingToken != _clientPairs.end())
+		return &(existingToken->second.user);
+
+	return nullptr;
 }
 
