@@ -64,7 +64,7 @@
     <string name="friends">Add Friends fragment</string>
     <string name="groups">Group Finder fragment</string>
     <string name="instructor">Instructor fragment</string>
-    <string name="settings">Setting fragment</string>
+    <string name="settings">Settings</string>
 
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>
@@ -79,4 +79,7 @@
     <string name="attachment_title">Download incoming attachments</string>
     <string name="attachment_summary_on">Automatically download attachments for incoming emails</string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+
+    <!-- Settings Text -->
+    <string name="private_profile">Private Profile</string>
 </resources>
