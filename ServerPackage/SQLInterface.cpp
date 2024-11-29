@@ -118,34 +118,29 @@ void SQLInterface::InterpretState(const SQLRETURN code, const char* name, const 
 // The order of data is as shown inside the function
 void SQLInterface::LoadCredentials(const char* path)
 {
-	//constexpr const char field1[] = "DSN=";
-	//constexpr const char field2[] = ";Trusted_Connection=Yes;WSID=";
-	//constexpr const char end[] = ";";
-	//constexpr const unsigned int static_size = sizeof(field1) + sizeof(field2) + sizeof(end) - 3;
-	
 	FileOps* loader = FileOps::Instance();
 
-	//const char* dsn = loader->FetchEnvironmentVariable("dsn");
-	//const char* db_name = loader->FetchEnvironmentVariable("db_name");
-	//unsigned int dsn_length = strlen(dsn);
-	//unsigned int db_name_length = strlen(db_name);
+	constexpr const char field1[] = "DSN=";
+	constexpr const char field2[] = ";Trusted_Connection=Yes;WSID=";
+	constexpr const char end[] = ";";
+	constexpr const unsigned int static_size = sizeof(field1) + sizeof(field2) + sizeof(end) - 3;
+	
 
-	//const unsigned int buff_size = static_size + dsn_length + db_name_length;
-	//char* connStr = new char[buff_size];
-	//char* write_point = connStr;
-	//
-	//memcpy_s(write_point,						sizeof(field1) - 1,		field1,		sizeof(field1) - 1);
-	//memcpy_s(write_point += sizeof(field1) - 1, dsn_length,				dsn,		dsn_length);
-	//memcpy_s(write_point += dsn_length,			sizeof(field2) - 1,		field2,		sizeof(field2) - 1);
-	//memcpy_s(write_point += sizeof(field2) - 1, db_name_length,			db_name,	db_name_length);
-	//memcpy_s(write_point += db_name_length,		sizeof(end) - 1,		end,		sizeof(end) - 1);
-	//connStr[buff_size] = '\0';
+	const char* dsn = loader->FetchEnvironmentVariable("dsn");
+	const char* db_name = loader->FetchEnvironmentVariable("db_name");
+	unsigned int dsn_length = strlen(dsn);
+	unsigned int db_name_length = strlen(db_name);
 
-	std::string dsn = loader->FetchEnvironmentVariable("dsn");
-	std::string db_name = loader->FetchEnvironmentVariable("db_name");	
-	std::string connectStr = "DSN=" + dsn + ";Trusted_Connection=Yes;WSID=" + db_name + ";";
-	connStr = new char[connectStr.size() + 1];
-	strcpy_s(connStr, connectStr.size() + 1, connectStr.c_str());
+	const unsigned int buff_size = static_size + dsn_length + db_name_length;
+	connStr = new char[buff_size];
+	char* write_point = connStr;
+	
+	memcpy_s(write_point,						sizeof(field1) - 1,		field1,		sizeof(field1) - 1);
+	memcpy_s(write_point += sizeof(field1) - 1, dsn_length,				dsn,		dsn_length);
+	memcpy_s(write_point += dsn_length,			sizeof(field2) - 1,		field2,		sizeof(field2) - 1);
+	memcpy_s(write_point += sizeof(field2) - 1, db_name_length,			db_name,	db_name_length);
+	memcpy_s(write_point += db_name_length,		sizeof(end) - 1,		end,		sizeof(end) - 1);
+	connStr[buff_size] = '\0';
 }
 bool SQLInterface::LoginRequest(const char* username, const char* password)
 {
