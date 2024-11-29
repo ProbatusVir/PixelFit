@@ -261,12 +261,12 @@ void WindowsInterpreter::NewDiscussionPost(const SOCKET& clientSocket)
 			const unsigned int postSize = strlen(postDetails) + 1;
 			const unsigned int detailHeader = usernameSize + postSize;
 			const unsigned int packet = sizeOfInt + postSize + usernameSize + 1;
+			const int length = usernameSize + postSize + sizeOfInt + sizeOfInt;
 			//messageToSend = new char[packet];
 			memcpy_s(messageToSend, packet, &command, sizeOfInt);
 			memcpy_s(messageToSend + sizeOfInt, packet, &detailHeader, sizeOfInt);
 			memcpy_s(messageToSend + sizeOfInt * 2, packet, username, usernameSize);
 			memcpy_s(messageToSend + sizeOfInt * 2 + usernameSize, packet, postDetails, postSize);
-			const int length = usernameSize + postSize + sizeOfInt + sizeOfInt;
 			SendPostToClients(clientSocket, messageToSend, length);
 
 			SendMessageToClient(clientSocket, true);
