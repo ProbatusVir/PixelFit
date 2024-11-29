@@ -5,10 +5,15 @@
 #include <filesystem>
 #include <iostream>
 
-FileOps::FileOps() { m_environment = nullptr; LoadEnvironment(); }
-FileOps* FileOps::m_instance = new FileOps();
+FileOps::FileOps()
+{
+}
 
-const char* FileOps::FetchEnvironmentVariable(const char* variable)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+EnvironmentFile::EnvironmentFile() { m_environment = nullptr; LoadEnvironment(); }
+EnvironmentFile* EnvironmentFile::m_instance = new EnvironmentFile();
+
+const char* EnvironmentFile::FetchEnvironmentVariable(const char* variable)
 {
     Tokenizer tokens(m_environment);
     unsigned int fields = tokens.Fields();
@@ -32,7 +37,7 @@ const char* FileOps::FetchEnvironmentVariable(const char* variable)
     return nullptr;
 }
 
-void FileOps::LoadEnvironment()
+void EnvironmentFile::LoadEnvironment()
 {
     std::ifstream envFile(".env");
 
@@ -50,5 +55,4 @@ void FileOps::LoadEnvironment()
     envFile.read(m_environment, file_size);
     envFile.close();
 }
-
 
