@@ -39,7 +39,8 @@ const char* EnvironmentFile::FetchEnvironmentVariable(const char* variable)
 
 void EnvironmentFile::LoadEnvironment()
 {
-    std::ifstream envFile(".env");
+    static constexpr const char* file_name = ".env";
+    std::ifstream envFile(file_name);
 
     if (!envFile)
     {
@@ -47,9 +48,9 @@ void EnvironmentFile::LoadEnvironment()
         return;
     }
 
-    const unsigned int file_size = std::filesystem::file_size(".env");
+    const unsigned int file_size = std::filesystem::file_size(file_name);
 
-    m_environment = new char[file_size + 1];
+    m_environment = new char[file_size];
     m_environment[file_size] = '\0';
 
     envFile.read(m_environment, file_size);
