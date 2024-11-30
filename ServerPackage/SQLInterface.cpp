@@ -147,7 +147,7 @@ bool SQLInterface::LoginRequest(const char* username, const char* password)
 	SQLHSTMT statement = SetupAlloc();
 	bool isValid = false;
 	// TODO: UPDATE THE [User] to target your dbo.[insert db table name here]
-	const char* checkForUsername = "SELECT nvcUserName, nvcPasswordHash FROM dbo.[tblUser] WHERE nvcUserName = ? AND nvcPasswordHash = ?";
+	static constexpr const char* checkForUsername = "SELECT nvcUserName, nvcPasswordHash FROM dbo.[tblUser] WHERE nvcUserName = ? AND nvcPasswordHash = ?";
 
 	SQLRETURN result = SQLPrepareA(statement, (SQLCHAR*)checkForUsername, SQL_NTS);
 
@@ -159,6 +159,7 @@ bool SQLInterface::LoginRequest(const char* username, const char* password)
 	result = SQLFetch(statement);
 	if (result == SQL_SUCCESS || result == SQL_SUCCESS_WITH_INFO) {
 		SQLFreeHandle(SQL_HANDLE_STMT, statement);
+		std::cerr << "Successfully authenticated user: " << username << '\n';
 		return true;
 	}
 	else {
@@ -184,7 +185,7 @@ bool SQLInterface::InsertNewUser(const char* name, const char* username, const c
 {
 	bool userNotRegistered = true;
 	bool isValid = false;
-	const char* checkForAvailableUsername = "SELECT nvcUserName FROM [dbo].[tblUser]";
+	static constexpr const char* checkForAvailableUsername = "SELECT nvcUserName FROM [dbo].[tblUser]";
 	SQLHSTMT statement = SetupAlloc();
 	SQLRETURN result = SQLExecDirectA(statement, (SQLCHAR*)checkForAvailableUsername, SQL_NTS);
 	std::vector<std::string> usernames =  ReturnEval(result, statement);
@@ -208,7 +209,7 @@ bool SQLInterface::InsertNewUser(const char* name, const char* username, const c
 
 	// This section handles if the user does not exist and puts them into the db
 	if (userNotRegistered) {
-		const char* insertSqlCmd = "INSERT INTO [dbo].[tblUser] (nvcName, nvcEmailAddress, nvcUserName, nvcPasswordHash) VALUES (?,?,?,?)";
+		static constexpr const char* insertSqlCmd = "INSERT INTO [dbo].[tblUser] (nvcName, nvcEmailAddress, nvcUserName, nvcPasswordHash) VALUES (?,?,?,?)";
 		result = SQLPrepareA(statement, (SQLCHAR*)insertSqlCmd, SQL_NTS);
 		if (result != SQL_SUCCESS) {
 			std::cerr << "Error with adding to db\n";
