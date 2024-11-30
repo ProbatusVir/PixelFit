@@ -1,6 +1,7 @@
 #include "WindowsInterpreter.h"
-#include "iostream"
+#include "FileOps.h"
 
+#include <iostream>
 #include <functional>
 #include <thread>
 #include <fstream>
@@ -303,27 +304,41 @@ void WindowsInterpreter::SendPostToClients(const SOCKET& clientSocket, const cha
 
 void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
 {
-	//TODO: This is the result of a systemic problem, I'll have to find an efficient way to get the User so we can use the username as the filename
-	static constexpr const char TMPFILENAME[] = "temporary_file_name.png";
-	const unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
+	//It is unavoidable to receive the entire user message before file checking.
+	constexpr const char file_ext[] = ".png";
+	const unsigned int token_size = ReadByteHeader(clientSocket);
+	char* token = new char[token_size + 1]; token[token_size] = '\0';
+	recv(clientSocket, token, token_size, 0);
+	
+	const unsigned int file_size = ReadByteHeader(clientSocket);
+	char* file_buffer = new char[file_size];
+	recv(clientSocket, file_buffer, file_size, 0);
 
-	if (!sizeOfHeader)
-		return;
-	std::ofstream file = std::ofstream(TMPFILENAME, std::ios::binary);
-	if (!file)
-	{
-		std::cerr << "Error opening file.\n";
-		return;
-	}
+	//Get file name
+	EnvironmentFile* env = EnvironmentFile::Instance();
+	const char* path = env->FetchEnvironmentVariable("file_save_path");
 
-	char* buffer = new char[sizeOfHeader];
-	recv(clientSocket, buffer, sizeOfHeader, 0);
+	if (!path) { std::cerr << "Unable to find the \"file_save_path\" variable in your .env file"; return; }
 
+	const char* username = FindUserByToken(token)->Username();
+	const unsigned int username_length = strlen(username);
+	const unsigned int path_length = strlen(path);
+	char* file_name = new char[path_length + username_length + sizeof(file_ext)];
+	memcpy_s(file_name, path_length, path, path_length);
+	memcpy_s(file_name + path_length, username_length, username, username_length);
+	memcpy_s(file_name + path_length + username_length, sizeof(file_ext), file_ext, sizeof(file_ext));
 
+	// Verify file
+	if (!file_size) { std::cerr << "Did not receive a file.\n";  return;}
+	std::ofstream file = std::ofstream(file_name, std::ios::binary);
+	if (!file) { std::cerr << "Error opening file.\n"; return; }
 
-	file.write(buffer, sizeOfHeader);
+	//Write to file
+	file.write(file_buffer, file_size);
 	file.close();
-	delete[] buffer;
+
+	delete[] token;
+	delete[] file_buffer;
 }
 
 User* WindowsInterpreter::FindUserByToken(const char* token)
