@@ -1,13 +1,24 @@
 #pragma once
+#include <fstream>
 
 class FileOps
 {
 public:
+	void BufferedWrite(const char* buffer, unsigned int buffer_size);
+	void WriteFile(const char* file_name);
+	void WriteFile(const char* file_name, const char* buffer, const unsigned int buffer_size);
+	const char* const ReadFullFile(const char* file_name, bool null_terminate = false);
+	void ReadFileIntoBuffer(const char* file_name, char* buffer, const unsigned int bytes_to_read) const;
+	const char* const GetBuffer() const { return m_file_buffer; };
+	unsigned int FileSize() const { return m_file_size; };
+	
+	FileOps() : m_file_buffer(nullptr), m_file_size(0) {};
 protected:
-	FileOps();
+	char* m_file_buffer = nullptr;
+	unsigned int m_file_size = 0;
 };
 
-class EnvironmentFile : private FileOps
+class EnvironmentFile : protected FileOps
 {
 public:
 	static EnvironmentFile* Instance() { return m_instance; };
@@ -17,7 +28,6 @@ public:
 
 private:
 	static EnvironmentFile* m_instance;
-	char* m_environment;
 
 	void LoadEnvironment();
 	EnvironmentFile();
