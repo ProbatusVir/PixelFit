@@ -61,9 +61,11 @@ class ServerConnect private constructor() {
 
     }
 
+    /**
+     * Listen for server and parse command
+     */
     private fun listenForServer()
     {
-        handleToken()
         while (true)
         {
             val command = readHeader()
