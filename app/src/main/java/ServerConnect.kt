@@ -40,7 +40,9 @@ class ServerConnect private constructor() {
     private var token : ByteArray? = null
 
 
-
+    /**
+     * Initialize the server address.
+     */
     private fun getMyServerAddress() : InetAddress {
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
@@ -48,16 +50,15 @@ class ServerConnect private constructor() {
         return InetAddress.getByName(SERVER_NAME)     //https://stackoverflow.com/questions/5806220/how-to-connect-to-my-http-localhost-web-server-from-android-emulator
     }
 
+    /**
+     * Initialize the socket.
+     */
     private fun getMySocket() {
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
 
-        try {
-            socket = Socket(serverAddress, PORT)
-        }
-        finally {
-            println("Attempted to make socket")
-        }
+        try { socket = Socket(serverAddress, PORT) }
+        finally { println("Attempted to make socket") }
 
     }
 
@@ -78,22 +79,32 @@ class ServerConnect private constructor() {
                 Command.MessageServer.int -> {}
                 Command.DiscussionPost.int -> {}
                 Command.GetUser.int -> {}
-                Command.BanUser.int -> {} //This should never be implemented
+                Command.BanUser.int -> {}
                 else -> println("Received unexpected command")
             }
         }
     }
 
+    /**
+     * Read in an integer from the bytestream. Used in ListenForServer
+     * and also to get the size of chunks for reading.
+     */
     private fun readHeader() : Int {
         val buffer = ByteArray(Int.SIZE_BYTES)
         inputStream?.read(buffer)
         return ByteBuffer.wrap(buffer).order(ENDIAN).getInt()
     }
 
+    /**
+     * Some methods return a state from the server. This reads that.
+     */
     private fun messageResult() : MessageResult {
         return MessageResult.fromInt(readHeader())
     }
 
+    /**
+     * Read in the new token. The token should be null before the first time this is called.
+     */
     private fun handleToken() {
         println(messageResult())
         val bytesToRead = readHeader()
@@ -104,8 +115,9 @@ class ServerConnect private constructor() {
 
     }
 
-    // I have decided to make this a private function in order to
-    // more specific functions for the fragments
+    /**
+     * Sends the command, token, and message to the server.
+     */
     private fun sendToServer(command : Int, message : String)
     {
         val tokenSize = if (token != null)
@@ -132,6 +144,9 @@ class ServerConnect private constructor() {
         outputStream?.flush()
     }
 
+    /**
+     * Attempts to sign the user up to the server given the name, username, email, and password, in that order.
+     */
     fun signUp(name : String, username : String, email : String, password : String) {
         val message = "$name\n$username\n$email\n$password" + 0.toChar()
         sendToServer(Command.NewUser.int, message)
