@@ -20,7 +20,7 @@ SQLInterface* SQLInterface::m_instance = nullptr;
 
 SQLInterface::SQLInterface()
 {
-	LoadCredentials(".env");
+	LoadCredentials();
 	ConnectToDB();
 }
 
@@ -116,14 +116,14 @@ void SQLInterface::InterpretState(const SQLRETURN code, const char* name, const 
 }
 // Loads the .env file so the credentials are not on GitHub
 // The order of data is as shown inside the function
-void SQLInterface::LoadCredentials(const char* path)
+void SQLInterface::LoadCredentials()
 {
 	EnvironmentFile* loader = EnvironmentFile::Instance();
 
-	constexpr const char field1[] = "DSN=";
-	constexpr const char field2[] = ";Trusted_Connection=Yes;WSID=";
-	constexpr const char end[] = ";";
-	constexpr const unsigned int static_size = sizeof(field1) + sizeof(field2) + sizeof(end) - 3;
+	static constexpr const char field1[] = "DSN=";
+	static constexpr const char field2[] = ";Trusted_Connection=Yes;WSID=";
+	static constexpr const char end[] = ";";
+	static constexpr const unsigned int static_size = sizeof(field1) + sizeof(field2) + sizeof(end) - 3;
 	
 
 	const char* dsn = loader->FetchEnvironmentVariable("dsn");
