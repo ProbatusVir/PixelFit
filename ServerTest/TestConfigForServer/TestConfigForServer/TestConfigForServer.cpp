@@ -1,9 +1,8 @@
-// TestConfigForServer.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
-
+//Including the cpp files kinda sucks...
 #include "ServerConnect.h"
 #include "../../../ServerPackage/Constants.h"
+#include "../../../ServerPackage/FileOps.cpp"
+#include "../../../ServerPackage/TokenHelper.cpp"
 
 #include <iostream>
 #include <string>
@@ -124,6 +123,8 @@ void SendImageToServer(ServerConnect& server, const unsigned char* token)
 	static constexpr unsigned int command = (unsigned int)Command::SendImageToServer;
 	static constexpr unsigned int token_size = hashSize + 1;
 	static constexpr unsigned int header_size = sizeof(unsigned int) * 3 + token_size; //cmd, tkSize, tk, fSize, f
+	
+	const FileOps* fop = new FileOps();
 
 	if (!token)
 	{
@@ -131,18 +132,15 @@ void SendImageToServer(ServerConnect& server, const unsigned char* token)
 	}
 
 	bool readError = false;
-	std::string file_name;
+	std::string response;
 	std::cout << "Please enter the filepath of your image: ";
-	std::getline(std::cin.ignore(), file_name);
+	std::getline(std::cin.ignore(), response);
+	const char* file_name = response.c_str();
 
-	std::ifstream file(file_name, std::ios::binary);
 
-	if (!file)
-	{ 
-		std::cerr << "Something went wrong opening the file. Check directory.\n"; return;
-	}
-
-	const unsigned int file_size = std::filesystem::file_size(file_name);
+	const unsigned int file_size = fop->GetFileSize(file_name);
+	if (!file_size) { std::cerr << "Could not find the file requested: " << file_name << '\n'; return; }
+	
 	const size_t message_size = header_size + file_size;
 	char* message = new char[message_size];
 	char* write_point = message;
@@ -150,7 +148,7 @@ void SendImageToServer(ServerConnect& server, const unsigned char* token)
 	memcpy_s(write_point += sizeOfInt,	sizeOfInt,	&token_size,	sizeOfInt);
 	memcpy_s(write_point += sizeOfInt,	token_size, token,			token_size);
 	memcpy_s(write_point += token_size,	sizeOfInt,	&file_size,		sizeOfInt);
-	file.read(write_point += sizeOfInt,		file_size);
+	FileOps().WriteFileToBuffer(file_name, write_point += sizeOfInt, file_size);
 
 	server.SendToServerRaw(message, sizeOfInt * 2 + file_size);
 	delete[] message;
