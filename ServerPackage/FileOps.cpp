@@ -6,6 +6,18 @@
 #include <iostream>
 
 
+unsigned int FileOps::GetFileSize(const char* file_name) const
+{
+	try
+	{
+		return std::filesystem::file_size(file_name);
+	}
+	catch (...)
+	{
+		return 0;
+	}
+}
+
 /// <summary>
 /// Read a full file into the FileOps instance's buffer. The size needn't be known.
 /// </summary>
@@ -15,20 +27,20 @@
 /// <returns>A pointer to the FileOps internal buffer.</returns>
 const char* const FileOps::ReadFullFile(const char* file_name, bool null_terminate)
 {
-	const unsigned int file_size = std::filesystem::file_size(file_name);
+	const unsigned int file_size = GetFileSize(file_name);
 
 	m_file_size = file_size;
 
 	m_file_buffer = new char[file_size + null_terminate];
 	if (null_terminate) m_file_buffer[file_size] = '\0';
 
-	ReadFileIntoBuffer(file_name, m_file_buffer, file_size);
+	WriteFileToBuffer(file_name, m_file_buffer, file_size);
 
 	return m_file_buffer;
 }
 
 //If the buffer already exists, its size is already known.
-void FileOps::ReadFileIntoBuffer(const char* file_name, char* buffer, const unsigned int bytes_to_read) const
+void FileOps::WriteFileToBuffer(const char* file_name, char* buffer, const unsigned int bytes_to_read) const
 {
 	if (!bytes_to_read) { std::cerr << "There were no bytes to read..."; }
 
@@ -87,7 +99,7 @@ void FileOps::WriteFile(const char* file_name)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 EnvironmentFile::EnvironmentFile() { m_file_buffer = nullptr; LoadEnvironment(); }
-EnvironmentFile* EnvironmentFile::m_instance = new EnvironmentFile();
+EnvironmentFile* EnvironmentFile::m_instance = nullptr;
 
 /// <summary>
 /// Fetches a variable from the .env file.
