@@ -305,7 +305,7 @@ void WindowsInterpreter::SendPostToClients(const SOCKET& clientSocket, const cha
 void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
 {
 	//It is unavoidable to receive the entire user message before file checking.
-	constexpr const char file_ext[] = ".png";
+	static constexpr const char file_ext[] = ".png";
 	const unsigned int token_size = ReadByteHeader(clientSocket);
 	char* token = new char[token_size + 1]; token[token_size] = '\0';
 	recv(clientSocket, token, token_size, 0);
