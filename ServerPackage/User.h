@@ -19,7 +19,7 @@ public:
 
 private:
 	void CreateToken();
-	char _userName[usernameSize];
+	char _userName[usernameSize + 1];
 	bool _errorOnCreation = false;
 	char _token[hashSize + 1] = { 0 };
 
