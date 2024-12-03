@@ -1,12 +1,13 @@
 package com.example.myapplication
 
 import ServerConnect
+import android.content.Intent
 import android.os.Bundle
+import android.view.MenuInflater
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageButton
@@ -15,11 +16,14 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.io.FileInputStream
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+
+    private lateinit var openImageIntent : Intent
 
     val connection = ServerConnect.instance()
 
@@ -63,6 +67,12 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        openImageIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            type = "image/png"
+            addCategory(Intent.CATEGORY_OPENABLE)
+            intent.action = Intent.ACTION_GET_CONTENT
+            intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
 
         //click register for making the popup
        findViewById<ImageButton>(R.id.user_avatar).setOnClickListener {
@@ -70,6 +80,8 @@ class MainActivity : AppCompatActivity() {
            val inflater: MenuInflater = popup.menuInflater
            inflater.inflate(R.menu.menu_main, popup.menu)
            popup.show()
+            //TODO: find a better place for this
+           //startActivityForResult(openImageIntent, OPEN_IMAGE)
         }
     }
 
@@ -101,10 +113,30 @@ class MainActivity : AppCompatActivity() {
 
         }
     }
+    //This is deprecated, but the docs don't offer a better solution
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, returnIntent: Intent?) {
+        super.onActivityResult(requestCode, resultCode, returnIntent)
+        if (resultCode != RESULT_OK) {
+            return
+        }
+
+        if (requestCode == OPEN_IMAGE) {
+            val returnUri = returnIntent?.data ?: return
+            val pfd = contentResolver.openFileDescriptor(returnIntent!!.data!!, "r")
+            val fis = FileInputStream(pfd!!.fileDescriptor)
+            connection.sendImageToServer(fis)
+        }
+
+    }
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+
+    companion object {
+        private const val OPEN_IMAGE = 56
     }
 }
