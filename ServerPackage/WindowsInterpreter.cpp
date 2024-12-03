@@ -5,6 +5,7 @@
 #include <functional>
 #include <thread>
 #include <fstream>
+#include <chrono>
 
 void WindowsInterpreter::InterpretMessage(const SOCKET& clientSocket, Command command)
 {
@@ -69,7 +70,7 @@ void WindowsInterpreter::HandleLoginUser(const SOCKET& clientSocket)
 		char* buffer = new char[sizeOfHeader + 1];
 		unsigned int bytesRead = recv(clientSocket, buffer, sizeOfHeader, 0);
 		if (bytesRead != 0) {
-			bool success = false;
+			bool success = true;
 			User user = _commands.LoginUser(buffer, success);
 			LoginResponseToUser(clientSocket, user, success);
 		}
@@ -312,6 +313,9 @@ void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
 	
 	const unsigned int file_size = ReadByteHeader(clientSocket);
 	char* file_buffer = new char[file_size];
+
+	//TODO: This is awful...
+	std::this_thread::sleep_for(std::chrono::seconds(5));
 	recv(clientSocket, file_buffer, file_size, 0);
 
 	//Get file name
