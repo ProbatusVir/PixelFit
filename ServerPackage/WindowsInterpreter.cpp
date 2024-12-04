@@ -41,6 +41,9 @@ void WindowsInterpreter::InterpretMessage(const SOCKET& clientSocket, Command co
 	case Command::SendImageToServer:
 		ReceiveImage(clientSocket);
 		break;
+	case Command::LogOut:
+		LogOut(clientSocket);
+		break;
 	}
 }
 
@@ -60,8 +63,6 @@ void WindowsInterpreter::DisconnectClient(const SOCKET& clientSocket)
 	closesocket(clientSocket);
 }
 
-//TODO: There is still a user with a gnarly username if this fails, we should make sure not to push bad clients to the user map.
-//	interestingly, they aren't added to the DB, so that's good...
 void WindowsInterpreter::HandleLoginUser(const SOCKET& clientSocket)
 {
 
@@ -127,6 +128,7 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 		std::pair<std::string, WindowsUserPair> newPair(tokenAsStr, clientPair);
 		_clientPairs.insert(newPair);
 
+		std::cout << "Successfully logged in user \"" << user.Username() << "\"!\n";
 
 	}
 	else {
@@ -345,18 +347,48 @@ void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
 	delete[] file_buffer;
 }
 
-User* WindowsInterpreter::FindUserByToken(const char* token)
+void WindowsInterpreter::LogOut(const SOCKET clientSocket)
 {
-	std::string tokenAsStr(token);
-	return FindUserByToken(tokenAsStr);
+	const unsigned int token_size = ReadByteHeader(clientSocket);
+	char* token = new char[token_size + 1]; token[token_size] = '\0';
+	recv(clientSocket, token, token_size, 0);
+	const unsigned int message_size = ReadByteHeader(clientSocket);
+	
+	//Ignore whatever message might be associated here, totally unnecessary.
+	if (message_size)
+	{
+		char* buffer = new char[message_size];
+		recv(clientSocket, buffer, message_size, 0);
+		delete[] buffer;
+	}
+
+	//Find and erase
+	auto pair = _clientPairs.find(token);
+	if (pair == _clientPairs.end())
+	{
+		std::cerr << "User token not found! Couldn't log out.\n";
+		return;
+	}
+	std::cout << "User \"" << pair->second.user.Username() << "\" has signed out!\n";
+	_clientPairs.erase(pair);
 }
 
-User* WindowsInterpreter::FindUserByToken(const std::string& token)
+User* WindowsInterpreter::FindUserByToken(const char* token)
 {
-	auto existingToken = _clientPairs.find(token);
+	const auto existingToken = _clientPairs.find(token);
 	if (existingToken != _clientPairs.end())
 		return &(existingToken->second.user);
 
 	return nullptr;
 }
+
+User* WindowsInterpreter::FindUserByToken(const std::string& token)
+{
+	const auto existingToken = _clientPairs.find(token);
+	if (existingToken != _clientPairs.end())
+		return &(existingToken->second.user);
+
+	return nullptr;
+}
+
 
