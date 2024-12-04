@@ -50,6 +50,7 @@
     <string name="sign_up_text">Sign Up</string>
     <string name="name_input">Enter Your Name</string>
     <string name="email_input_text">Enter Your Email</string>
+    <string name="username_input">Enter Your Username</string>
     <string name="password_input_text">Enter Your Password</string>
     <string name="reenter_password_input_text">Re Enter Your Password</string>
     <string name="back_button">Back Button</string>
