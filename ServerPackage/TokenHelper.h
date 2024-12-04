@@ -1,52 +1,36 @@
+#pragma once
 
 #include <string.h>
-#include <algorithm>
-//TODO: Make this into a real class, so we don't put memory management on the other end.
-	//Parses tokens!
-	static char** Tokenize(const char* message, const unsigned int fields, const char delim = '\n')
+class Tokenizer
+{
+
+//Parses tokens!
+public:
+	Tokenizer(const char* message, const unsigned int fields, const char delim = '\n') :
+		m_fields(fields)
 	{
-		const char delimiter[] = { delim, '\0' };
-		char** container = new char* [fields];
-		const char* seeker = message;
-		unsigned char token_length = 0;
-
-		for (unsigned int i = 0; i < fields; i++)
-		{
-			if (i < fields - 1)
-				token_length = strpbrk(seeker, delimiter) - seeker;
-			else
-				token_length = strlen(seeker);
-
-			container[i] = new char[token_length + 1];
-
-			memcpy_s(container[i], token_length + 1, seeker, token_length);
-			container[i][token_length] = '\0';
-
-			seeker += token_length + 1;
-		}
-
-		return container;
+		Initialize(message, delim);
 	}
 
 	//Not sure how many fields there are? No problem.
-	static char** Tokenize(const char* message, unsigned int* _fields, const char delim = '\n')
-	{
-		//Determine number of fields
-		const unsigned int message_length = strlen(message);
-		unsigned int fields = 1;
+	Tokenizer(const char* message, const char delim = '\n');
 
-		for (int i = 0; i < message_length; i++)
-			fields += message[i] == delim;
+	char** Tokens() { return m_container; }
 
-		*_fields = fields;
-		return Tokenize(message, fields, delim);
-	}
+	char* operator[](unsigned int n) { return (n >= 0 && n < m_fields) ? m_container[n] : nullptr;}
 
-	static void DestroyTokens(char** container, const unsigned int fields)
-	{
-		for (int i = 0; i < fields; i++)
-			delete[] container[i];
+	operator char** () { return m_container; }
 
-		delete[] container;
-	}
+	unsigned int Fields() {return m_fields;}
 
+	~Tokenizer() { DestroyTokens(); }
+
+private:
+
+	char** m_container = nullptr;
+	unsigned int m_fields = 0;
+
+	void Initialize(const char* message, const char delim = '\n');
+
+	void DestroyTokens();
+};

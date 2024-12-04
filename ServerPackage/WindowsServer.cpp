@@ -111,7 +111,7 @@ void WindowsServer::Start()
 			bool activityFromConnectedClient = false;
 			auto clientIter = _clients.begin();
 			// Checks clients for activity
-			for (; clientIter != _clients.end(); clientIter++) {
+			for (; clientIter != _clients.end();) {
 				if (FD_ISSET(*clientIter, &readFds)) {
 
 					char testData[4];
@@ -125,15 +125,23 @@ void WindowsServer::Start()
 					else if (bytesRead == 0) {
 						std::cout << "Client disconnected\n";
 						_interpreter.DisconnectClient(*clientIter);
+						clientIter = _clients.erase(clientIter);
+						activityFromConnectedClient = true;
+						continue;
 					}
 					else if (bytesRead == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
 						std::cerr << "Socket error: " << WSAGetLastError() << "\n";
 						_interpreter.DisconnectClient(*clientIter);
+						clientIter = _clients.erase(clientIter); 
+						activityFromConnectedClient = true;
+						continue;
 					}
 				}
+				clientIter++;
 			}
 			// Prevents clients from being added a second time to the server
-			if (!activityFromConnectedClient) {
+			if (!activityFromConnectedClient) 
+			{
 
 				SOCKET client;
 
@@ -151,21 +159,10 @@ void WindowsServer::Start()
 				// Adjust the client socket to be non-blocking, this allows us to know if a client has sent garbage data
 				HandleNonBlocking(client);
 				// Adds clients to the connected vector
-				_clients.push_back(client);
+				_clients.push_back(client); 
 			}
-
-
-
 		}
-		
-
-
-
-
-
 	}
-
-
 }
 
 void WindowsServer::Cleanup()

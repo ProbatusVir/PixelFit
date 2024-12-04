@@ -1,9 +1,8 @@
-// TestConfigForServer.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
-
+//Including the cpp files kinda sucks...
 #include "ServerConnect.h"
 #include "../../../ServerPackage/Constants.h"
+#include "../../../ServerPackage/FileOps.cpp"
+#include "../../../ServerPackage/TokenHelper.cpp"
 
 #include <iostream>
 #include <string>
@@ -26,7 +25,7 @@ void PrintMenu() {
 	
 }
 
-std::string GetUserInput(std::string question) {
+std::string GetUserInput(const std::string& question) {
 	std::string response = "";
 	
 	std::cout << question;
@@ -35,7 +34,7 @@ std::string GetUserInput(std::string question) {
 	return response;
 }
 
-void RequestNewPost(ServerConnect& server, unsigned char* token) {
+void RequestNewPost(ServerConnect& server, const unsigned char* token) {
 
 	std::string post = "";
 	std::cout << "What is your post \n";
@@ -51,7 +50,7 @@ void RequestNewPost(ServerConnect& server, unsigned char* token) {
 	delete[] message;
 }
 
-void CreateNewUser(ServerConnect& server, unsigned char* token) {
+void CreateNewUser(ServerConnect& server, const unsigned char* token) {
 	std::string name = "";
 	std::string username = "";
 	std::string email = "";
@@ -79,7 +78,7 @@ void CreateNewUser(ServerConnect& server, unsigned char* token) {
 }
 
 
-void LoginInfo(ServerConnect& server, unsigned char* token) {
+void LoginInfo(ServerConnect& server, const unsigned char* token) {
 
 	std::string username = "";
 	std::string password = "";
@@ -104,7 +103,7 @@ void LoginInfo(ServerConnect& server, unsigned char* token) {
 	delete[] messageToServer;
 }
 
-void SendMessageToServer(ServerConnect& server, unsigned char* token) {
+void SendMessageToServer(ServerConnect& server, const unsigned char* token) {
 
 	char message[1024];
 	std::string response;
@@ -119,28 +118,37 @@ void SendMessageToServer(ServerConnect& server, unsigned char* token) {
 
 }
 
-void SendImageToServer(ServerConnect& server)
+void SendImageToServer(ServerConnect& server, const unsigned char* token)
 {
 	static constexpr unsigned int command = (unsigned int)Command::SendImageToServer;
-	static constexpr unsigned int header_size = sizeof(unsigned int) * 2;
-	bool readError = false;
-	std::string file_name;
-	std::cout << "Please enter the filepath of your image: ";
-	std::getline(std::cin.ignore(), file_name);
-
-	std::ifstream file(file_name, std::ios::binary);
-
-	if (!file)
-	{ 
-		std::cerr << "Something went wrong opening the file. Check directory.\n"; return;
-	}
+	static constexpr unsigned int token_size = hashSize + 1;
+	static constexpr unsigned int header_size = sizeof(unsigned int) * 3 + token_size; //cmd, tkSize, tk, fSize, f
 	
-	const unsigned int file_size = std::filesystem::file_size(file_name);
+	const FileOps* fop = new FileOps();
+
+	if (!token)
+	{
+		std::cerr << "You don't have a token! Please make a token before attempting to send another image.\n"; return;
+	}
+
+	bool readError = false;
+	std::string response;
+	std::cout << "Please enter the filepath of your image: ";
+	std::getline(std::cin.ignore(), response);
+	const char* file_name = response.c_str();
+
+
+	const unsigned int file_size = fop->GetFileSize(file_name);
+	if (!file_size) { std::cerr << "Could not find the file requested: " << file_name << '\n'; return; }
+	
 	const size_t message_size = header_size + file_size;
 	char* message = new char[message_size];
-	memcpy_s(message, sizeOfInt, &command, sizeOfInt);
-	memcpy_s(message + sizeOfInt, sizeOfInt, &file_size, sizeOfInt);
-	file.read(message + header_size, file_size);
+	char* write_point = message;
+	memcpy_s(write_point,				sizeOfInt,	&command,		sizeOfInt);
+	memcpy_s(write_point += sizeOfInt,	sizeOfInt,	&token_size,	sizeOfInt);
+	memcpy_s(write_point += sizeOfInt,	token_size, token,			token_size);
+	memcpy_s(write_point += token_size,	sizeOfInt,	&file_size,		sizeOfInt);
+	FileOps().WriteFileToBuffer(file_name, write_point += sizeOfInt, file_size);
 
 	server.SendToServerRaw(message, sizeOfInt * 2 + file_size);
 	delete[] message;
@@ -153,7 +161,7 @@ int main()
 	std::cin >> selectLan;
 	ServerConnect server(selectLan);
 	bool keepAlive = true;
-	unsigned char* token = nullptr;
+	const unsigned char* token = (unsigned char*)server.Token();
 
 	while (keepAlive) {
 		int response = 0;
@@ -180,7 +188,7 @@ int main()
 		case 4:
 			RequestNewPost(server, token);
 			break;
-		case 5: SendImageToServer(server); break;
+		case 5: SendImageToServer(server, token); break;
 		case 6:
 			keepAlive = false;
 			break;
@@ -193,6 +201,4 @@ int main()
 
 
 	}
-	if (token != nullptr) delete[] token;
-
 }

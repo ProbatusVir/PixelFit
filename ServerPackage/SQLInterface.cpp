@@ -20,7 +20,7 @@ SQLInterface* SQLInterface::m_instance = nullptr;
 
 SQLInterface::SQLInterface()
 {
-	LoadCredentials(".env");
+	LoadCredentials();
 	ConnectToDB();
 }
 
@@ -116,14 +116,14 @@ void SQLInterface::InterpretState(const SQLRETURN code, const char* name, const 
 }
 // Loads the .env file so the credentials are not on GitHub
 // The order of data is as shown inside the function
-void SQLInterface::LoadCredentials(const char* path)
+void SQLInterface::LoadCredentials()
 {
-	FileOps* loader = FileOps::Instance();
+	EnvironmentFile* loader = EnvironmentFile::Instance();
 
-	constexpr const char field1[] = "DSN=";
-	constexpr const char field2[] = ";Trusted_Connection=Yes;WSID=";
-	constexpr const char end[] = ";";
-	constexpr const unsigned int static_size = sizeof(field1) + sizeof(field2) + sizeof(end) - 3;
+	static constexpr const char field1[] = "DSN=";
+	static constexpr const char field2[] = ";Trusted_Connection=Yes;WSID=";
+	static constexpr const char end[] = ";";
+	static constexpr const unsigned int static_size = sizeof(field1) + sizeof(field2) + sizeof(end) - 3;
 	
 
 	const char* dsn = loader->FetchEnvironmentVariable("dsn");
@@ -147,7 +147,7 @@ bool SQLInterface::LoginRequest(const char* username, const char* password)
 	SQLHSTMT statement = SetupAlloc();
 	bool isValid = false;
 	// TODO: UPDATE THE [User] to target your dbo.[insert db table name here]
-	const char* checkForUsername = "SELECT nvcUserName, nvcPasswordHash FROM dbo.[tblUser] WHERE nvcUserName = ? AND nvcPasswordHash = ?";
+	static constexpr const char* checkForUsername = "SELECT nvcUserName, nvcPasswordHash FROM dbo.[tblUser] WHERE nvcUserName = ? AND nvcPasswordHash = ?";
 
 	SQLRETURN result = SQLPrepareA(statement, (SQLCHAR*)checkForUsername, SQL_NTS);
 
@@ -159,6 +159,7 @@ bool SQLInterface::LoginRequest(const char* username, const char* password)
 	result = SQLFetch(statement);
 	if (result == SQL_SUCCESS || result == SQL_SUCCESS_WITH_INFO) {
 		SQLFreeHandle(SQL_HANDLE_STMT, statement);
+		std::cerr << "Successfully authenticated user: " << username << '\n';
 		return true;
 	}
 	else {
@@ -184,7 +185,7 @@ bool SQLInterface::InsertNewUser(const char* name, const char* username, const c
 {
 	bool userNotRegistered = true;
 	bool isValid = false;
-	const char* checkForAvailableUsername = "SELECT nvcUserName FROM [dbo].[tblUser]";
+	static constexpr const char* checkForAvailableUsername = "SELECT nvcUserName FROM [dbo].[tblUser]";
 	SQLHSTMT statement = SetupAlloc();
 	SQLRETURN result = SQLExecDirectA(statement, (SQLCHAR*)checkForAvailableUsername, SQL_NTS);
 	std::vector<std::string> usernames =  ReturnEval(result, statement);
@@ -208,7 +209,7 @@ bool SQLInterface::InsertNewUser(const char* name, const char* username, const c
 
 	// This section handles if the user does not exist and puts them into the db
 	if (userNotRegistered) {
-		const char* insertSqlCmd = "INSERT INTO [dbo].[tblUser] (nvcName, nvcEmailAddress, nvcUserName, nvcPasswordHash) VALUES (?,?,?,?)";
+		static constexpr const char* insertSqlCmd = "INSERT INTO [dbo].[tblUser] (nvcName, nvcEmailAddress, nvcUserName, nvcPasswordHash) VALUES (?,?,?,?)";
 		result = SQLPrepareA(statement, (SQLCHAR*)insertSqlCmd, SQL_NTS);
 		if (result != SQL_SUCCESS) {
 			std::cerr << "Error with adding to db\n";

@@ -1,17 +1,18 @@
 package com.example.myapplication
 
 import ServerConnect
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuInflater
+import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageButton
 import android.widget.PopupMenu
-import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupWithNavController
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -20,6 +21,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+
+    private lateinit var openImageIntent : Intent
 
     val connection = ServerConnect.instance()
 
@@ -63,6 +66,12 @@ class MainActivity : AppCompatActivity() {
                     profile.visibility = View.VISIBLE
                 }
             }
+        }
+        openImageIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            type = "image/png"
+            addCategory(Intent.CATEGORY_OPENABLE)
+            intent.action = Intent.ACTION_GET_CONTENT
+            intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
         }
 
         // Handle user avatar click (popup menu)
@@ -115,6 +124,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         popup.show()
+        //click register for making the popup
+       findViewById<ImageButton>(R.id.user_avatar).setOnClickListener {
+           val popup = PopupMenu(this, it)
+           val inflater: MenuInflater = popup.menuInflater
+           inflater.inflate(R.menu.menu_main, popup.menu)
+           popup.show()
+            //TODO: find a better place for this
+           //startActivityForResult(openImageIntent, OPEN_IMAGE)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
