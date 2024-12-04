@@ -1,8 +1,5 @@
 import android.os.StrictMode
-import java.io.File
-import java.io.FileInputStream
-import java.io.InputStream
-import java.io.OutputStream
+import java.io.*
 import java.net.InetAddress
 import java.net.Socket
 import java.nio.ByteBuffer
@@ -20,6 +17,7 @@ enum class Command(val int : Int) {
     GetUser(7),
     BanUser(8),
     SendImageToServer(9),
+    LogOut(10)
 }
 
 enum class MessageResult(val int : Int) {
@@ -183,6 +181,23 @@ class ServerConnect private constructor() {
         }.start()
     }
 
+    fun logOut()
+    {
+        //The error checking is two-fold, for the token does not exist without a socket.
+        //otherwise, we have a REAL problem.
+        token?.let { sendToServer(Command.LogOut.int, "") }
+    }
+
+    //Safely close the connection
+    private fun disconnect() {
+        try {
+            socket?.let {
+                if (it.isConnected)
+                    it.close()
+            }
+        } finally {}
+        destroyInstance() }
+
     init {
         Thread {
             getMySocket()
@@ -194,11 +209,12 @@ class ServerConnect private constructor() {
 
     companion object {
         fun instance() = INSTANCE
-        private val INSTANCE = ServerConnect()
+        fun destroyInstance() {INSTANCE?.disconnect(); INSTANCE = null}
+        private var INSTANCE : ServerConnect? = ServerConnect()
         private const val SERVER_NAME = "10.0.2.2"
         private const val PORT = 5930
         private const val HASH_SIZE = 32
-        private const val LENGTH_OF_COMMAND_AND_MESSAGE_HEADER = Int.SIZE_BYTES * 3 + 1
+        private const val LENGTH_OF_COMMAND_AND_MESSAGE_HEADER = Int.SIZE_BYTES * 3 + 1 //This is good for an authenticated read, might have to cut it out later.
         //server endian
         private val ENDIAN = ByteOrder.LITTLE_ENDIAN
     }
