@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <thread>
+#include <fstream>
 
 void WindowsInterpreter::InterpretMessage(const SOCKET& clientSocket, Command command)
 {
@@ -34,6 +35,10 @@ void WindowsInterpreter::InterpretMessage(const SOCKET& clientSocket, Command co
 	case Command::BanUser:
 		// restrictive function only allowing certain people to ban users, likely from group, or altogether from the app.
 		break;
+
+	case Command::SendImageToServer:
+		ReceiveImage(clientSocket);
+		break;
 	}
 }
 
@@ -53,6 +58,8 @@ void WindowsInterpreter::DisconnectClient(const SOCKET& clientSocket)
 	closesocket(clientSocket);
 }
 
+//TODO: There is still a user with a gnarly username if this fails, we should make sure not to push bad clients to the user map.
+//	interestingly, they aren't added to the DB, so that's good...
 void WindowsInterpreter::HandleLoginUser(const SOCKET& clientSocket)
 {
 
@@ -65,8 +72,12 @@ void WindowsInterpreter::HandleLoginUser(const SOCKET& clientSocket)
 			User user = _commands.LoginUser(buffer, success);
 			LoginResponseToUser(clientSocket, user, success);
 		}
+		
 
-		if (buffer != nullptr) delete[] buffer;
+		delete[] buffer;
+	}
+	else {
+		SendMessageToClient(clientSocket, false);
 	}
 }
 
@@ -75,34 +86,33 @@ void WindowsInterpreter::HandleNewUser(const SOCKET& clientSocket)
 	unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
 
 	if (sizeOfHeader != 0) {
-		char* buffer = nullptr;
-		buffer = new char[sizeOfHeader + 1];
+		char* buffer = new char[sizeOfHeader + 1];
 		unsigned int bytesRead = recv(clientSocket, buffer, sizeOfHeader, 0);
 		if (bytesRead != 0) {
-			bool success = false;
+			bool success = true;
 			User newUser = _commands.NewUser(buffer, success);
 			LoginResponseToUser(clientSocket, newUser, success);
-
-
 		}
-		if (buffer != nullptr) delete[] buffer;
+		
+		delete[] buffer;
 	}
+
+	else SendMessageToClient(clientSocket, false);
 
 }
 
 void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& user, const bool success)
 {
-	char* response = nullptr;
 	if (success) {
 
-		std::string tokenAsStr = CreateToken(user);
+		static constexpr unsigned int sizeOfToken = hashSize + 1;
+		static constexpr unsigned int sizeOfResponse = sizeOfInt * 2 + sizeOfToken;
+		static constexpr unsigned int msgSuccess = (int)MessageResult::LoginSuccess;
+		char response[sizeOfResponse];
 
+		std::string tokenAsStr = CreateToken(user);
 		char* token = user.Token();
-		unsigned int sizeOfToken = strlen(token) + 1;
 		// This is necessary for our response array to be sized with null terminator
-		unsigned int sizeOfResponse = sizeOfInt * 2 + sizeOfToken;
-		response = new char[sizeOfResponse];
-		unsigned int msgSuccess = (int)MessageResult::LoginSuccess;
 		memcpy_s(response, sizeOfInt, &msgSuccess, sizeOfInt);
 		memcpy_s(response + sizeOfInt, sizeOfInt, &sizeOfToken, sizeOfInt);
 		memcpy_s(response + sizeOfInt * 2, sizeOfToken, token, sizeOfToken);
@@ -118,17 +128,18 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 
 	}
 	else {
-		char failedAttempt[] = "Unauthorized username or password \0";
-		unsigned int sizeOfResponse = sizeOfInt * 2 + strlen(failedAttempt) + 1;
-		response = new char[sizeOfResponse];
-		unsigned int failed = (unsigned int)MessageResult::Failed;
-		unsigned int lengthOfFailedAttempt = strlen(failedAttempt);
+		static constexpr const char* failedAttempt = "Unauthorized username or password";
+		static constexpr const unsigned int sizeOfResponse = sizeOfInt * 2 + sizeof(failedAttempt);
+		static constexpr unsigned int failed = (unsigned int)MessageResult::Failed;
+		static constexpr unsigned int lengthOfFailedAttempt = sizeof(failedAttempt) - 1;
+
+		char response[sizeOfResponse];
+
 		memcpy_s(response, sizeOfInt, &failed, sizeOfInt);
 		memcpy_s(response + sizeOfInt, sizeOfInt, &lengthOfFailedAttempt, sizeOfInt);
 		memcpy_s(response + sizeOfInt * 2, lengthOfFailedAttempt, failedAttempt, lengthOfFailedAttempt);
 		send(clientSocket, response, sizeOfResponse, 0);
 	}
-	if (response != nullptr) delete[] response;
 }
 
 void WindowsInterpreter::MessageToServer(const SOCKET& clientSocket)
@@ -151,88 +162,69 @@ void WindowsInterpreter::MessageToServer(const SOCKET& clientSocket)
 	else SendMessageToClient(clientSocket, false);
 }
 
+//TODO: Can probably clean this up too.
 void WindowsInterpreter::SendMessageToClient(const SOCKET& clientSocket, bool success)
 {
 	if (success) {
-		char message[] = "Message Recieved\0";
-		unsigned int messageLength = strlen((char*)message);
-
-		messageLength++;
-
-		unsigned int command = (unsigned int)MessageResult::Success;
-
-		char* response = nullptr;
-		unsigned int packetSize = messageLength + sizeOfInt * 2;
-		response = new char[packetSize];
+		static constexpr const char* message = "Message Recieved";
+		static constexpr unsigned int messageLength = sizeof(message);
+		static constexpr unsigned int command = (unsigned int)MessageResult::Success;
+		static constexpr unsigned int packetSize = messageLength + sizeOfInt * 2;
+		
+		char response[packetSize];
 		memcpy_s(response, sizeOfInt, &command, sizeOfInt);
 		memcpy_s(response + sizeOfInt, sizeOfInt, &messageLength, sizeOfInt);
 		memcpy_s(response + sizeOfInt * 2, messageLength, message, messageLength);
 		send(clientSocket, response, packetSize, 0);
-		delete[] response;
-
 	}
 	else {
-		char message[] = "Error reading message\0";
-		unsigned int messageLength = strlen((char*)message);
-
-		messageLength++;
-
-		unsigned int command = (unsigned int)MessageResult::Failed;
-
-		char* response = nullptr;
-		unsigned int packetSize = messageLength + sizeOfInt * 2;
-		response = new char[packetSize];
+		static constexpr const char message[] = "Error reading message";
+		static constexpr const unsigned int messageLength = sizeof(message);
+		static constexpr const unsigned int command = (unsigned int)MessageResult::Failed;
+		static constexpr const unsigned int packetSize = messageLength + sizeOfInt * 2;
+		
+		char response[packetSize];
 		memcpy_s(response, sizeOfInt, &command, sizeOfInt);
 		memcpy_s(response + sizeOfInt, sizeOfInt, &messageLength, sizeOfInt);
 		memcpy_s(response + sizeOfInt * 2, messageLength, message, messageLength);
 		send(clientSocket, response, packetSize, 0);
-		delete[] response;
 	}
 }
 
 unsigned int WindowsInterpreter::ReadByteHeader(const SOCKET& clientSocket)
 {
 	unsigned int byteHeader = 0;
-	char response[4] = { 0 };
-	// This may break, it would be nice if it worked.
-
-	recv(clientSocket, response, sizeOfInt, 0);
-	byteHeader = (unsigned int)response[0];
-
+	recv(clientSocket, (char*)&byteHeader, sizeOfInt, 0);
 	return byteHeader;
 }
 
 bool WindowsInterpreter::VerifyUserAuth(const SOCKET& clientSocket, User& user)
 {
-	unsigned int header = ReadByteHeader(clientSocket);
+	const unsigned int header = ReadByteHeader(clientSocket);
 	bool success = false;
 	if (header) {
-		char* token = nullptr;
-		token = new char[header];
+		char* token = new char[header];
 
 		recv(clientSocket, (char*)token, header, 0);
 		std::string tokenAsStr = token;
 		auto existingToken = _clientPairs.find(tokenAsStr);
-		if (existingToken == _clientPairs.end()) {
-
-		}
-		else {
+		if (existingToken != _clientPairs.end()) 
+		{
 			success = true;
 			user = existingToken->second.user;
 		}
 
-		if (token != nullptr) delete[] token;
+		delete[] token;
 	}
 	return success;
 }
 
-bool WindowsInterpreter::EnsureSingleTokenInstance(std::string token)
+bool WindowsInterpreter::EnsureSingleTokenInstance(const std::string& token)
 {
-	auto isValid = _clientPairs.find(token);
-	if (isValid == _clientPairs.end()) {
+	if (_clientPairs.find(token) == _clientPairs.end())
 		return true;
-	}
-	else return false;
+	
+	return false;
 }
 
 std::string WindowsInterpreter::CreateToken(User& user)
@@ -313,6 +305,28 @@ void WindowsInterpreter::SendPostToClients(const SOCKET& clientSocket, const cha
 
 
 
+void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
+{
+	//TODO: This is the result of a systemic problem, I'll have to find an efficient way to get the User so we can use the username as the filename
+	static constexpr const char TMPFILENAME[] = "temporary_file_name.png";
+	const unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
+
+	if (!sizeOfHeader)
+		return;
+	std::ofstream file = std::ofstream(TMPFILENAME, std::ios::binary);
+	if (!file)
+	{
+		std::cerr << "Error opening file.\n";
+		return;
+	}
+
+	char* buffer = new char[sizeOfHeader];
+	recv(clientSocket, buffer, sizeOfHeader, 0);
 
 
+
+	file.write(buffer, sizeOfHeader);
+	file.close();
+	delete[] buffer;
+}
 

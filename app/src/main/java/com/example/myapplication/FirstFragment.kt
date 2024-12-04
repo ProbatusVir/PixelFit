@@ -1,7 +1,10 @@
 package com.example.myapplication
 
-import GuyFactory
-import android.graphics.drawable.VectorDrawable
+import ActiveUser
+import ActiveUser.partsWorked
+import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -10,7 +13,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.example.myapplication.databinding.FragmentFirstBinding
-import java.io.File
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -40,7 +42,7 @@ class FirstFragment : Fragment() {
     private fun initFitnessHub(view : View)
     {
         updateText(view)
-        //updateModel(view)
+        updateModel(view)
     }
 
     private fun updateText(view : View)
@@ -56,23 +58,29 @@ class FirstFragment : Fragment() {
 
     private fun updateModel(view : View)
     {
-        val context = activity?.applicationContext
-        val dir = context?.filesDir
+        val context = activity!!.applicationContext
 
-        val file = File(dir, GuyFactory.FILE_NAME)
-        val factory = GuyFactory()
+        if (context != null) {
 
-        factory.saveToFile(file)
-        val guy : ImageView = view.findViewById(R.id.fitness_model)
+            val guy = view.findViewById<ImageView>(R.id.fitness_model).drawable as LayerDrawable
+            val arms = guy.findDrawableByLayerId(R.id.fitness_arms)
+            val legs = guy.findDrawableByLayerId(R.id.fitness_legs)
+            val torso = guy.findDrawableByLayerId(R.id.fitness_torso)
+            val head = guy.findDrawableByLayerId(R.id.fitness_head)
 
-        //File peek
-        var a : String = ""
-        for (line in file.readLines())
-            a += line
+            setBodyPartColor(arms, ActiveUser.Parts.Arms)
+            setBodyPartColor(legs, ActiveUser.Parts.Legs)
+            setBodyPartColor(torso, ActiveUser.Parts.Torso)
+            setBodyPartColor(head, ActiveUser.Parts.Head)
+        }
+    }
 
-
-        val theDraw = VectorDrawable.createFromPath(file.path)
-        guy.setImageDrawable(theDraw)
+    private fun setBodyPartColor(layer : Drawable, part : ActiveUser.Parts)
+    {
+        if (partsWorked[part.ordinal])
+            layer.setTint(Color.RED)
+        else
+            layer.setTint(Color.WHITE)
     }
 
     override fun onDestroyView() {

@@ -4,17 +4,9 @@
 
 
 
-User::User(const char name[nameSize], const char userName[usernameSize], const char password[passwordSize], uint64_t id)
+User::User(const char userName[usernameSize])
 {
-	strcpy_s(_name, name);
 	strcpy_s(_userName, userName);
-	char* hashed = HashPassword(password);
-
-	if (hashed == nullptr) _errorOnCreation = true;
-	else {
-		memcpy_s(_password, hashSize, hashed, hashSize);
-	}
-	_id = id;
 	CreateToken();
 }
 
@@ -24,13 +16,9 @@ User::User()
 
 User::User(const User& user)
 {
-	memcpy_s(_name, sizeof(_name), user._name, sizeof(_name));
 	memcpy_s(_userName, sizeof(_userName), user._userName, sizeof(user._userName));
-	memcpy_s(_password, sizeof(_password), user._password, sizeof(_password));
-	memcpy_s(_token, sizeof(_token), user._token, sizeof(_token));
 
 	CreateToken();
-
 }
 
 User::~User()

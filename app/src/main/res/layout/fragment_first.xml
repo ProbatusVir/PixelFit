@@ -105,7 +105,7 @@
                         android:contentDescription="@string/description_clock_placeholder"/>
                 <ImageView
                         android:layout_weight="1"
-                        android:src="@drawable/fitness_parts_model"
+                        android:src="@drawable/fitness_model_body"
                         android:layout_width="1dp"
                         android:layout_height="match_parent" android:id="@+id/fitness_model"
                         android:contentDescription="@string/description_fitness_parts_model"/>

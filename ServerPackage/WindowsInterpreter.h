@@ -1,13 +1,12 @@
 #pragma once
-#include <WinSock2.h>
-#include <winsock.h>
 #include "WindowsUserPair.h"
-#include <vector>
 #include "Constants.h"
 #include "CommandSet.h"
+#include "DiscussionPost.h"
+
+#include <WinSock2.h>
 #include <unordered_map>
 #include <string>
-#include "DiscussionPost.h"
 // This class will handle communication and distribution of information
 // to clients. The pair vector will be here so if we need to contact a client
 // from another client we can loop through and find the information.
@@ -20,6 +19,7 @@ public:
 	void InterpretMessage(const SOCKET &clientSocket, Command command);
 	void DisconnectClient(const SOCKET& clientSocket);
 private:
+
 	void HandleLoginUser(const SOCKET& clientSocket);
 	void HandleNewUser(const SOCKET& clientSocket);
 	void LoginResponseToUser(const SOCKET& clientSocket, User& user, const bool success);
@@ -30,13 +30,14 @@ private:
 	void SendMessageToClient(const SOCKET& clientSocket, bool success);
 	unsigned int ReadByteHeader(const SOCKET& clientSocket);
 	bool VerifyUserAuth(const SOCKET& clientSocket, User& user);
-	bool EnsureSingleTokenInstance(std::string token);
-	std::string CreateToken( User& user);
+	bool EnsureSingleTokenInstance(const std::string& token);
+	std::string CreateToken(User& user);
 	void NewDiscussionPost(const SOCKET& clientSocket);
 	void SendPostToClients(const SOCKET&clientSocket, const char* buffer, unsigned int sizeOfBuffer);
-	void CreateMessagePacket(DiscussionPost& post , unsigned int & packetSize);
+	void CreateMessagePacket(DiscussionPost& post , unsigned int& packetSize);
+	void ReceiveImage(const SOCKET& clientSocket);
+	
 	std::unordered_map<std::string, WindowsUserPair> _clientPairs;
-
 	CommandSet _commands;
 };
 

@@ -1,5 +1,9 @@
 #include "CommandSet.h"
+#include "TokenHelper.h"
+#include "SQLInterface.h"
+
 #include <iostream>
+
 
 CommandSet::CommandSet()
 {
@@ -7,140 +11,89 @@ CommandSet::CommandSet()
 
 CommandSet::CommandSet(User* user)
 {
-	
-}
 
+}
 
 
 User CommandSet::LoginUser(const char* buffer, bool& success)
 {
-	constexpr size_t expectedBufferSize = usernameSize + passwordSize;
+	success = false;
 
-	char username[usernameSize] = { 0 };
-	char password[passwordSize] = { 0 };
+	constexpr const unsigned int fields = 2;
+	char** tokens = Tokenize(buffer, fields);
 
-	bool fullReadOfUsername = false;
-	bool error = false;
-	User attemptLogin;
-	size_t buff_seeker = 0;
-	size_t sizeOfUsername = 0;
+	const char* username = tokens[0];
+	const char* password = tokens[1];
 
-	//seek until End of Stream at null terminator, or until expected buffer size, to prevent fatal stack corruption
-	while ((char)buffer[buff_seeker] != '\0' || buff_seeker >= expectedBufferSize) {
-		// If the username hasn't been read, add the next character or terminate the username read 
-		if (!fullReadOfUsername) {
+	char* checkPass = User::HashPassword(password);
 
-			if (buffer[buff_seeker] != '\n') {
-				username[buff_seeker] = buffer[buff_seeker];
-			}
-			else {
-				fullReadOfUsername = true;
-			}
-
-			//Offset needs to be applied regardless here so we don't double count the newline
-			sizeOfUsername++;
-
-		}
-
-		//Fill password buffer with whatever remains until null terminator
-		else {
-			password[buff_seeker - sizeOfUsername] = buffer[buff_seeker];
-		}
-
-		buff_seeker++;
-	}
-	 char* checkPass = User::HashPassword(password);
-
-
-	error = !(strlen((char*)checkPass) <= passwordSize) && (strlen(username) <= usernameSize);
+	const bool error = !(strlen((char*)checkPass) <= passwordSize) && (strlen(username) <= usernameSize);
 
 	if (!error) {
 		int comparedPass = -1;
 		//TODO: When SQL calls can be made for our user objects, we need to contact the db
 		// to get the user object. We then need to compare the hashed passwords against eachother
 		// if they match, then allow the user login, otherwise prevent it.
-		 char* removeAfterDebug = User::HashPassword("abcdef");
-		comparedPass = strcmp((char*)checkPass, (char*)removeAfterDebug);
-		if (comparedPass == 0) success = true;
+
+
+
+		if (SQLInterface::Instance()->LoginRequest(username, checkPass)) {
+			success = true;
+			User user(username);
+			return user;
+		}
 		else success = false;
 		delete[] checkPass;
-		delete[] removeAfterDebug;
-		// TODO: remove name after SQL integration
-		char name[20] = "someone";
-		uint64_t id = CreateID();
-		User newUser = User(name, username, password, id);
-		return newUser;
+		return User();
+
 	}
 
-
+	return User();
 
 }
 
 User CommandSet::NewUser(const char* buffer, bool& success)
 {
-	char name[nameSize] = { 0 };
-	char username[usernameSize] = { 0 };
-	char password[hashSize] = { 0 };
-	bool fullReadOnName = false;
-	bool fullReadOnUsername = false;
-	bool fullReadOnPassword = false;
-	size_t sizeOfName = 0;
-	size_t sizeOfUsername = 0;
+	success = false;
+	static constexpr const unsigned int fields = 4;
+	char** tokens = Tokenize(buffer, fields);
+	const char* name = tokens[0];
+	const char* username = tokens[1];
+	const char* email = tokens[2];
+	const char* password = tokens[3];
+
+	const int name_length = strlen(name);
+	const int username_length = strlen(username);
+	const int email_length = strlen(email);
+	const int password_length = strlen(password);
+
+	const bool dataFits = !(name_length > nameSize || username_length > usernameSize || email_length > emailSize || password_length > passwordSize);
+	const bool dataNonZero = name_length && username_length && email_length && password_length;
+	const bool dataParsedProperly = name_length + username_length + email_length + password_length == strlen(buffer) - (fields - 1);
 	
+	User user = User();
 
-	size_t buffSeeker = 0;
-
-	while (buffer[buffSeeker] != '\0' && buffSeeker <= strlen(buffer)) {
-		if (!fullReadOnName) {
-			sizeOfName++;
-			if (buffer[buffSeeker] != '\n')
-				name[buffSeeker] = buffer[buffSeeker];
-
-			else fullReadOnName = true;
-
-		}
-		else if (!fullReadOnUsername) {
-			if (buffer[buffSeeker] != '\n')
-				username[buffSeeker - sizeOfName] = buffer[buffSeeker];
-			else fullReadOnUsername = true;
-			sizeOfUsername++;
-		}
-		else {
-			password[buffSeeker - sizeOfUsername - sizeOfName] = buffer[buffSeeker];
-		}
-
-		buffSeeker++;
-
+	if (!dataFits || !dataParsedProperly || !dataNonZero)
+	{
+		DestroyTokens(tokens, fields);
+		return user;
 	}
 
-	int verifyReadName = strlen(name);
-	int verifyReadUsername = strlen(username);
-	int verifyReadPassword = strlen(password);
-	if (verifyReadName && verifyReadUsername && verifyReadPassword != 0) {
-		uint64_t id = CreateID();
-		 char* hashed = User::HashPassword(password);
-		char transferToCharHash[passwordSize] = { 0 };
-		memcpy_s(transferToCharHash, strlen((char*)hashed), hashed, strlen((char*)hashed));
-
-		//TODO: Send to database once we have database connection
-
-		User newUser =  User(name, username, transferToCharHash , id);
+	const char* hashed = User::HashPassword(password);
+	// This tells us that we are or are not able to make a database entry. If we cannot, then we tell the user.
+	const bool ableToCreateNewUser = SQLInterface::Instance()->InsertNewUser(name, username, email, hashed);
+	if (ableToCreateNewUser) {
+		user = User(username);
 		success = true;
-		return newUser;
 	}
-
+	
+	DestroyTokens(tokens, fields);
+	return user;
 }
-
+// This will handle the creation of discussion posts
 DiscussionPost CommandSet::NewDiscussionPost(char* buffer, User& user, unsigned int headerSize)
 {
 	DiscussionPost info = DiscussionPost(buffer, user, headerSize);
 
 	return info;
-}
-
-uint64_t CommandSet::CreateID()
-{
-	idIncrement = 0;
-	idIncrement++;
-	return idIncrement;
 }

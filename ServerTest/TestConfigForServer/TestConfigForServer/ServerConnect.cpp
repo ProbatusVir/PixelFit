@@ -1,22 +1,19 @@
 #include "ServerConnect.h"
+#include "../../../ServerPackage/Constants.h"
+
 #include <thread>
-#include <fstream>
-#include <chrono>
-#include <ctime>
-#include <iomanip>
-#include <sstream>
-#include <string>
-#include <direct.h>
-#include <functional>
-#include <filesystem>
 #include <iostream>
 
 
-ServerConnect::ServerConnect()
-{
-	SetTargetIp();
-	CreateSocket();
 
+ServerConnect::ServerConnect(int lanOrLocalhost)
+{
+	if (lanOrLocalhost == 1)
+		SetTargetIp();
+	else 
+		memcpy_s(_ipAddress, sizeof(_ipAddress), localhost, sizeof(localhost));
+
+	CreateSocket();
 }
 
 ServerConnect::~ServerConnect()
@@ -24,19 +21,19 @@ ServerConnect::~ServerConnect()
 	WSACleanup();
 }
 
-int ServerConnect::SendToServer(int command, char* message)
+int ServerConnect::SendToServer(int command, const char* message)
 {
 	int codeFromServer = 0;
 	unsigned int tokenSize = 0;
 	if (_token != nullptr)
 		tokenSize = hashSize + 1;
-	
-	
+
+
 	constexpr unsigned int lengthOfCommandAndMessageHeader = sizeOfInt + sizeOfInt + sizeof(tokenSize) + 1;
 	const int lengthOfMessage = (int)strlen(message) + lengthOfCommandAndMessageHeader;
-	
+
 	char messageToServer[1024] = { 0 };
-	
+
 
 	// writes command
 	memcpy_s(messageToServer, sizeOfInt, &command, sizeof(command));
@@ -58,16 +55,21 @@ int ServerConnect::SendToServer(int command, char* message)
 	// This is creating the entire packet size to send
 	const unsigned int packetSize = tokenSize + lengthOfMessage;
 	std::cout << '\n' << messageToServer << '\n';
-	send(_client, messageToServer, packetSize , 0);
+	send(_client, messageToServer, packetSize, 0);
 
 	char response[4] = { 0 };
 
 
 
-	
+
 
 	return codeFromServer;
 
+}
+
+void ServerConnect::SendToServerRaw(const char* message, const int message_size)
+{
+	send(_client, message, message_size, NULL);
 }
 
 void ServerConnect::CreateSocket()
@@ -114,10 +116,10 @@ void ServerConnect::CreateSocket()
 
 		switch (errorCode)
 		{
-			case (WSAECONNREFUSED): std::cerr << "Connection refused. Ensure the server is running and accessible.\n"; break;
-			case (WSAETIMEDOUT): std::cerr << "Connection timed out. The server might be down or not responding.\n"; break;
-			case (WSAEHOSTUNREACH): std::cerr << "No route to host. Check your network connection.\n"; break;
-			case (WSAENETUNREACH): std::cerr << "Network is unreachable.\n"; break;
+		case (WSAECONNREFUSED): std::cerr << "Connection refused. Ensure the server is running and accessible.\n"; break;
+		case (WSAETIMEDOUT): std::cerr << "Connection timed out. The server might be down or not responding.\n"; break;
+		case (WSAEHOSTUNREACH): std::cerr << "No route to host. Check your network connection.\n"; break;
+		case (WSAENETUNREACH): std::cerr << "Network is unreachable.\n"; break;
 		}
 
 		closesocket(socketFd);
@@ -136,9 +138,9 @@ void ServerConnect::ListenForServer()
 {
 
 	while (true) {
-		int cmd= ReadHeader();
+		int cmd = ReadHeader();
+		
 		if (cmd > 0) {
-			
 			switch (cmd) {
 			case (int)Command::Login:
 				HandleToken();
@@ -149,23 +151,16 @@ void ServerConnect::ListenForServer()
 			case (int)Command::NewDiscussionPost:
 				ReadMessageFromServer();
 				break;
+			case (int)MessageResult::Failed:
+				ReadMessageFromServer();
+				break;
 			}
+		}
 
-			// Handle commands as necessary
-		}
-		else if (cmd == 0 || cmd == SOCKET_ERROR) {
-			std::cout << "Server Disconnected\n";
-			break;
-		}
-		else {
-			std::cout << "Recv failed breaking connection\n";
-			closesocket(_client);
-			break;
-		}
-		
-		std::this_thread::sleep_for(std::chrono::seconds(2));
-	
+			std::this_thread::sleep_for(std::chrono::seconds(2));
+
 	}
+	closesocket(_client);
 }
 
 void ServerConnect::SetTargetIp()
@@ -223,21 +218,35 @@ void ServerConnect::HandleToken()
 
 		memcpy_s(_token, hashSize + 1, token, bytesToRead);
 
-		std::cout << _token << '\n';
+
 	}
 }
 
-unsigned int ServerConnect::ReadHeader()
+unsigned int ServerConnect::ReadHeader() const
 {
 	char buffer[4] = { 0 };
-	recv(_client, buffer, 4, 0);
+	int bytesRead = 0;
 	unsigned int header = 0;
-	memcpy_s(&header, sizeOfInt, buffer, sizeOfInt);
+	bytesRead = recv(_client, buffer, 4, 0);
+	if (bytesRead > 0) {
+
+		memcpy_s(&header, sizeOfInt, buffer, sizeOfInt);
+
+	}
+	else if (bytesRead == 0 || bytesRead == SOCKET_ERROR) {
+		std::cout << "Server Disconnected\n";
+		
+	}
+	else {
+		std::cout << "Recv failed breaking connection\n";
+		closesocket(_client);
+		
+	}
 
 	return header;
 }
 
-void ServerConnect::ReadMessageFromServer()
+void ServerConnect::ReadMessageFromServer() const
 {
 	unsigned int byteHeader = ReadHeader();
 	if (byteHeader > 0) {

@@ -1,11 +1,10 @@
 #pragma once
-#include <WinSock2.h>
-#include <winsock.h>
-#include <WS2tcpip.h>
-#include <vector>
 #include "CommandSet.h"
 #include "WindowsUserPair.h"
 #include "WindowsInterpreter.h"
+
+#include <WS2tcpip.h>
+
 //#include <string>
 #pragma comment(lib, "Ws2_32.lib")
 class WindowsServer
@@ -25,11 +24,10 @@ private:
 
 	void AcquireIpAdress();
 	void HandleClient(const SOCKET clientSocket);
-	void MonitorClients();
 	void HandleNonBlocking(SOCKET &clientSocket);
 	void EmptyClientBuffer(const SOCKET& clientSocket);
 	
-	char _ipAddress[INET_ADDRSTRLEN] = {0};
+	char _ipAddress[INET_ADDRSTRLEN] = { 0 };
 	bool _keepAlive = true;
 	
 	SOCKET serverFd;

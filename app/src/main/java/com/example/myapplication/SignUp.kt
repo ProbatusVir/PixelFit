@@ -41,6 +41,7 @@ class SignUp : Fragment() {
             val password = binding.passwordInput.text.toString()
             val name = binding.nameInput.text.toString()
             val passwordCheck = binding.reenterPasswordInput.text.toString()
+            val connection = ServerConnect.instance()
 
             if (name.isNotEmpty()&& email.isNotEmpty() && password.isNotEmpty() && passwordCheck.isNotEmpty() ) {
 
@@ -59,6 +60,8 @@ class SignUp : Fragment() {
                             editor.putString("name", name)
                             editor.putString("passwordCheck", passwordCheck)
                             editor.apply()
+
+                            connection.signUp(name, "Kotlin username", email, password)
 
                             findNavController().navigate(R.id.action_signUp_to_HomeFragment)
                         }

@@ -1,16 +1,8 @@
 #include "WindowsServer.h"
+#include "Constants.h"
+
 #include <iostream>
 #include <thread>
-#include <fstream>
-#include <chrono>
-#include <ctime>
-#include <iomanip>
-#include <sstream>
-#include <string>
-#include <direct.h>
-#include <functional>
-#include <filesystem>
-#include "Constants.h"
 
 WindowsServer::WindowsServer()
 {
@@ -29,13 +21,10 @@ WindowsServer::WindowsServer()
 
 WindowsServer::WindowsServer(int setupIPType)
 {
-	if (setupIPType == 1) {
-	AcquireIpAdress();
-	}
-	else {
-		char ip[] = "127.0.0.1\0";
-		memcpy_s(_ipAddress, strlen(ip), ip, strlen(ip));
-	}
+	if (setupIPType == 1)
+		AcquireIpAdress();
+	else
+		memcpy_s(_ipAddress, sizeof(_ipAddress), localhost, sizeof(localhost));
 	
 	WSAData wsaData;
 
@@ -94,7 +83,12 @@ void WindowsServer::Start()
 	// Begins monitoring clients
 //	std::thread monitorClients(&WindowsServer::MonitorClients, this);
 
+	/*
+		This loop will continue to accept clients and process clients.
+		the activity variable checks to see if anything has happened on the server.
+		maxFds is getting a reference to the traffic to the server.
 
+	*/
 	while (_keepAlive) {
 
 		FD_ZERO(&readFds);
@@ -111,11 +105,12 @@ void WindowsServer::Start()
 
 		int activity = select(maxFd + 1, &readFds, NULL, NULL, &timeout);
 
-
-
+	
+		// Checking activity on the server
 		if (activity != 0) {
 			bool activityFromConnectedClient = false;
 			auto clientIter = _clients.begin();
+			// Checks clients for activity
 			for (; clientIter != _clients.end(); clientIter++) {
 				if (FD_ISSET(*clientIter, &readFds)) {
 
@@ -123,12 +118,21 @@ void WindowsServer::Start()
 					int bytesRead = recv(*clientIter, testData, sizeOfInt, MSG_PEEK);
 					if (bytesRead > 0 && testData[0] != 0) {
 						HandleClient(*clientIter);
+						// activity was a connected client, not needing a new accept call
 						activityFromConnectedClient = true;
 						EmptyClientBuffer(*clientIter);
 					}
+					else if (bytesRead == 0) {
+						std::cout << "Client disconnected\n";
+						_interpreter.DisconnectClient(*clientIter);
+					}
+					else if (bytesRead == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
+						std::cerr << "Socket error: " << WSAGetLastError() << "\n";
+						_interpreter.DisconnectClient(*clientIter);
+					}
 				}
 			}
-
+			// Prevents clients from being added a second time to the server
 			if (!activityFromConnectedClient) {
 
 				SOCKET client;
@@ -136,7 +140,7 @@ void WindowsServer::Start()
 				sockaddr_in clientAddr = {};
 
 				int clientAddrSize = sizeof(clientAddr);
-
+				// Accepts clients to the server
 				client = accept(serverFd, (sockaddr*)&clientAddr, &clientAddrSize);
 				std::cout << "Client accepted \n";
 				if (client == INVALID_SOCKET) {
@@ -144,13 +148,16 @@ void WindowsServer::Start()
 					closesocket(client);
 					continue;
 				}
+				// Adjust the client socket to be non-blocking, this allows us to know if a client has sent garbage data
 				HandleNonBlocking(client);
+				// Adds clients to the connected vector
 				_clients.push_back(client);
 			}
 
 
 
 		}
+		
 
 
 
@@ -203,32 +210,7 @@ void WindowsServer::HandleClient(const SOCKET clientSocket)
 }
 // Handles the login of each client to pair them to a user object and their respective socket
 // Following this process, our CheckClient function will be able to contact the correct clients.
-void WindowsServer::MonitorClients()
-{
-	fd_set clientFds;
 
-	while (_keepAlive) {
-		FD_ZERO(&clientFds);
-
-		for (auto client : _clients) {
-			FD_SET(client, &clientFds);
-		}
-
-		if (!_clients.empty()) {
-			int maxFds = static_cast<int>(*std::max_element(_clients.begin(), _clients.end())) + 1;
-			int activity = select(maxFds, &clientFds, NULL, NULL, NULL);
-
-			if (activity > 0) {
-				for (auto& client : _clients) {
-					if (FD_ISSET(client, &clientFds)) {
-						HandleClient(client);
-					}
-				}
-			}
-		}
-	}
-
-}
 void WindowsServer::HandleNonBlocking(SOCKET& clientSocket)
 {
 	// changes to non-blocking
@@ -240,6 +222,8 @@ void WindowsServer::HandleNonBlocking(SOCKET& clientSocket)
 
 
 }
+// This prevents the lockups if a client sends to much data.
+// This is absolutely required otherwise unexpected behavior happens.
 void WindowsServer::EmptyClientBuffer(const SOCKET& clientSocket)
 {
 	char throwAway[1];
@@ -283,7 +267,7 @@ void WindowsServer::AcquireIpAdress()
 	addrinfo* result = nullptr;
 
 	if (getaddrinfo(hostName, nullptr, &hints, &result) != 0) {
-		std::cerr << "Error getting IP address from hostname \n";
+		std::cerr << "Error getting IP address from hostname\n";
 		WSACleanup();
 		return;
 	}
