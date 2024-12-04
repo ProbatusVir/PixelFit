@@ -35,7 +35,8 @@ class MainActivity : AppCompatActivity() {
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
 
         // Set up the NavHostFragment and NavController
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
         val navController = navHostFragment.navController
 
         // Set up bottom navigation with NavController
@@ -52,10 +53,11 @@ class MainActivity : AppCompatActivity() {
         // Show/hide bottom navigation and profile based on destination
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.LoginFragment, R.id.signUp -> {
+                R.id.LoginFragment, R.id.signUp, R.id.SettingsFragment -> {
                     bottomNav.visibility = View.GONE
                     profile.visibility = View.GONE
                 }
+
                 else -> {
                     bottomNav.visibility = View.VISIBLE
                     profile.visibility = View.VISIBLE
@@ -75,34 +77,39 @@ class MainActivity : AppCompatActivity() {
         val inflater: MenuInflater = popup.menuInflater
         inflater.inflate(R.menu.menu_main, popup.menu)
 
-        // Handle menu item clicks
+
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.edit_profile_menuitem -> {
-                    // Navigate to Edit Profile Fragment
+
 
                     true
                 }
+
                 R.id.goals_trophies_menuitem -> {
-                    // Navigate to Goals & Trophies Fragment
+
 
                     true
                 }
+
                 R.id.block_list_menuitem -> {
-                    // Navigate to Block List Fragment
 
                     true
                 }
+
                 R.id.pending_duels_menuitem -> {
-                    // Navigate to Pending Duels Fragment
+
 
                     true
                 }
+
                 R.id.settings_menuitem -> {
-                    // Navigate to Settings Fragment
+
                     navController.navigate(R.id.action_HomeFragment_to_SettingsFragment)
+
                     true
                 }
+
                 else -> false
             }
         }
@@ -118,6 +125,7 @@ class MainActivity : AppCompatActivity() {
                 navController.navigate(R.id.action_HomeFragment_to_SettingsFragment)
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
