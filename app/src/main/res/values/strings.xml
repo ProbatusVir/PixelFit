@@ -82,4 +82,6 @@
 
     <!-- Settings Text -->
     <string name="private_profile">Private Profile</string>
+    <string name="username_input">Enter Your Username</string>
+    <string name="log_out">Log Out</string>
 </resources>
