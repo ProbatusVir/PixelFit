@@ -91,7 +91,7 @@ class ServerConnect private constructor() {
     }
 
     /**
-     * Read in an integer from the bytestream. Used in ListenForServer
+     * Read in an integer from the ByteStream. Used in ListenForServer
      * and also to get the size of chunks for reading.
      */
     private fun readHeader() : Int {
@@ -126,32 +126,6 @@ class ServerConnect private constructor() {
     /**
      * Sends the command, token, and message to the server.
      */
-    private fun sendToServer(command : Int, message : String)
-    {
-        val tokenSize = if (token != null)
-            HASH_SIZE + 1 else 0
-
-        val lengthOfMessage = message.length + LENGTH_OF_COMMAND_AND_MESSAGE_HEADER
-
-        if (outputStream == null)
-            outputStream = socket?.getOutputStream()
-
-        var messageToServer = ByteArray(0)
-        //Write command
-        messageToServer += ByteBuffer.allocate(Int.SIZE_BYTES).order(ENDIAN).putInt(command).array()
-
-        if (token != null) {
-            messageToServer += ByteBuffer.allocate(Int.SIZE_BYTES).order(ENDIAN).putInt(tokenSize).array()
-            messageToServer += token!!
-        }
-
-            messageToServer += ByteBuffer.allocate(Int.SIZE_BYTES).order(ENDIAN).putInt(lengthOfMessage).array()
-            messageToServer += message.toByteArray() + 0x00
-
-        outputStream?.write(messageToServer)
-        outputStream?.flush()
-    }
-
     private fun sendToServer(command : Int, message : ByteArray)
     {
         val tokenSize = if (token != null)
@@ -177,6 +151,8 @@ class ServerConnect private constructor() {
         outputStream?.write(messageToServer)
         outputStream?.flush()
     }
+    private fun sendToServer(command : Int, message : String) = sendToServer(command, message.toByteArray())
+
 
     /**
      * Attempts to sign the user up to the server given the name, username, email, and password, in that order.
@@ -195,8 +171,7 @@ class ServerConnect private constructor() {
     fun sendImageToServer(file : File) {
         Thread{
         val input = file.readBytes()
-        val strinput = input.toString()
-        sendToServer(Command.SendImageToServer.int, strinput)
+        sendToServer(Command.SendImageToServer.int, input.toString())
         }.start()
     }
 
