@@ -56,7 +56,7 @@ void WindowsServer::Start()
 	address.sin_family = AF_INET;
 
 	address.sin_port = htons(port);
-	std::cout << "Binding to " << _ipAddress << '\n';
+	std::cout << "Binding to " << _ipAddress << ':' << port << '\n';
 
 	inet_pton(AF_INET, _ipAddress, &address.sin_addr);
 

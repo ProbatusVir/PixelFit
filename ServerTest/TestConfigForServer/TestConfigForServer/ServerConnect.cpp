@@ -15,7 +15,7 @@ ServerConnect::ServerConnect(int lanOrLocalhost)
 	else
 		memcpy_s(_ipAddress, sizeof(_ipAddress), remotehost, sizeof(remotehost));
 
-	std::cout << "You have selected " << _ipAddress << '\n';
+	std::cout << "You have selected " << _ipAddress << ':' << port << '\n';
 	CreateSocket();
 }
 

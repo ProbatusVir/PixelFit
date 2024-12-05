@@ -14,6 +14,11 @@
 		BanUser,
 		SendImageToServer,
 		LogOut,
+		RequestData,
+	};
+
+	enum class ResourceType : int {
+		PNG = 0x89504E47
 	};
 
 	enum class MessageResult : int {
@@ -24,10 +29,12 @@
 
 	// use port numbers from 3500 - 65000. 
 	// Avoid using ports lower than 3500 due to IATA protocols
-	static constexpr int port = 5930;
-	static constexpr const char localhost[] = "127.0.0.1";
-	static constexpr int port = 19820;
 	
+	//static constexpr int port = 5930;
+	static constexpr int port = 16960;
+	static constexpr const char remotehost[] = "3.22.30.40";//tcp.ngrok.io
+	static constexpr const char localhost[] = "127.0.0.1";
+
 	static constexpr size_t packetSize = 1024;
 	static constexpr size_t hashSize = SHA256_DIGEST_LENGTH;
 	static constexpr size_t nameSize = 50;
