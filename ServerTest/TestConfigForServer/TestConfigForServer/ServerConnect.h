@@ -12,6 +12,7 @@ public:
 
 	int SendToServer(int command, const char* message);
 	void SendToServerRaw(const char* message, const int message_size);
+	const char* const Token() const { return _token; };
 
 private:
 	void CreateSocket();

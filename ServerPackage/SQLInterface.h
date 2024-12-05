@@ -24,7 +24,7 @@ public:
 private:
 	void ConnectToDB();
 	void InterpretState(const SQLRETURN code, const char* name, const bool indented = true);
-	void LoadCredentials(const char* path);
+	void LoadCredentials();
 	void ErrorLogFromSQL(SQLHSTMT& statement);
 
 	SQLHSTMT SetupAlloc(); 	// I (Ryan) got tired of writng the same 2 lines and large macros so I buried it into a function call

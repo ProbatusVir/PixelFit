@@ -42,6 +42,8 @@ class SecondFragment : Fragment() {
             } else {
                 Toast.makeText(context, "Please enter both email and password", Toast.LENGTH_SHORT).show()
             }
+
+            ServerConnect.instance().login(email, password)
         }
 
         binding.signupButton.setOnClickListener {
