@@ -63,7 +63,8 @@ class SignUp : Fragment() {
                             //Fixme: This needs its own field.
                             val username = email
 
-                            connection.signUp(name, username, email, password)
+                            //FIXME: this needs handled more gracefully
+                            connection?.signUp(name, username, email, password)
 
                             findNavController().navigate(R.id.action_signUp_to_HomeFragment)
                         }

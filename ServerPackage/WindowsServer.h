@@ -33,12 +33,5 @@ private:
 	SOCKET serverFd;
 	std::vector<SOCKET> _clients;
 	WindowsInterpreter _interpreter;
-	// This is for the transfer from command set to create our pairs needed
-	User _loginUser;
-	
-
-
-
-
 };
 

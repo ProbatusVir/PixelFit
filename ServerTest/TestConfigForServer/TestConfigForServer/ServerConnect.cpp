@@ -10,9 +10,12 @@ ServerConnect::ServerConnect(int lanOrLocalhost)
 {
 	if (lanOrLocalhost == 1)
 		SetTargetIp();
-	else 
+	else if (lanOrLocalhost == 2)
 		memcpy_s(_ipAddress, sizeof(_ipAddress), localhost, sizeof(localhost));
+	else
+		memcpy_s(_ipAddress, sizeof(_ipAddress), remotehost, sizeof(remotehost));
 
+	std::cout << "You have selected " << _ipAddress << '\n';
 	CreateSocket();
 }
 
