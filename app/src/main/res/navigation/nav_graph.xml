@@ -40,7 +40,9 @@
     <fragment android:id="@+id/SettingsFragment"
               android:name="com.example.myapplication.SettingsFragment"
               android:label="fragment_settings"
-              tools:layout="@layout/fragment_settings"/>
+              tools:layout="@layout/fragment_settings">
+        <action android:id="@+id/action_SettingsFragment_to_LoginFragment" app:destination="@id/LoginFragment"/>
+    </fragment>
     <fragment android:id="@+id/signUp" android:name="com.example.myapplication.SignUp" android:label="SignUp">
         <action android:id="@+id/action_signUp_to_HomeFragment" app:destination="@id/HomeFragment"/>
         <action android:id="@+id/action_signUp_to_LoginFragment2" app:destination="@id/LoginFragment"/>
