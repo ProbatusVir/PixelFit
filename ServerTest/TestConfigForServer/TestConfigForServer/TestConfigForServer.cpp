@@ -22,7 +22,6 @@ static constexpr const char* options[] =
 void PrintMenu() {
 	for (const char* option : options)
 		std::cout << option << '\n';
-	
 }
 
 std::string GetUserInput(const std::string& question) {
@@ -157,7 +156,7 @@ void SendImageToServer(ServerConnect& server, const unsigned char* token)
 int main()
 {
 	int selectLan = 1;
-	std::cout << "Press 1 for LAN connection, 2 for localhost\n";
+	std::cout << "Press 1 for LAN connection, 2 for localhost, 3 for remotehost\n";
 	std::cin >> selectLan;
 	ServerConnect server(selectLan);
 	bool keepAlive = true;
