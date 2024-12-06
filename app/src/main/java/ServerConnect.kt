@@ -5,6 +5,12 @@ import java.net.Socket
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
+/**
+ * Some things to work on, Request data probably shouldn't be sent back, so that
+ * WHen the server needs to ask someone for something, they can deliver it (if ever)
+ */
+
+
 enum class Command(val int : Int) {
     SocketError(-1),
     Failed(0),
@@ -17,7 +23,13 @@ enum class Command(val int : Int) {
     GetUser(7),
     BanUser(8),
     SendImageToServer(9),
-    LogOut(10)
+    LogOut(10),
+    RequestData(11),
+}
+
+enum class ResourceType(val int:  Int)
+{
+    PNG(-1991225785), //this is first four bytes of the PNG header.
 }
 
 enum class MessageResult(val int : Int) {
@@ -83,6 +95,7 @@ class ServerConnect private constructor() {
                 Command.DiscussionPost.int -> {}
                 Command.GetUser.int -> {}
                 Command.BanUser.int -> {}
+                Command.RequestData.int -> receiveData()
                 else -> println("Received unexpected command")
             }
         }
@@ -186,6 +199,48 @@ class ServerConnect private constructor() {
         //The error checking is two-fold, for the token does not exist without a socket.
         //otherwise, we have a REAL problem.
         token?.let { sendToServer(Command.LogOut.int, "") }
+    }
+
+    fun requestData(fileName : String, type : ResourceType) {
+        //val buffer = (ByteBuffer.allocate(Int.SIZE_BYTES).order(ENDIAN).putInt(type.int).array()
+        //        + fileName.toByteArray())
+
+        val fileNameAsBA = fileName.toByteArray() //.order(ENDIAN)
+        val properType = ByteBuffer.allocate(Int.SIZE_BYTES).putInt(type.int).array()
+        val buffer = properType + fileNameAsBA
+        sendToServer(Command.RequestData.int, buffer)
+
+    }
+
+    //
+    //        val buffer = ByteArray(Int.SIZE_BYTES)
+    //        var bytesRead = 0
+    //        while (bytesRead < 1) {
+    //            bytesRead = inputStream!!.read(buffer)
+    //        }
+    //        return ByteBuffer.wrap(buffer).order(ENDIAN).getInt()
+    //
+
+    private fun receiveData() {
+        val token_size = readHeader()
+        val token = ByteArray(token_size)
+        inputStream!!.read(token, 0, token_size)
+        //TODO: Add some verification
+        val buffer_size = readHeader()
+        val buffer = ByteArray(buffer_size)
+        inputStream!!.read(buffer, 0, buffer_size)
+
+        when (readHeader())
+        {
+            ResourceType.PNG.int -> receiveImage(buffer)
+        }
+    }
+
+
+    private fun receiveImage(buffer : ByteArray) {
+        val file = File("coolfile.png")
+        file.writeBytes(buffer)
+
     }
 
     //Safely close the connection
