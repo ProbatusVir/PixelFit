@@ -16,6 +16,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.io.FileInputStream
 
 class MainActivity : AppCompatActivity() {
 
@@ -135,6 +136,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //DON'T DELETE
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, returnIntent: Intent?) {
+        super.onActivityResult(requestCode, resultCode, returnIntent)
+        if (resultCode != RESULT_OK) {
+            return
+        }
+        if (requestCode == OPEN_IMAGE) {
+            val returnUri = returnIntent?.data ?: return
+            val pfd = contentResolver.openFileDescriptor(returnIntent!!.data!!, "r")
+            val fis = FileInputStream(pfd!!.fileDescriptor)
+            connection?.sendImageToServer(fis)
+        }
+    }
+
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         return when (item.itemId) {
@@ -151,5 +168,8 @@ class MainActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+    companion object {
+        const val OPEN_IMAGE = 56
     }
 }
