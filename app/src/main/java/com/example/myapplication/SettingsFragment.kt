@@ -17,7 +17,7 @@ class SettingsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout using ViewBinding
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         return binding.root
