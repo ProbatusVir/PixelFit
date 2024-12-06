@@ -3,10 +3,11 @@
 class FileOps
 {
 public:
+	static unsigned int GetFileSize(const char* file_name);
+
 	void BufferedWrite(const char* buffer, unsigned int buffer_size);
 	void WriteFile(const char* file_name);
 	void WriteFile(const char* file_name, const char* buffer, const unsigned int buffer_size);
-	unsigned int GetFileSize(const char* file_name) const;
 	const char* const ReadFullFile(const char* file_name, bool null_terminate = false);
 	void WriteFileToBuffer(const char* file_name, char* buffer, const unsigned int bytes_to_read) const;
 	const char* const GetBuffer() const { return m_file_buffer; };

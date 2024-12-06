@@ -6,7 +6,7 @@
 #include <iostream>
 
 
-unsigned int FileOps::GetFileSize(const char* file_name) const
+unsigned int FileOps::GetFileSize(const char* file_name)
 {
 	try
 	{
@@ -137,5 +137,5 @@ void EnvironmentFile::LoadEnvironment()
 	ReadFullFile(file_name, true);
 	
 
-	if (!m_file_buffer) { std::cout << "Error: encountered trouble opening .env file, make sure it exists."; return; }
+	if (!m_file_buffer) { std::cout << "Error: encountered trouble opening .env file, make sure it exists.\n"; return; }
 }
