@@ -27,14 +27,14 @@ class SecondFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Disable the device back button
+
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                // Do nothing
+
             }
         })
 
-        // Login button click listener
+
         binding.loginButton.setOnClickListener {
             val email = binding.emailInput.text.toString()
             val password = binding.passwordInput.text.toString()
@@ -53,7 +53,7 @@ class SecondFragment : Fragment() {
             ServerConnect.instance()?.login(email, password)
         }
 
-        // Signup button click listener
+
         binding.signupButton.setOnClickListener {
             findNavController().navigate(R.id.action_LoginFragment_to_signUp)
         }

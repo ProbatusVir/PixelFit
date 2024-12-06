@@ -1,74 +1,86 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="match_parent">
 
-    <!-- Back Arrow and Settings Text in a Horizontal Layout -->
+    <!-- Main Content -->
     <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="16dp">
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <!-- Back Arrow -->
-        <ImageButton
-                android:id="@+id/back_button"
-                android:layout_width="wrap_content"
+        <!-- Back Arrow and Settings Title -->
+        <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:contentDescription="@string/back_button"
-                android:tint="@color/black"
-                android:src="@drawable/back_arrow" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="32dp">
 
-        <!-- Settings Text -->
-        <TextView
-                android:id="@+id/textview_settings"
-                android:layout_width="wrap_content"
+            <!-- Back Button -->
+            <ImageButton
+                    android:id="@+id/back_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/back_arrow"
+                    android:tint="@color/black"
+                    android:contentDescription="@string/back_button" />
+
+            <!-- Title -->
+            <TextView
+                    android:id="@+id/textview_settings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings"
+                    android:textColor="@color/black"
+                    android:textSize="50sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginStart="16dp" />
+        </LinearLayout>
+
+        <!-- Change Username Button -->
+        <Button
+                android:id="@+id/button_change_username"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Settings"
-                android:textColor="@color/black"
-                android:textSize="50sp"
-                android:paddingLeft="38dp"
-                android:fontFamily="sans-serif-medium"
-                android:layout_marginStart="16dp"
-                android:gravity="center_vertical" />
+                android:text="@string/change_username"
+                android:backgroundTint="@android:color/holo_blue_light"
+                android:layout_marginTop="16dp" />
+
+        <!-- Additional Buttons -->
+        <Button
+                android:id="@+id/button_change_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/change_password"
+                android:backgroundTint="@android:color/holo_blue_light"
+                android:layout_marginTop="16dp" />
+
+        <Button
+                android:id="@+id/button_blocked_users"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/blocked_users"
+                android:backgroundTint="@android:color/holo_blue_light"
+                android:layout_marginTop="16dp" />
+
+        <Button
+                android:id="@+id/button_log_out"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/log_out"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@android:color/holo_red_light"
+                android:textColor="@android:color/white" />
     </LinearLayout>
 
-    <!-- Change Username -->
-    <Button
-            android:id="@+id/button_change_username"
+    <!-- Blur Overlay -->
+    <View
+            android:id="@+id/blur_overlay"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Change Username"
-            android:layout_marginTop="16dp" />
-
-    <!-- Change Password -->
-    <Button
-            android:id="@+id/button_change_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Change Password"
-            android:layout_marginTop="16dp" />
-
-    <!-- Blocked Users -->
-    <Button
-            android:id="@+id/button_blocked_users"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Blocked Users"
-            android:layout_marginTop="16dp" />
-
-    <!-- Log Out Button -->
-    <Button
-            android:id="@+id/button_log_out"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Log Out"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="@android:color/holo_red_light"
-            android:textColor="@android:color/white" />
-</LinearLayout>
+            android:layout_height="match_parent"
+            android:background="#80000000"
+            android:visibility="gone" />
+</FrameLayout>

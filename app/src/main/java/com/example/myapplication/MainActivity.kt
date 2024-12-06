@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showUserAvatarMenu(view: View, navController: androidx.navigation.NavController) {
-        // Create and show the popup menu
+
         val popup = PopupMenu(this, view)
         val inflater: MenuInflater = popup.menuInflater
         inflater.inflate(R.menu.menu_main, popup.menu)
@@ -94,24 +94,6 @@ class MainActivity : AppCompatActivity() {
 
                     true
                 }
-
-                R.id.goals_trophies_menuitem -> {
-
-
-                    true
-                }
-
-                R.id.block_list_menuitem -> {
-
-                    true
-                }
-
-                R.id.pending_duels_menuitem -> {
-
-
-                    true
-                }
-
                 R.id.settings_menuitem -> {
 
                     navController.navigate(R.id.action_HomeFragment_to_SettingsFragment)
@@ -124,22 +106,21 @@ class MainActivity : AppCompatActivity() {
         }
 
         popup.show()
-        //click register for making the popup
 
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_activity_main)
-        return when (item.itemId) {
-            R.id.settings_menuitem -> {
+    //override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // val navController = findNavController(R.id.nav_host_fragment_activity_main)
+        // return when (item.itemId) {
+            // R.id.settings_menuitem -> {
                 // Navigate to SettingsFragment
-                navController.navigate(R.id.action_HomeFragment_to_SettingsFragment)
-                true
-            }
+               // navController.navigate(R.id.action_HomeFragment_to_SettingsFragment)
+              //  true
+            //}
 
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
+          //  else -> super.onOptionsItemSelected(item)
+        //}
+    //}
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)

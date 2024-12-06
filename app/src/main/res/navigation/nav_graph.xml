@@ -42,9 +42,15 @@
               android:label="fragment_settings"
               tools:layout="@layout/fragment_settings">
         <action android:id="@+id/action_SettingsFragment_to_LoginFragment" app:destination="@id/LoginFragment"/>
+        <action android:id="@+id/action_SettingsFragment_to_HomeFragment" app:destination="@id/HomeFragment"/>
+        <action android:id="@+id/action_SettingsFragment_to_fragment_change_username"
+                app:destination="@id/fragment_change_username"/>
     </fragment>
     <fragment android:id="@+id/signUp" android:name="com.example.myapplication.SignUp" android:label="SignUp">
         <action android:id="@+id/action_signUp_to_HomeFragment" app:destination="@id/HomeFragment"/>
         <action android:id="@+id/action_signUp_to_LoginFragment2" app:destination="@id/LoginFragment"/>
     </fragment>
+    <fragment android:id="@+id/fragment_change_username"
+              android:name="com.example.myapplication.fragment_change_username" android:label="fragment_change_username"
+              tools:layout="@layout/fragment_change_username"/>
 </navigation>
