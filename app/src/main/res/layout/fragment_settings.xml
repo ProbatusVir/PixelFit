@@ -1,57 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             tools:context=".SettingsFragment"
-             android:background="@drawable/gradient_blue">
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <androidx.core.widget.NestedScrollView
+    <!-- Back Arrow and Settings Text in a Horizontal Layout -->
+    <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="16dp">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
 
-        <LinearLayout
-                android:layout_width="match_parent"
+        <!-- Back Arrow -->
+        <ImageButton
+                android:id="@+id/back_button"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/back_button"
+                android:tint="@color/black"
+                android:src="@drawable/back_arrow" />
 
-            <!-- Title -->
-            <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings"
-                    android:gravity="center"
-                    android:textSize="30sp"
-                    android:textColor="@color/white"
-                    android:fontFamily="sans-serif-medium"
-                    android:paddingBottom="16dp"/>
+        <!-- Settings Text -->
+        <TextView
+                android:id="@+id/textview_settings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Settings"
+                android:textColor="@color/black"
+                android:textSize="50sp"
+                android:paddingLeft="38dp"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginStart="16dp"
+                android:gravity="center_vertical" />
+    </LinearLayout>
 
-            <!-- Settings Section 1 -->
+    <!-- Change Username -->
+    <Button
+            android:id="@+id/button_change_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Change Username"
+            android:layout_marginTop="16dp" />
 
-            <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:padding="8dp">
+    <!-- Change Password -->
+    <Button
+            android:id="@+id/button_change_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Change Password"
+            android:layout_marginTop="16dp" />
 
-                <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/private_profile"
-                        android:textSize="24sp"
-                        android:textColor="@color/white"/>
+    <!-- Blocked Users -->
+    <Button
+            android:id="@+id/button_blocked_users"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Blocked Users"
+            android:layout_marginTop="16dp" />
 
-                <Switch
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:id="@+id/switch_notifications"/>
-            </LinearLayout>
-
-            <!-- Settings Section 2 -->
-
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
-</FrameLayout>
+    <!-- Log Out Button -->
+    <Button
+            android:id="@+id/button_log_out"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Log Out"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@android:color/holo_red_light"
+            android:textColor="@android:color/white" />
+</LinearLayout>
