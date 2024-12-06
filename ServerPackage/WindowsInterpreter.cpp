@@ -41,6 +41,9 @@ void WindowsInterpreter::InterpretMessage(const SOCKET& clientSocket, Command co
 	case Command::SendImageToServer:
 		ReceiveImage(clientSocket);
 		break;
+	case Command::RequestData: 
+		SendData(clientSocket);
+		break;
 	case Command::LogOut:
 		LogOut(clientSocket);
 		break;
@@ -195,6 +198,95 @@ void WindowsInterpreter::SendMessageToClient(const SOCKET& clientSocket, bool su
 	}
 }
 
+void WindowsInterpreter::SendData(const SOCKET clientSocket)
+{
+	unsigned int token_size = ReadByteHeader(clientSocket);
+	unsigned char* token = nullptr;
+	if (token_size)
+	{
+		token = new unsigned char[token_size + 1];
+		recv(clientSocket, (char*)token, token_size, 0);
+	}
+
+	const unsigned int buffer_size = ReadByteHeader(clientSocket);
+	char* buffer = new char[buffer_size + 1]; buffer[buffer_size] = '\0';
+	recv(clientSocket, buffer, buffer_size, 0);
+
+	char* reader = buffer;
+	int resource_type = 0;
+	memcpy_s(&resource_type, sizeOfInt, buffer, sizeOfInt);
+	reader += sizeOfInt;
+
+	const unsigned int bytes_read = reader - buffer; //Just in case any changes are made here later.
+
+	//FIXME: I do not work... This'll be easier to debug once I make the Header class.
+	switch (resource_type)
+	{
+	case (int)ResourceType::PNG:
+		SendImage(clientSocket, token_size, token, reader, buffer_size - bytes_read);
+		break;
+	}
+
+	SendImage(clientSocket, token_size, token, reader, buffer_size - bytes_read);
+
+	delete[] token;
+	delete[] buffer;
+}
+
+//Prolly gonna send the user's token back to them at some point, just to verify this message, but for now... meh
+//FIXME: make me actually work, there's some funnky stuff going on with getting the image name, and that's the only problem...
+void WindowsInterpreter::SendImage(const SOCKET clientSocket, const unsigned int token_size, const unsigned char* token, const char* buffer, unsigned int sizeOfBuffer)
+{
+	constexpr static const Command command = Command::RequestData;
+	constexpr static const ResourceType type = ResourceType::PNG;
+	constexpr static const char suffix[] = ".png";
+	const char* reader = buffer;
+
+	char* image_name; //TODO: review if this is the best, or if this method should be limited to just pfps
+	
+	reader += token_size;
+	const unsigned int name_size = strlen(reader);
+	
+	image_name = new char[name_size + sizeof(suffix)]; 
+	memcpy_s(image_name, name_size, reader, name_size);
+	memcpy_s(image_name + name_size, sizeof(suffix), suffix, sizeof(suffix));
+
+
+	const char* file_path = EnvironmentFile::Instance()->FetchEnvironmentVariable("file_save_path");
+	const unsigned int file_path_size = strlen(file_path);
+	const unsigned int full_name_size = file_path_size + name_size;
+	
+	FileOps fop = FileOps();
+	char* full_file_path = new char[full_name_size];
+	memcpy_s(full_file_path,								file_path_size,		file_path,		file_path_size);
+	memcpy_s(full_file_path + file_path_size,				name_size,			image_name,		name_size);
+
+	const char* data = fop.ReadFullFile(full_file_path, false);
+	const unsigned int file_size = fop.FileSize();
+	
+	//Create message
+
+	//FIXME: Find out if this can be sent as two messages rather than reinitializing this HUGE array just to add 4 bytes
+	const unsigned int message_size = sizeof(type) + file_size; //no null
+	char* message = new char[message_size];
+	char* writer = message;
+	
+
+	//CMD + ts + tok + ms + type + data
+	memcpy_s(writer,				sizeOfInt,	&command,		sizeOfInt);
+	memcpy_s(writer += sizeOfInt,	sizeOfInt,	&token_size,	sizeOfInt);
+	memcpy_s(writer += sizeOfInt,	token_size, token,			token_size);
+	memcpy_s(writer += token_size,	sizeOfInt,	&message_size,	sizeOfInt);
+	memcpy_s(writer += sizeOfInt,	sizeOfInt,	&type,			sizeOfInt);
+	memcpy_s(writer += sizeOfInt,	file_size,	data,			file_size);
+
+	send(clientSocket, message, message_size, 0);
+
+	//No clue why this delete is screwing things up
+	//delete[] message;
+	delete[] image_name;
+}
+
 unsigned int WindowsInterpreter::ReadByteHeader(const SOCKET& clientSocket)
 {
 	unsigned int byteHeader = 0;
@@ -324,7 +416,7 @@ void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
 	EnvironmentFile* env = EnvironmentFile::Instance();
 	const char* path = env->FetchEnvironmentVariable("file_save_path");
 
-	if (!path) { std::cerr << "Unable to find the \"file_save_path\" variable in your .env file"; return; }
+	if (!path) { std::cerr << "Unable to find the \"file_save_path\" variable in your .env file\n"; return; }
 
 	const char* username = FindUserByToken(token)->Username();
 	const unsigned int username_length = strlen(username);
