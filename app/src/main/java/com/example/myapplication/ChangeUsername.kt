@@ -3,6 +3,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.PopupWindow
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myapplication.R
@@ -10,6 +11,8 @@ import com.example.myapplication.R
 class MainActivity : AppCompatActivity() {
 
     private lateinit var blurOverlay: View // Reference to the blur overlay
+
+    private var newUsername: String = "" //new username variable for server connect
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,21 +39,32 @@ class MainActivity : AppCompatActivity() {
             true // Focusable
         )
 
-        // Show the blur overlay
         blurOverlay.visibility = View.VISIBLE
 
-        // Set up dismissal behavior
         popupWindow.setOnDismissListener {
             blurOverlay.visibility = View.GONE // Hide the blur overlay when popup is dismissed
         }
 
-        // Show the popup at the center of the screen
         popupWindow.showAtLocation(window.decorView.rootView, Gravity.CENTER, 0, 0)
 
-        // Set up popup content actions
-        val closeButton: Button = popupView.findViewById(R.id.popup_button)
-        closeButton.setOnClickListener {
-            popupWindow.dismiss() // Close the popup
+        // Reference the EditText and Button in the popup
+        val usernameInput: EditText = popupView.findViewById(R.id.newUsername_input)
+        val saveButton: Button = popupView.findViewById(R.id.popup_button)
+
+        saveButton.setOnClickListener {
+            //FIXME: this needs server error checking so usernames are unique and of the right length
+            if (newUsername.length < 3)
+            {
+              popupWindow.dismiss()
+            }
+            else
+            {
+                newUsername = usernameInput.text.toString()
+                popupWindow.dismiss()
+            }
+
         }
     }
+
 }
+

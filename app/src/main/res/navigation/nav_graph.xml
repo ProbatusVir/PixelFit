@@ -11,6 +11,7 @@
             android:label="@string/Home_fragment_label"
             tools:layout="@layout/fragment_first">
         <action android:id="@+id/action_HomeFragment_to_SettingsFragment" app:destination="@id/SettingsFragment"/>
+        <action android:id="@+id/action_HomeFragment_to_profileFragment" app:destination="@id/profileFragment"/>
     </fragment>
 
     <fragment
@@ -53,4 +54,6 @@
     <fragment android:id="@+id/fragment_change_username"
               android:name="com.example.myapplication.fragment_change_username" android:label="fragment_change_username"
               tools:layout="@layout/fragment_change_username"/>
+    <fragment android:id="@+id/profileFragment" android:name="com.example.myapplication.ProfileFragment"
+              android:label="fragment_profile" tools:layout="@layout/fragment_profile"/>
 </navigation>

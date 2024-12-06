@@ -3,7 +3,7 @@
 
     <!-- Avatar dropdown menu strings -->
     <string name="avatar_icon">Profile</string>
-    <string name="avatar_dropdown_item1">Edit Profile</string>
+    <string name="avatar_dropdown_item1">Profile</string>
     <string name="avatar_dropdown_item2">Goals &amp; Trophies</string>
     <string name="avatar_dropdown_item3">Block List</string>
     <string name="avatar_dropdown_item4">Pending Duels</string>

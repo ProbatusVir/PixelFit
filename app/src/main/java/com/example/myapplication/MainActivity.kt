@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.edit_profile_menuitem -> {
 
-
+                    navController.navigate(R.id.action_HomeFragment_to_profileFragment)
                     true
                 }
                 R.id.settings_menuitem -> {
