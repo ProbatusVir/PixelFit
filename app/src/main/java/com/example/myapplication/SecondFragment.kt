@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.navigation.fragment.findNavController
 import com.example.myapplication.databinding.FragmentSecondBinding
 
@@ -26,12 +27,19 @@ class SecondFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Disable the device back button
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Do nothing
+            }
+        })
+
+        // Login button click listener
         binding.loginButton.setOnClickListener {
             val email = binding.emailInput.text.toString()
             val password = binding.passwordInput.text.toString()
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
-
                 val sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
                 val editor = sharedPreferences.edit()
                 editor.putString("email", email)
@@ -42,10 +50,10 @@ class SecondFragment : Fragment() {
             } else {
                 Toast.makeText(context, "Please enter both email and password", Toast.LENGTH_SHORT).show()
             }
-            //FIXME: this should be handled more gracefully
             ServerConnect.instance()?.login(email, password)
         }
 
+        // Signup button click listener
         binding.signupButton.setOnClickListener {
             findNavController().navigate(R.id.action_LoginFragment_to_signUp)
         }

@@ -9,35 +9,36 @@ import androidx.navigation.fragment.findNavController
 import com.example.myapplication.databinding.FragmentSettingsBinding
 import ServerConnect
 
-
 class SettingsFragment : Fragment() {
 
     private var _binding: FragmentSettingsBinding? = null
-
     private val binding get() = _binding!!
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings, container, false)
+        // Inflate the layout using ViewBinding
+        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        ServerConnect.instance().
+
+        // Example: Log out
+        ServerConnect.instance()?.logOut()
+
+        // Navigate to LoginFragment when Log Out button is clicked
         binding.buttonLogOut.setOnClickListener {
             findNavController().navigate(R.id.action_SettingsFragment_to_LoginFragment)
-
-
         }
 
 
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null // Avoid memory leaks
     }
 }

@@ -125,14 +125,7 @@ class MainActivity : AppCompatActivity() {
 
         popup.show()
         //click register for making the popup
-       findViewById<ImageButton>(R.id.user_avatar).setOnClickListener {
-           val popup = PopupMenu(this, it)
-           val inflater: MenuInflater = popup.menuInflater
-           inflater.inflate(R.menu.menu_main, popup.menu)
-           popup.show()
-            //TODO: find a better place for this
-           //startActivityForResult(openImageIntent, OPEN_IMAGE)
-        }
+
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
