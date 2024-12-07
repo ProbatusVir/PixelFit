@@ -64,7 +64,7 @@ class ServerConnect private constructor() {
         return try {
              InetAddress.getByName(SERVER_NAME)
         } catch (e : Exception) {
-            InetAddress.getByName(LOCALHOST)
+            InetAddress.getByName(LOCALHOST) //This alternative keeps the client from crashing when a server is not specified or not active
         }
 
         //https://stackoverflow.com/questions/5806220/how-to-connect-to-my-http-localhost-web-server-from-android-emulator
@@ -264,8 +264,7 @@ class ServerConnect private constructor() {
         fun destroyInstance() {INSTANCE?.disconnect(); INSTANCE = null}
         private var INSTANCE : ServerConnect? = ServerConnect()
         private const val SERVER_NAME = "2.tcp.ngrok.io"
-        private const val LOCALHOST = "2.tcp.ngrok.io"
-        //private const val LOCALHOST = "10.0.2.2"
+        private const val LOCALHOST = "10.0.2.2"
         private const val PORT = 10214
         private const val HASH_SIZE = 32
         private const val LENGTH_OF_COMMAND_AND_MESSAGE_HEADER = Int.SIZE_BYTES * 3 + 1 //This is good for an authenticated read, might have to cut it out later.
