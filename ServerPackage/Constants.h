@@ -30,10 +30,11 @@
 	// use port numbers from 3500 - 65000. 
 	// Avoid using ports lower than 3500 due to IATA protocols
 	
-	//static constexpr int port = 5930;
-	static constexpr int port = 5930;
+	//remotehost must change per-run
 	static constexpr const char remotehost[] = "3.22.30.40";//tcp.ngrok.io
+	//These never change
 	static constexpr const char localhost[] = "127.0.0.1";
+	static constexpr int port = 5930;
 
 	static constexpr size_t packetSize = 1024;
 	static constexpr size_t hashSize = SHA256_DIGEST_LENGTH;

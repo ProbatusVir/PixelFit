@@ -1,5 +1,6 @@
 #include "WindowsInterpreter.h"
 #include "FileOps.h"
+#include "Header.h"
 
 #include <iostream>
 #include <functional>
@@ -395,22 +396,14 @@ void WindowsInterpreter::SendPostToClients(const SOCKET& clientSocket, const cha
 
 }
 
-
-
 void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
 {
-	//It is unavoidable to receive the entire user message before file checking.
 	static constexpr const char file_ext[] = ".png";
-	const unsigned int token_size = ReadByteHeader(clientSocket);
-	char* token = new char[token_size + 1]; token[token_size] = '\0';
-	recv(clientSocket, token, token_size, 0);
+	static constexpr unsigned int wait_period = 5; //seconds
+	Header header(clientSocket, wait_period);
 	
-	const unsigned int file_size = ReadByteHeader(clientSocket);
-	char* file_buffer = new char[file_size];
-
-	//TODO: This is awful...
-	std::this_thread::sleep_for(std::chrono::seconds(5));
-	recv(clientSocket, file_buffer, file_size, 0);
+	const char* file_buffer = header.buffer;
+	const unsigned int file_size = header.buffer_size;
 
 	//Get file name
 	EnvironmentFile* env = EnvironmentFile::Instance();
@@ -418,7 +411,7 @@ void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
 
 	if (!path) { std::cerr << "Unable to find the \"file_save_path\" variable in your .env file\n"; return; }
 
-	const char* username = FindUserByToken(token)->Username();
+	const char* username = FindUserByToken(header.token)->Username();
 	const unsigned int username_length = strlen(username);
 	const unsigned int path_length = strlen(path);
 	char* file_name = new char[path_length + username_length + sizeof(file_ext)];
@@ -434,9 +427,6 @@ void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
 	//Write to file
 	file.write(file_buffer, file_size);
 	file.close();
-
-	delete[] token;
-	delete[] file_buffer;
 }
 
 void WindowsInterpreter::LogOut(const SOCKET clientSocket)
