@@ -77,8 +77,17 @@ class MainActivity : AppCompatActivity() {
 
         // Handle user avatar click (popup menu)
         profile.setOnClickListener {
-            showUserAvatarMenu(it, navController)
+            //showUserAvatarMenu(it, navController)
+            testFeature()
         }
+    }
+
+    fun testFeature()
+    {
+        //This one is for sending an image
+        //startActivityForResult(openImageIntent, OPEN_IMAGE)
+        //This is for requesting an image
+        connection?.requestData("image", ResourceType.PNG)
     }
 
     private fun showUserAvatarMenu(view: View, navController: androidx.navigation.NavController) {
