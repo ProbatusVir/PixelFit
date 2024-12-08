@@ -1,6 +1,5 @@
 #include "WindowsInterpreter.h"
 #include "FileOps.h"
-#include "Header.h"
 
 #include <iostream>
 #include <functional>
@@ -201,54 +200,37 @@ void WindowsInterpreter::SendMessageToClient(const SOCKET& clientSocket, bool su
 
 void WindowsInterpreter::SendData(const SOCKET clientSocket)
 {
-	unsigned int token_size = ReadByteHeader(clientSocket);
-	unsigned char* token = nullptr;
-	if (token_size)
-	{
-		token = new unsigned char[token_size + 1];
-		recv(clientSocket, (char*)token, token_size, 0);
-	}
+	Header header(clientSocket);
 
-	const unsigned int buffer_size = ReadByteHeader(clientSocket);
-	char* buffer = new char[buffer_size + 1]; buffer[buffer_size] = '\0';
-	recv(clientSocket, buffer, buffer_size, 0);
-
-	char* reader = buffer;
+	char* reader = header.buffer;
 	int resource_type = 0;
-	memcpy_s(&resource_type, sizeOfInt, buffer, sizeOfInt);
+	memcpy_s(&resource_type, sizeOfInt, reader, sizeOfInt);
 	reader += sizeOfInt;
 
-	const unsigned int bytes_read = reader - buffer; //Just in case any changes are made here later.
-
-	//FIXME: I do not work... This'll be easier to debug once I make the Header class.
 	switch (resource_type)
 	{
 	case (int)ResourceType::PNG:
-		SendImage(clientSocket, token_size, token, reader, buffer_size - bytes_read);
+		SendImage(clientSocket, header);
 		break;
 	}
-
-	SendImage(clientSocket, token_size, token, reader, buffer_size - bytes_read);
-
-	delete[] token;
-	delete[] buffer;
 }
 
 //Prolly gonna send the user's token back to them at some point, just to verify this message, but for now... meh
 //FIXME: make me actually work, there's some funnky stuff going on with getting the image name, and that's the only problem...
-void WindowsInterpreter::SendImage(const SOCKET clientSocket, const unsigned int token_size, const unsigned char* token, const char* buffer, unsigned int sizeOfBuffer)
+void WindowsInterpreter::SendImage(const SOCKET clientSocket, const Header& header)
 {
 	constexpr static const Command command = Command::RequestData;
 	constexpr static const ResourceType type = ResourceType::PNG;
 	constexpr static const char suffix[] = ".png";
-	const char* reader = buffer;
+	const char* reader = header.buffer + sizeof(int);
 
 	char* image_name; //TODO: review if this is the best, or if this method should be limited to just pfps
 	
-	reader += token_size;
+	//FIXME: My atrocious naming convention... It's 1:00AM. Help.
 	const unsigned int name_size = strlen(reader);
-	
-	image_name = new char[name_size + sizeof(suffix)]; 
+	const unsigned int image_name_size = name_size + sizeof(suffix);
+
+	image_name = new char[image_name_size]; 
 	memcpy_s(image_name, name_size, reader, name_size);
 	memcpy_s(image_name + name_size, sizeof(suffix), suffix, sizeof(suffix));
 
@@ -259,8 +241,8 @@ void WindowsInterpreter::SendImage(const SOCKET clientSocket, const unsigned int
 	
 	FileOps fop = FileOps();
 	char* full_file_path = new char[full_name_size];
-	memcpy_s(full_file_path,								file_path_size,		file_path,		file_path_size);
-	memcpy_s(full_file_path + file_path_size,				name_size,			image_name,		name_size);
+	memcpy_s(full_file_path,					file_path_size,		file_path,		file_path_size);
+	memcpy_s(full_file_path + file_path_size,	image_name_size,	image_name,		image_name_size);
 
 	const char* data = fop.ReadFullFile(full_file_path, false);
 	const unsigned int file_size = fop.FileSize();
@@ -272,7 +254,8 @@ void WindowsInterpreter::SendImage(const SOCKET clientSocket, const unsigned int
 	char* message = new char[message_size];
 	char* writer = message;
 	
-
+	const unsigned int& token_size = header.token_size;
+	const char* token = header.token;
 	//CMD + ts + tok + ms + type + data
 	memcpy_s(writer,				sizeOfInt,	&command,		sizeOfInt);
 	memcpy_s(writer += sizeOfInt,	sizeOfInt,	&token_size,	sizeOfInt);

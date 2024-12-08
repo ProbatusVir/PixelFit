@@ -3,6 +3,7 @@
 #include "Constants.h"
 #include "CommandSet.h"
 #include "DiscussionPost.h"
+#include "Header.h"
 
 #include <WinSock2.h>
 #include <unordered_map>
@@ -37,7 +38,7 @@ private:
 	void CreateMessagePacket(DiscussionPost& post , unsigned int& packetSize);
 	void ReceiveImage(const SOCKET& clientSocket);
 	void SendData(const SOCKET clientSocket);
-	void SendImage(const SOCKET clientSocket, const unsigned int token_size, const unsigned char* token, const char* buffer, unsigned int sizeOfBuffer);
+	void SendImage(const SOCKET clientSocket, const Header& header);
 	void LogOut(const SOCKET clientSocket);
 	User* FindUserByToken(const char* clientSocket);
 	User* FindUserByToken (const std::string& clientSocket);
