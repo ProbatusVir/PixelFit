@@ -105,7 +105,7 @@ class ServerConnect private constructor() {
                 else -> println("Received unexpected command")
             }
         }
-    }
+    } 
 
     /**
      * Read in an integer from the ByteStream. Used in ListenForServer
