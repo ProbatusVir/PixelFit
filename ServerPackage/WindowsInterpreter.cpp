@@ -135,7 +135,7 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 
 	}
 	else {
-		static constexpr const char* failedAttempt = "Unauthorized username or password";
+		static constexpr const char failedAttempt[] = "Unauthorized username or password";
 		static constexpr const unsigned int sizeOfResponse = sizeOfInt * 2 + sizeof(failedAttempt);
 		static constexpr unsigned int failed = (unsigned int)MessageResult::Failed;
 		static constexpr unsigned int lengthOfFailedAttempt = sizeof(failedAttempt) - 1;
