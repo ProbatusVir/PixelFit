@@ -10,7 +10,7 @@ int main(int argc, char** argv)
 {
 #if defined(_WIN32)
 	int selectLan = 0;
-	if (argc > 0)
+	if (argc > 1)
 		selectLan = atoi(argv[1]);
 	else 
 	{
