@@ -18,7 +18,7 @@
 	};
 
 	enum class ResourceType : int {
-		PNG = 0x89504E47
+		PNG = 1196314761 //This makes MUCH more sense on the Kotlin side, I swear.
 	};
 
 	enum class MessageResult : int {
