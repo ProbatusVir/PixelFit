@@ -172,30 +172,28 @@ void WindowsInterpreter::MessageToServer(const SOCKET& clientSocket)
 //TODO: Can probably clean this up too.
 void WindowsInterpreter::SendMessageToClient(const SOCKET& clientSocket, bool success)
 {
+	static constexpr const char success_message[] = "Message Received";
+	static constexpr const char fail_message[] = "Error reading message";
+	unsigned int command;
+	unsigned int message_length;
+	const char* message;
 	if (success) {
-		static constexpr const char* message = "Message Received";
-		static constexpr unsigned int messageLength = sizeof(message);
-		static constexpr unsigned int command = (unsigned int)MessageResult::Success;
-		static constexpr unsigned int packetSize = messageLength + sizeOfInt * 2;
-		
-		char response[packetSize];
-		memcpy_s(response, sizeOfInt, &command, sizeOfInt);
-		memcpy_s(response + sizeOfInt, sizeOfInt, &messageLength, sizeOfInt);
-		memcpy_s(response + sizeOfInt * 2, messageLength, message, messageLength);
-		send(clientSocket, response, packetSize, 0);
+		message = success_message;
+		command = (unsigned int)MessageResult::Success;
+		message_length = sizeof(success_message);
 	}
 	else {
-		static constexpr const char message[] = "Error reading message";
-		static constexpr const unsigned int messageLength = sizeof(message);
-		static constexpr const unsigned int command = (unsigned int)MessageResult::Failed;
-		static constexpr const unsigned int packetSize = messageLength + sizeOfInt * 2;
-		
-		char response[packetSize];
-		memcpy_s(response, sizeOfInt, &command, sizeOfInt);
-		memcpy_s(response + sizeOfInt, sizeOfInt, &messageLength, sizeOfInt);
-		memcpy_s(response + sizeOfInt * 2, messageLength, message, messageLength);
-		send(clientSocket, response, packetSize, 0);
+		message = fail_message;
+		message_length = sizeof(fail_message);
+		command = (unsigned int)MessageResult::Failed;
 	}
+
+	const unsigned int packet_size = message_length + sizeOfInt * 2;
+	char response[packetSize];
+	memcpy_s(response, sizeOfInt, &command, sizeOfInt);
+	memcpy_s(response + sizeOfInt, sizeOfInt, &message_length, sizeOfInt);
+	memcpy_s(response + sizeOfInt * 2, message_length, message, message_length);
+	send(clientSocket, response, packetSize, 0);
 }
 
 void WindowsInterpreter::SendData(const SOCKET clientSocket)
@@ -224,27 +222,20 @@ void WindowsInterpreter::SendImage(const SOCKET clientSocket, const Header& head
 	constexpr static const char suffix[] = ".png";
 	const char* reader = header.buffer + sizeof(int);
 
-	char* image_name; //TODO: review if this is the best, or if this method should be limited to just pfps
-	
-	//FIXME: My atrocious naming convention... It's 1:00AM. Help.
-	const unsigned int name_size = strlen(reader);
-	const unsigned int image_name_size = name_size + sizeof(suffix);
-
-	image_name = new char[image_name_size]; 
-	memcpy_s(image_name, name_size, reader, name_size);
-	memcpy_s(image_name + name_size, sizeof(suffix), suffix, sizeof(suffix));
-
-
-	const char* file_path = EnvironmentFile::Instance()->FetchEnvironmentVariable("file_save_path");
-	const unsigned int file_path_size = strlen(file_path);
-	const unsigned int full_name_size = file_path_size + name_size;
+	char* image_name;
 	
 	FileOps fop = FileOps();
-	char* full_file_path = new char[full_name_size];
-	memcpy_s(full_file_path,					file_path_size,		file_path,		file_path_size);
-	memcpy_s(full_file_path + file_path_size,	image_name_size,	image_name,		image_name_size);
+	const char* file_path = EnvironmentFile::Instance()->FetchEnvironmentVariable("file_save_path");
+	const unsigned int file_path_size = strlen(file_path);
+	const unsigned int name_size = strlen(reader);
 
-	const char* data = fop.ReadFullFile(full_file_path, false);
+	image_name = new char[file_path_size + name_size + sizeof(suffix)];
+	memcpy_s(image_name,								file_path_size, file_path,	file_path_size);
+	memcpy_s(image_name + file_path_size,				name_size,		reader,		name_size);
+	memcpy_s(image_name + file_path_size +	name_size,	sizeof(suffix), suffix,		sizeof(suffix));
+
+
+	const char* data = fop.ReadFullFile(image_name, false);
 	const unsigned int file_size = fop.FileSize();
 	
 	//Create message
