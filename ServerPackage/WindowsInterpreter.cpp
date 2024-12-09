@@ -198,7 +198,7 @@ void WindowsInterpreter::SendMessageToClient(const SOCKET& clientSocket, bool su
 
 void WindowsInterpreter::SendData(const SOCKET clientSocket)
 {
-	Header header(clientSocket);
+	InboundPacket header(clientSocket);
 
 	char* reader = header.buffer;
 	int resource_type = 0;
@@ -215,7 +215,7 @@ void WindowsInterpreter::SendData(const SOCKET clientSocket)
 
 //Prolly gonna send the user's token back to them at some point, just to verify this message, but for now... meh
 //FIXME: make me actually work, there's some funnky stuff going on with getting the image name, and that's the only problem...
-void WindowsInterpreter::SendImage(const SOCKET clientSocket, const Header& header)
+void WindowsInterpreter::SendImage(const SOCKET clientSocket, const InboundPacket& header)
 {
 	constexpr static const Command command = Command::RequestData;
 	constexpr static const ResourceType type = ResourceType::PNG;
@@ -240,38 +240,24 @@ void WindowsInterpreter::SendImage(const SOCKET clientSocket, const Header& head
 	
 	//Create message
 
-	//FIXME: Find out if this can be sent as two messages rather than reinitializing this HUGE array just to add 4 bytes
 	const unsigned int message_size = (unsigned int)(sizeof(type) + file_size); //no null
-	//char* message = new char[message_size];
-	//char* writer = message;
-	//
-	//const unsigned int& token_size = header.token_size;
-	//const char* token = header.token;
-	//
-	//
-	////CMD + ts + tok + ms + type + data
-	//memcpy_s(writer,				sizeOfInt,	&command,		sizeOfInt);
-	//memcpy_s(writer += sizeOfInt,	sizeOfInt,	&token_size,	sizeOfInt);
-	//memcpy_s(writer += sizeOfInt,	token_size, token,			token_size);
-	//memcpy_s(writer += token_size,	sizeOfInt,	&message_size,	sizeOfInt);
-	//memcpy_s(writer += sizeOfInt,	sizeOfInt,	&type,			sizeOfInt);
-	//memcpy_s(writer += sizeOfInt,	file_size,	data,			file_size);
 
-	Header outHeader(command, header.token_size, header.token, message_size, data);
+
+	OutboundHeader outHeader(command, header.token_size, header.token, message_size);
+
 	send(clientSocket, outHeader.Serialize(), message_size, 0);
-	
-	const char* read_point = data;
-	for (size_t bytesLeft = message_size; bytesLeft;)
-	{
-		const size_t packet_size = min(bytesLeft, PACKET_SIZE);
-		
+	send(clientSocket, (char*)&type, sizeof(type), 0);
 
-		send(clientSocket, message, (int)message_size, 0);
-		bytesLeft -= 
+	const char* read_point = data;
+	for (size_t bytes_left = message_size; bytes_left;)
+	{
+		const size_t packet_size = min(bytes_left, PACKET_SIZE);
+		
+		send(clientSocket, read_point, (int)packet_size, 0);
+		bytes_left -= packet_size;
+		read_point += packet_size;
 	}
 
-	//No clue why this delete is screwing things up
-	//delete[] message;
 	delete[] image_name;
 }
 
@@ -387,7 +373,7 @@ void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
 {
 	static constexpr const char file_ext[] = ".png";
 	static constexpr unsigned int wait_period = 5; //seconds
-	Header header(clientSocket, wait_period);
+	InboundPacket header(clientSocket, wait_period);
 	
 	const char* file_buffer = header.buffer;
 	const unsigned int file_size = header.buffer_size;

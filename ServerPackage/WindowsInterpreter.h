@@ -38,7 +38,7 @@ private:
 	void CreateMessagePacket(DiscussionPost& post , const size_t packetSize);
 	void ReceiveImage(const SOCKET& clientSocket);
 	void SendData(const SOCKET clientSocket);
-	void SendImage(const SOCKET clientSocket, const Header& header);
+	void SendImage(const SOCKET clientSocket, const InboundPacket& header);
 	void LogOut(const SOCKET clientSocket);
 	User* FindUserByToken(const char* clientSocket);
 	User* FindUserByToken (const std::string& clientSocket);
