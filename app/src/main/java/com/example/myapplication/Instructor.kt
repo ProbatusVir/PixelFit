@@ -7,12 +7,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 class Instructor : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
+    private lateinit var searchView: SearchView
     private var mList = ArrayList<InstructorData>()
     private lateinit var mAdapter: InstructorAdapter
 
@@ -27,6 +29,7 @@ class Instructor : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_instructor, container, false)
+        searchView = view.findViewById(R.id.search_view)
         recyclerView = view.findViewById(R.id.recycler_view)
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -40,6 +43,6 @@ class Instructor : Fragment() {
     }
 
     private fun addDataToList() {
-        //mList.add(InstructorData("Title", "description", "https://www.youtube.com/watch?v=IODxDxX7oi4"))
+        mList.add(InstructorData("Title", "description", "https://www.youtube.com/watch?v=IODxDxX7oi4"))
     }
 }
