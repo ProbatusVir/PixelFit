@@ -8,7 +8,6 @@
             tools:context=".Instructor"
             android:background="@drawable/gradients" tools:ignore="ExtraText">
 
-    <!-- TODO: Update blank fragment layout -->
     <androidx.cardview.widget.CardView
             android:id="@+id/search_bar"
             android:layout_width="match_parent"
