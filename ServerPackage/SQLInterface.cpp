@@ -128,10 +128,10 @@ void SQLInterface::LoadCredentials()
 
 	const char* dsn = loader->FetchEnvironmentVariable("dsn");
 	const char* db_name = loader->FetchEnvironmentVariable("db_name");
-	unsigned int dsn_length = strlen(dsn);
-	unsigned int db_name_length = strlen(db_name);
+	const size_t dsn_length = strlen(dsn);
+	const size_t db_name_length = strlen(db_name);
 
-	const unsigned int buff_size = static_size + dsn_length + db_name_length;
+	const size_t buff_size = static_size + dsn_length + db_name_length;
 	connStr = new char[buff_size];
 	char* write_point = connStr;
 	

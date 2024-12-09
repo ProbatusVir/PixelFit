@@ -3,10 +3,10 @@
 Tokenizer::Tokenizer(const char* message, const char delim)
 {
 	//Determine number of fields
-	const unsigned int message_length = strlen(message);
+	const size_t message_length = strlen(message);
 	m_fields = 1;
 
-	for (int i = 0; i < message_length; i++)
+	for (size_t i = 0; i < message_length; i++)
 		m_fields += message[i] == delim;
 
 	Initialize(message, delim);
@@ -17,7 +17,7 @@ void Tokenizer::Initialize(const char* message, const char delim)
 	const char delimiter[] = { delim, '\0' };
 	m_container = new char* [m_fields];
 	const char* seeker = message;
-	unsigned char token_length = 0;
+	size_t token_length = 0;
 
 	for (unsigned int i = 0; i < m_fields; i++)
 	{
@@ -37,7 +37,7 @@ void Tokenizer::Initialize(const char* message, const char delim)
 
 void Tokenizer::DestroyTokens()
 {
-	for (int i = 0; i < m_fields; i++)
+	for (size_t i = 0; i < m_fields; i++)
 		delete[] m_container[i];
 
 	if (m_container)

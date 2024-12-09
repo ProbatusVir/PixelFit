@@ -62,10 +62,10 @@ User CommandSet::NewUser(const char* buffer, bool& success)
 	const char* email = tokens[2];
 	const char* password = tokens[3];
 
-	const int name_length = strlen(name);
-	const int username_length = strlen(username);
-	const int email_length = strlen(email);
-	const int password_length = strlen(password);
+	const size_t name_length = strlen(name);
+	const size_t username_length = strlen(username);
+	const size_t email_length = strlen(email);
+	const size_t password_length = strlen(password);
 
 	const bool dataFits = !(name_length > nameSize || username_length > usernameSize || email_length > emailSize || password_length > passwordSize);
 	const bool dataNonZero = name_length && username_length && email_length && password_length;
