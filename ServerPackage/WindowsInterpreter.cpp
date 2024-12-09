@@ -111,7 +111,7 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 {
 	if (success) {
 
-		static constexpr unsigned int sizeOfToken = hashSize + 1;
+		static constexpr unsigned int sizeOfToken = HASH_SIZE + 1;
 		static constexpr unsigned int sizeOfResponse = sizeOfInt * 2 + sizeOfToken;
 		static constexpr unsigned int msgSuccess = (int)MessageResult::LoginSuccess;
 		char response[sizeOfResponse];
@@ -189,11 +189,11 @@ void WindowsInterpreter::SendMessageToClient(const SOCKET& clientSocket, bool su
 	}
 
 	const unsigned int packet_size = message_length + sizeOfInt * 2;
-	char response[packetSize];
+	char response[PACKET_SIZE];
 	memcpy_s(response, sizeOfInt, &command, sizeOfInt);
 	memcpy_s(response + sizeOfInt, sizeOfInt, &message_length, sizeOfInt);
 	memcpy_s(response + sizeOfInt * 2, message_length, message, message_length);
-	send(clientSocket, response, packetSize, 0);
+	send(clientSocket, response, PACKET_SIZE, 0);
 }
 
 void WindowsInterpreter::SendData(const SOCKET clientSocket)
@@ -242,20 +242,33 @@ void WindowsInterpreter::SendImage(const SOCKET clientSocket, const Header& head
 
 	//FIXME: Find out if this can be sent as two messages rather than reinitializing this HUGE array just to add 4 bytes
 	const unsigned int message_size = (unsigned int)(sizeof(type) + file_size); //no null
-	char* message = new char[message_size];
-	char* writer = message;
-	
-	const unsigned int& token_size = header.token_size;
-	const char* token = header.token;
-	//CMD + ts + tok + ms + type + data
-	memcpy_s(writer,				sizeOfInt,	&command,		sizeOfInt);
-	memcpy_s(writer += sizeOfInt,	sizeOfInt,	&token_size,	sizeOfInt);
-	memcpy_s(writer += sizeOfInt,	token_size, token,			token_size);
-	memcpy_s(writer += token_size,	sizeOfInt,	&message_size,	sizeOfInt);
-	memcpy_s(writer += sizeOfInt,	sizeOfInt,	&type,			sizeOfInt);
-	memcpy_s(writer += sizeOfInt,	file_size,	data,			file_size);
+	//char* message = new char[message_size];
+	//char* writer = message;
+	//
+	//const unsigned int& token_size = header.token_size;
+	//const char* token = header.token;
+	//
+	//
+	////CMD + ts + tok + ms + type + data
+	//memcpy_s(writer,				sizeOfInt,	&command,		sizeOfInt);
+	//memcpy_s(writer += sizeOfInt,	sizeOfInt,	&token_size,	sizeOfInt);
+	//memcpy_s(writer += sizeOfInt,	token_size, token,			token_size);
+	//memcpy_s(writer += token_size,	sizeOfInt,	&message_size,	sizeOfInt);
+	//memcpy_s(writer += sizeOfInt,	sizeOfInt,	&type,			sizeOfInt);
+	//memcpy_s(writer += sizeOfInt,	file_size,	data,			file_size);
 
-	send(clientSocket, message, (int)message_size, 0);
+	Header outHeader(command, header.token_size, header.token, message_size, data);
+	send(clientSocket, outHeader.Serialize(), message_size, 0);
+	
+	const char* read_point = data;
+	for (size_t bytesLeft = message_size; bytesLeft;)
+	{
+		const size_t packet_size = min(bytesLeft, PACKET_SIZE);
+		
+
+		send(clientSocket, message, (int)message_size, 0);
+		bytesLeft -= 
+	}
 
 	//No clue why this delete is screwing things up
 	//delete[] message;

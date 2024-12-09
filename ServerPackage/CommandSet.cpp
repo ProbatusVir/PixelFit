@@ -27,7 +27,7 @@ User CommandSet::LoginUser(const char* buffer, bool& success)
 
 	char* checkPass = User::HashPassword(password);
 
-	const bool error = !(strlen((char*)checkPass) <= passwordSize) && (strlen(username) <= usernameSize);
+	const bool error = !(strlen((char*)checkPass) <= PASSWORD_SIZE) && (strlen(username) <= USERNAME_SIZE);
 
 	if (!error) {
 		int comparedPass = -1;
@@ -67,7 +67,7 @@ User CommandSet::NewUser(const char* buffer, bool& success)
 	const size_t email_length = strlen(email);
 	const size_t password_length = strlen(password);
 
-	const bool dataFits = !(name_length > nameSize || username_length > usernameSize || email_length > emailSize || password_length > passwordSize);
+	const bool dataFits = !(name_length > NAME_SIZE || username_length > USERNAME_SIZE || email_length > EMAIL_SIZE || password_length > PASSWORD_SIZE);
 	const bool dataNonZero = name_length && username_length && email_length && password_length;
 	const bool dataParsedProperly = name_length + username_length + email_length + password_length == strlen(buffer) - (fields - 1);
 	

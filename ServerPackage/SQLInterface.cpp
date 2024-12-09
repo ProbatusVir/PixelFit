@@ -45,7 +45,7 @@ void SQLInterface::ConnectToDB()
 	// This looks for the .env file in the directory and will load your credentials to then get access to the db
 	SQLRETURN henvironment_state;
 	SQLRETURN hconnection_state;
-	SQLRETURN connection_state;
+	//SQLRETURN connection_state;
 	SQLRETURN driver_state;
 
 	//Set up environment
@@ -224,10 +224,10 @@ bool SQLInterface::InsertNewUser(const char* name, const char* username, const c
 
 		//iUserID	nvcName	nvcEmailAddress	nvcUserName nvcPasswordHash
 
-		HandleBindOfChars(statement, 1, nameSize, name);
-		HandleBindOfChars(statement, 2, emailSize, email);
-		HandleBindOfChars(statement, 3, usernameSize, username);
-		HandleBindOfChars(statement, 4, hashSize, password);
+		HandleBindOfChars(statement, 1, NAME_SIZE, name);
+		HandleBindOfChars(statement, 2, EMAIL_SIZE, email);
+		HandleBindOfChars(statement, 3, USERNAME_SIZE, username);
+		HandleBindOfChars(statement, 4, HASH_SIZE, password);
 
 		result = SQLExecute(statement);
 		if (result == SQL_SUCCESS || result == SQL_SUCCESS_WITH_INFO) {
@@ -259,7 +259,7 @@ std::vector<std::string> SQLInterface::ReturnEval(SQLRETURN result, SQLHSTMT& st
 {
 	std::vector<std::string> data;
 	if (result == SQL_SUCCESS || result == SQL_SUCCESS_WITH_INFO) {
-		SQLCHAR columnData[passwordSize];
+		SQLCHAR columnData[PASSWORD_SIZE];
 		SQLLEN indicator;
 		SQLBindCol(statement,
 			1,
