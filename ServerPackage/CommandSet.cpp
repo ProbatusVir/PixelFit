@@ -19,7 +19,7 @@ User CommandSet::LoginUser(const char* buffer, bool& success)
 {
 	success = false;
 
-	constexpr const unsigned int fields = 2;
+	constexpr const size_t fields = 2;
 	Tokenizer tokens(buffer, fields);
 
 	const char* username = tokens[0];
@@ -55,7 +55,7 @@ User CommandSet::LoginUser(const char* buffer, bool& success)
 User CommandSet::NewUser(const char* buffer, bool& success)
 {
 	success = false;
-	static constexpr const unsigned int fields = 4;
+	static constexpr const size_t fields = 4;
 	Tokenizer tokens(buffer, fields);
 	const char* name = tokens[0];
 	const char* username = tokens[1];

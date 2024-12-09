@@ -34,8 +34,8 @@ private:
 	bool EnsureSingleTokenInstance(const std::string& token);
 	std::string CreateToken(User& user);
 	void NewDiscussionPost(const SOCKET& clientSocket);
-	void SendPostToClients(const SOCKET&clientSocket, const char* buffer, unsigned int sizeOfBuffer);
-	void CreateMessagePacket(DiscussionPost& post , unsigned int& packetSize);
+	void SendPostToClients(const SOCKET&clientSocket, const char* buffer, const size_t sizeOfBuffer);
+	void CreateMessagePacket(DiscussionPost& post , const size_t packetSize);
 	void ReceiveImage(const SOCKET& clientSocket);
 	void SendData(const SOCKET clientSocket);
 	void SendImage(const SOCKET clientSocket, const Header& header);

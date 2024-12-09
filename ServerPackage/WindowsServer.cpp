@@ -4,6 +4,8 @@
 #include <iostream>
 #include <thread>
 
+void ulongtoaddr(unsigned long n, char ip[16]);
+
 WindowsServer::WindowsServer()
 {
 	AcquireIpAdress();
@@ -94,7 +96,7 @@ void WindowsServer::Start()
 		FD_ZERO(&readFds);
 		FD_SET(serverFd, &readFds);
 
-		int maxFd = serverFd;
+		SOCKET maxFd = serverFd;
 
 		for (const auto& client : _clients) {
 			FD_SET(client, &readFds);
@@ -103,7 +105,7 @@ void WindowsServer::Start()
 			}
 		}
 
-		int activity = select(maxFd + 1, &readFds, NULL, NULL, &timeout);
+		int activity = select((int)(maxFd + 1), &readFds, NULL, NULL, &timeout);
 
 	
 		// Checking activity on the server
@@ -148,9 +150,12 @@ void WindowsServer::Start()
 				sockaddr_in clientAddr = {};
 
 				int clientAddrSize = sizeof(clientAddr);
+
+				char ip[16];
 				// Accepts clients to the server
 				client = accept(serverFd, (sockaddr*)&clientAddr, &clientAddrSize);
-				std::cout << "Client accepted \n";
+				ulongtoaddr(clientAddr.sin_addr.S_un.S_addr, ip);
+				std::cout << "Client accepted.\tIP: " << ip << '\n';
 				if (client == INVALID_SOCKET) {
 					std::cerr << "Socket accept failed\n";
 					closesocket(client);
@@ -285,4 +290,22 @@ void WindowsServer::AcquireIpAdress()
 
 	WSACleanup();
 
+}
+
+//The IP will need to be 16 bytes. 12 for the numbers, 3 for the dots, and 1 for the terminator
+void ulongtoaddr(unsigned long _n, char* ip) {
+	//this is pretty easy to make type-agnostic as a macro
+	unsigned char* n = (unsigned char*)&_n;
+	char seeker = 0;
+	
+	for (int i = 0; i < sizeof(_n); i++, seeker++)
+	{
+		const unsigned char digits = (n[i] ? floor(log10(n[i])) : (unsigned char)0) + 1;
+		n[i];
+		_itoa_s(n[i], ip + seeker, digits + 1, 10);
+		seeker += digits;
+		ip[seeker] = '.';
+	}
+
+	ip[seeker - 1] = '\0';
 }
