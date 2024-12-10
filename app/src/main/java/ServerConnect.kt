@@ -1,4 +1,5 @@
 import android.os.StrictMode
+import com.example.myapplication.MainActivity
 import java.io.*
 import java.net.InetAddress
 import java.net.Socket
@@ -220,24 +221,29 @@ class ServerConnect private constructor() {
     }
 
     private fun receiveData() {
-        val token_size = readHeader()
-        val token = ByteArray(token_size)
-        inputStream!!.read(token, 0, token_size)
+        val tokenSize = readHeader()
+        val token = ByteArray(tokenSize)
+        inputStream!!.read(token, 0, tokenSize)
         //TODO: Add some verification
-        val buffer_size = readHeader()
-        val buffer = ByteArray(buffer_size)
-        inputStream!!.read(buffer, 0, buffer_size)
-
-        when (readHeader())
-        {
-            ResourceType.PNG.int -> receiveImage(buffer)
+        val bufferSize = readHeader()
+        val buffer = ByteArray(bufferSize)
+        var bytesRead = 0
+        while (bytesRead < bufferSize) {
+            bytesRead += inputStream!!.read(buffer, bytesRead, bufferSize - bytesRead)
         }
+        //when (readHeader())
+        //{
+        //    ResourceType.PNG.int -> receiveImage(buffer)
+        //}
+        readHeader()
+        receiveImage(buffer)
     }
 
 
     private fun receiveImage(buffer : ByteArray) {
-        val file = File("coolfile.png")
-        file.writeBytes(buffer)
+        val file = File(MainActivity.CONTEXT?.filesDir,"coolfile.png")
+        val out = FileOutputStream(file)
+        out.write(buffer, Int.SIZE_BYTES, buffer.size - Int.SIZE_BYTES)
 
     }
 
