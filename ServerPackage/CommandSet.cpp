@@ -19,7 +19,7 @@ User CommandSet::LoginUser(const char* buffer, bool& success)
 {
 	success = false;
 
-	constexpr const unsigned int fields = 2;
+	constexpr const size_t fields = 2;
 	Tokenizer tokens(buffer, fields);
 
 	const char* username = tokens[0];
@@ -27,7 +27,7 @@ User CommandSet::LoginUser(const char* buffer, bool& success)
 
 	char* checkPass = User::HashPassword(password);
 
-	const bool error = !(strlen((char*)checkPass) <= passwordSize) && (strlen(username) <= usernameSize);
+	const bool error = !(strlen((char*)checkPass) <= PASSWORD_SIZE) && (strlen(username) <= USERNAME_SIZE);
 
 	if (!error) {
 		int comparedPass = -1;
@@ -55,19 +55,19 @@ User CommandSet::LoginUser(const char* buffer, bool& success)
 User CommandSet::NewUser(const char* buffer, bool& success)
 {
 	success = false;
-	static constexpr const unsigned int fields = 4;
+	static constexpr const size_t fields = 4;
 	Tokenizer tokens(buffer, fields);
 	const char* name = tokens[0];
 	const char* username = tokens[1];
 	const char* email = tokens[2];
 	const char* password = tokens[3];
 
-	const int name_length = strlen(name);
-	const int username_length = strlen(username);
-	const int email_length = strlen(email);
-	const int password_length = strlen(password);
+	const size_t name_length = strlen(name);
+	const size_t username_length = strlen(username);
+	const size_t email_length = strlen(email);
+	const size_t password_length = strlen(password);
 
-	const bool dataFits = !(name_length > nameSize || username_length > usernameSize || email_length > emailSize || password_length > passwordSize);
+	const bool dataFits = !(name_length > NAME_SIZE || username_length > USERNAME_SIZE || email_length > EMAIL_SIZE || password_length > PASSWORD_SIZE);
 	const bool dataNonZero = name_length && username_length && email_length && password_length;
 	const bool dataParsedProperly = name_length + username_length + email_length + password_length == strlen(buffer) - (fields - 1);
 	

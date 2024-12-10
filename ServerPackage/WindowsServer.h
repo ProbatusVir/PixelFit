@@ -16,7 +16,7 @@ public:
 	~WindowsServer();
 	void Start();
 	void Cleanup();
-	const bool IPSetupComplete();
+	const bool IPSetupComplete() const;
 	
 	
 

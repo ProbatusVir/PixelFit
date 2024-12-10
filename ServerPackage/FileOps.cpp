@@ -6,7 +6,7 @@
 #include <iostream>
 
 
-unsigned int FileOps::GetFileSize(const char* file_name) const
+size_t FileOps::GetFileSize(const char* file_name)
 {
 	try
 	{
@@ -27,7 +27,7 @@ unsigned int FileOps::GetFileSize(const char* file_name) const
 /// <returns>A pointer to the FileOps internal buffer.</returns>
 const char* const FileOps::ReadFullFile(const char* file_name, bool null_terminate)
 {
-	const unsigned int file_size = GetFileSize(file_name);
+	const size_t file_size = GetFileSize(file_name);
 
 	m_file_size = file_size;
 
@@ -40,7 +40,7 @@ const char* const FileOps::ReadFullFile(const char* file_name, bool null_termina
 }
 
 //If the buffer already exists, its size is already known.
-void FileOps::WriteFileToBuffer(const char* file_name, char* buffer, const unsigned int bytes_to_read) const
+void FileOps::WriteFileToBuffer(const char* file_name, char* buffer, const size_t bytes_to_read) const
 {
 	if (!bytes_to_read) { std::cerr << "There were no bytes to read..."; }
 
@@ -58,7 +58,7 @@ void FileOps::WriteFileToBuffer(const char* file_name, char* buffer, const unsig
 /// <param name="file_size:"> Variable is overwritten to provide the file size to the caller</param>
 /// <returns>The file buffer</returns>
 
-void FileOps::WriteFile(const char* file_name, const char* buffer, const unsigned int buffer_size)
+void FileOps::WriteFile(const char* file_name, const char* buffer, const size_t buffer_size)
 {
 	m_file_buffer = new char[buffer_size];
 
@@ -72,7 +72,7 @@ void FileOps::WriteFile(const char* file_name, const char* buffer, const unsigne
 	file.close();
 }
 
-void FileOps::BufferedWrite(const char* buffer, unsigned int buffer_size)
+void FileOps::BufferedWrite(const char* buffer, const size_t buffer_size)
 {
 	//Copy into new buffer
 	char* new_buffer = new char[m_file_size + buffer_size];
@@ -109,7 +109,7 @@ EnvironmentFile* EnvironmentFile::m_instance = nullptr;
 const char* EnvironmentFile::FetchEnvironmentVariable(const char* variable)
 {
 	Tokenizer tokens(m_file_buffer);
-	unsigned int fields = tokens.Fields();
+	const size_t fields = tokens.Fields();
 
 	//Find the token that starts with the string you're looking for. If it's "DSN" and there is "DSN=DB", return "DB".
 	char** seeker = tokens.Tokens();
@@ -118,7 +118,7 @@ const char* EnvironmentFile::FetchEnvironmentVariable(const char* variable)
 		Tokenizer split(*seeker, 2, '=');
 		if (!strcmp(split[0], variable))
 		{
-			unsigned int token_length = strlen(split[1]);
+			const size_t token_length = strlen(split[1]);
 			char* value = new char[token_length + 1];
 			value[token_length] = '\0';
 			memcpy_s(value, token_length, split[1], token_length);
@@ -137,5 +137,5 @@ void EnvironmentFile::LoadEnvironment()
 	ReadFullFile(file_name, true);
 	
 
-	if (!m_file_buffer) { std::cout << "Error: encountered trouble opening .env file, make sure it exists."; return; }
+	if (!m_file_buffer) { std::cout << "Error: encountered trouble opening .env file, make sure it exists.\n"; return; }
 }

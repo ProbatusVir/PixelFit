@@ -41,6 +41,9 @@ void WindowsInterpreter::InterpretMessage(const SOCKET& clientSocket, Command co
 	case Command::SendImageToServer:
 		ReceiveImage(clientSocket);
 		break;
+	case Command::RequestData: 
+		SendData(clientSocket);
+		break;
 	case Command::LogOut:
 		LogOut(clientSocket);
 		break;
@@ -108,7 +111,7 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 {
 	if (success) {
 
-		static constexpr unsigned int sizeOfToken = hashSize + 1;
+		static constexpr unsigned int sizeOfToken = HASH_SIZE + 1;
 		static constexpr unsigned int sizeOfResponse = sizeOfInt * 2 + sizeOfToken;
 		static constexpr unsigned int msgSuccess = (int)MessageResult::LoginSuccess;
 		char response[sizeOfResponse];
@@ -132,7 +135,7 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 
 	}
 	else {
-		static constexpr const char* failedAttempt = "Unauthorized username or password";
+		static constexpr const char failedAttempt[] = "Unauthorized username or password";
 		static constexpr const unsigned int sizeOfResponse = sizeOfInt * 2 + sizeof(failedAttempt);
 		static constexpr unsigned int failed = (unsigned int)MessageResult::Failed;
 		static constexpr unsigned int lengthOfFailedAttempt = sizeof(failedAttempt) - 1;
@@ -169,30 +172,95 @@ void WindowsInterpreter::MessageToServer(const SOCKET& clientSocket)
 //TODO: Can probably clean this up too.
 void WindowsInterpreter::SendMessageToClient(const SOCKET& clientSocket, bool success)
 {
+	static constexpr const char success_message[] = "Message Received";
+	static constexpr const char fail_message[] = "Error reading message";
+	unsigned int command;
+	unsigned int message_length;
+	const char* message;
 	if (success) {
-		static constexpr const char* message = "Message Received";
-		static constexpr unsigned int messageLength = sizeof(message);
-		static constexpr unsigned int command = (unsigned int)MessageResult::Success;
-		static constexpr unsigned int packetSize = messageLength + sizeOfInt * 2;
-		
-		char response[packetSize];
-		memcpy_s(response, sizeOfInt, &command, sizeOfInt);
-		memcpy_s(response + sizeOfInt, sizeOfInt, &messageLength, sizeOfInt);
-		memcpy_s(response + sizeOfInt * 2, messageLength, message, messageLength);
-		send(clientSocket, response, packetSize, 0);
+		message = success_message;
+		command = (unsigned int)MessageResult::Success;
+		message_length = sizeof(success_message);
 	}
 	else {
-		static constexpr const char message[] = "Error reading message";
-		static constexpr const unsigned int messageLength = sizeof(message);
-		static constexpr const unsigned int command = (unsigned int)MessageResult::Failed;
-		static constexpr const unsigned int packetSize = messageLength + sizeOfInt * 2;
-		
-		char response[packetSize];
-		memcpy_s(response, sizeOfInt, &command, sizeOfInt);
-		memcpy_s(response + sizeOfInt, sizeOfInt, &messageLength, sizeOfInt);
-		memcpy_s(response + sizeOfInt * 2, messageLength, message, messageLength);
-		send(clientSocket, response, packetSize, 0);
+		message = fail_message;
+		message_length = sizeof(fail_message);
+		command = (unsigned int)MessageResult::Failed;
 	}
+
+	const unsigned int packet_size = message_length + sizeOfInt * 2;
+	char response[PACKET_SIZE];
+	memcpy_s(response, sizeOfInt, &command, sizeOfInt);
+	memcpy_s(response + sizeOfInt, sizeOfInt, &message_length, sizeOfInt);
+	memcpy_s(response + sizeOfInt * 2, message_length, message, message_length);
+	send(clientSocket, response, PACKET_SIZE, 0);
+}
+
+void WindowsInterpreter::SendData(const SOCKET clientSocket)
+{
+	InboundPacket header(clientSocket);
+
+	char* reader = header.buffer;
+	int resource_type = 0;
+	memcpy_s(&resource_type, sizeOfInt, reader, sizeOfInt);
+	reader += sizeOfInt;
+
+	switch (resource_type)
+	{
+	case (int)ResourceType::PNG:
+		SendImage(clientSocket, header);
+		break;
+	}
+}
+
+//Prolly gonna send the user's token back to them at some point, just to verify this message, but for now... meh
+//FIXME: make me actually work, there's some funnky stuff going on with getting the image name, and that's the only problem...
+void WindowsInterpreter::SendImage(const SOCKET clientSocket, const InboundPacket& header)
+{
+	constexpr static const Command command = Command::RequestData;
+	constexpr static const ResourceType type = ResourceType::PNG;
+	constexpr static const char suffix[] = ".png";
+	const char* reader = header.buffer + sizeof(int);
+
+	char* image_name;
+	FileOps fop = FileOps();
+
+	const char* file_path = EnvironmentFile::Instance()->FetchEnvironmentVariable("file_save_path");
+	const size_t file_path_size = strlen(file_path);
+	const size_t name_size = strlen(reader);
+
+	image_name = new char[file_path_size + name_size + sizeof(suffix)];
+	memcpy_s(image_name,								file_path_size, file_path,	file_path_size);
+	memcpy_s(image_name + file_path_size,				name_size,		reader,		name_size);
+	memcpy_s(image_name + file_path_size +	name_size,	sizeof(suffix), suffix,		sizeof(suffix));
+
+
+	const char* data = fop.ReadFullFile(image_name, false);
+	const size_t file_size = fop.FileSize();
+	
+	//Create message
+
+	const unsigned int message_size = (unsigned int)(sizeof(type) + file_size); //no null
+
+
+	OutboundHeader outHeader(command, header.token_size, header.token, message_size);
+
+	const char* out = outHeader.Serialize();
+	
+	send(clientSocket, out, outHeader.serialized_size, 0);
+	send(clientSocket, (char*)&type, sizeof(type), 0);
+
+	const char* read_point = data;
+	for (size_t bytes_left = message_size; bytes_left;)
+	{
+		const size_t packet_size = min(bytes_left, PACKET_SIZE);
+		
+		send(clientSocket, read_point, (int)packet_size, 0);
+		bytes_left -= packet_size;
+		read_point += packet_size;
+	}
+
+	delete[] image_name;
 }
 
 unsigned int WindowsInterpreter::ReadByteHeader(const SOCKET& clientSocket)
@@ -259,18 +327,18 @@ void WindowsInterpreter::NewDiscussionPost(const SOCKET& clientSocket)
 			char messageToSend[1024];
 			char* username = infoToSend.GetAuthor();
 			const char* postDetails = infoToSend.GetPost();
-			const unsigned int usernameSize = strlen(username) + 1;
+			const size_t usernameSize = strlen(username) + 1;
 			username[usernameSize - 1] = '\n';
-			
-			const unsigned int postSize = strlen(postDetails) + 1;
-			const unsigned int detailHeader = usernameSize + postSize;
-			const unsigned int packet = sizeOfInt + postSize + usernameSize + 1;
-			const int length = usernameSize + postSize + sizeOfInt + sizeOfInt;
+			const size_t postSize = strlen(postDetails) + 1;
+			const size_t packet = (unsigned int)(sizeOfInt + postSize + usernameSize + 1);
+			const size_t length = usernameSize + postSize + sizeOfInt + sizeOfInt;
+
+			const unsigned int detailHeader = (unsigned int)(usernameSize + postSize);
 			//messageToSend = new char[packet];
-			memcpy_s(messageToSend, packet, &command, sizeOfInt);
-			memcpy_s(messageToSend + sizeOfInt, packet, &detailHeader, sizeOfInt);
-			memcpy_s(messageToSend + sizeOfInt * 2, packet, username, usernameSize);
-			memcpy_s(messageToSend + sizeOfInt * 2 + usernameSize, packet, postDetails, postSize);
+			memcpy_s(messageToSend,									packet, &command,		sizeOfInt);
+			memcpy_s(messageToSend + sizeOfInt,						packet, &detailHeader,	sizeOfInt);
+			memcpy_s(messageToSend + sizeOfInt * 2,					packet, username,		usernameSize);
+			memcpy_s(messageToSend + sizeOfInt * 2 + usernameSize,	packet, postDetails,	postSize);
 			SendPostToClients(clientSocket, messageToSend, length);
 
 			SendMessageToClient(clientSocket, true);
@@ -281,7 +349,7 @@ void WindowsInterpreter::NewDiscussionPost(const SOCKET& clientSocket)
 	}
 }
 
-void WindowsInterpreter::SendPostToClients(const SOCKET& clientSocket, const char* buffer, unsigned int sizeOfBuffer)
+void WindowsInterpreter::SendPostToClients(const SOCKET& clientSocket, const char* buffer, const size_t sizeOfBuffer)
 {
 	// Does not entirely work
 	char message[sizeOfInt] = { 0 };
@@ -290,7 +358,7 @@ void WindowsInterpreter::SendPostToClients(const SOCKET& clientSocket, const cha
 	for (; clientIter != _clientPairs.end(); clientIter++) {
 		if (clientIter->second.clientSocket != clientSocket) {
 			
-			send(clientIter->second.clientSocket, buffer, sizeOfBuffer, 0);
+			send(clientIter->second.clientSocket, buffer, (int)sizeOfBuffer, 0);
 			recv(clientIter->second.clientSocket, message, sizeOfInt, 0);
 			unsigned int readback = 0;
 			memcpy_s(&readback, sizeOfInt, message, sizeOfInt);
@@ -303,32 +371,24 @@ void WindowsInterpreter::SendPostToClients(const SOCKET& clientSocket, const cha
 
 }
 
-
-
 void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
 {
-	//It is unavoidable to receive the entire user message before file checking.
 	static constexpr const char file_ext[] = ".png";
-	const unsigned int token_size = ReadByteHeader(clientSocket);
-	char* token = new char[token_size + 1]; token[token_size] = '\0';
-	recv(clientSocket, token, token_size, 0);
+	static constexpr unsigned int wait_period = 5; //seconds
+	InboundPacket header(clientSocket, wait_period);
 	
-	const unsigned int file_size = ReadByteHeader(clientSocket);
-	char* file_buffer = new char[file_size];
-
-	//TODO: This is awful...
-	std::this_thread::sleep_for(std::chrono::seconds(5));
-	recv(clientSocket, file_buffer, file_size, 0);
+	const char* file_buffer = header.buffer;
+	const unsigned int file_size = header.buffer_size;
 
 	//Get file name
 	EnvironmentFile* env = EnvironmentFile::Instance();
 	const char* path = env->FetchEnvironmentVariable("file_save_path");
 
-	if (!path) { std::cerr << "Unable to find the \"file_save_path\" variable in your .env file"; return; }
+	if (!path) { std::cerr << "Unable to find the \"file_save_path\" variable in your .env file\n"; return; }
 
-	const char* username = FindUserByToken(token)->Username();
-	const unsigned int username_length = strlen(username);
-	const unsigned int path_length = strlen(path);
+	const char* username = FindUserByToken(header.token)->Username();
+	const size_t username_length = strlen(username);
+	const size_t path_length = strlen(path);
 	char* file_name = new char[path_length + username_length + sizeof(file_ext)];
 	memcpy_s(file_name, path_length, path, path_length);
 	memcpy_s(file_name + path_length, username_length, username, username_length);
@@ -342,9 +402,6 @@ void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
 	//Write to file
 	file.write(file_buffer, file_size);
 	file.close();
-
-	delete[] token;
-	delete[] file_buffer;
 }
 
 void WindowsInterpreter::LogOut(const SOCKET clientSocket)

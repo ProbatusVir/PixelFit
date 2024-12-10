@@ -4,6 +4,8 @@
 #include <iostream>
 #include <thread>
 
+void ulongtoaddr(unsigned long n, char ip[16]);
+
 WindowsServer::WindowsServer()
 {
 	AcquireIpAdress();
@@ -24,7 +26,7 @@ WindowsServer::WindowsServer(int setupIPType)
 	if (setupIPType == 1)
 		AcquireIpAdress();
 	else
-		memcpy_s(_ipAddress, sizeof(_ipAddress), localhost, sizeof(localhost));
+		memcpy_s(_ipAddress, sizeof(_ipAddress), LOCALHOST, sizeof(LOCALHOST));
 	
 	WSAData wsaData;
 
@@ -55,8 +57,8 @@ void WindowsServer::Start()
 
 	address.sin_family = AF_INET;
 
-	address.sin_port = htons(port);
-	std::cout << "Binding to " << _ipAddress << '\n';
+	address.sin_port = htons(PORT);
+	std::cout << "Binding to " << _ipAddress << ':' << PORT << '\n';
 
 	inet_pton(AF_INET, _ipAddress, &address.sin_addr);
 
@@ -94,7 +96,7 @@ void WindowsServer::Start()
 		FD_ZERO(&readFds);
 		FD_SET(serverFd, &readFds);
 
-		int maxFd = serverFd;
+		SOCKET maxFd = serverFd;
 
 		for (const auto& client : _clients) {
 			FD_SET(client, &readFds);
@@ -103,7 +105,7 @@ void WindowsServer::Start()
 			}
 		}
 
-		int activity = select(maxFd + 1, &readFds, NULL, NULL, &timeout);
+		int activity = select((int)(maxFd + 1), &readFds, NULL, NULL, &timeout);
 
 	
 		// Checking activity on the server
@@ -148,9 +150,12 @@ void WindowsServer::Start()
 				sockaddr_in clientAddr = {};
 
 				int clientAddrSize = sizeof(clientAddr);
+
+				char ip[16];
 				// Accepts clients to the server
 				client = accept(serverFd, (sockaddr*)&clientAddr, &clientAddrSize);
-				std::cout << "Client accepted \n";
+				ulongtoaddr(clientAddr.sin_addr.S_un.S_addr, ip);
+				std::cout << "Client accepted.\tIP: " << ip << '\n';
 				if (client == INVALID_SOCKET) {
 					std::cerr << "Socket accept failed\n";
 					closesocket(client);
@@ -178,7 +183,7 @@ void WindowsServer::Cleanup()
 	WSACleanup();
 }
 
-const bool WindowsServer::IPSetupComplete()
+const bool WindowsServer::IPSetupComplete() const
 {
 	return (_ipAddress[0] && _ipAddress[1] != 0);
 }
@@ -285,4 +290,24 @@ void WindowsServer::AcquireIpAdress()
 
 	WSACleanup();
 
+}
+
+
+//12 for possible 4 3-digit numbers. 3 for the dots. 1 for the \0
+void ulongtoaddr(unsigned long _n, char ip[16])
+{
+	//this is pretty easy to make type-agnostic as a macro
+	unsigned char* n = (unsigned char*)&_n;
+	char seeker = 0;
+
+	for (int i = 0; i < sizeof(_n); i++, seeker++)
+	{
+		const unsigned char digits = (n[i] ? (unsigned char)floor(log10(n[i])) : (unsigned char)0) + 1;
+		n[i];
+		_itoa_s(n[i], ip + seeker, digits + 1, 10);
+		seeker += digits;
+		ip[seeker] = '.';
+	}
+
+	ip[seeker - 1] = '\0';
 }

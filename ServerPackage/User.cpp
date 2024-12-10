@@ -4,7 +4,7 @@
 
 
 
-User::User(const char userName[usernameSize])
+User::User(const char userName[USERNAME_SIZE])
 {
 	strcpy_s(_userName, userName);
 	CreateToken();
@@ -35,9 +35,9 @@ void User::RemakeToken()
 
 
 
- char* User::HashPassword(const char password[passwordSize])
+ char* User::HashPassword(const char password[PASSWORD_SIZE])
 {
-	char* hash = new char[hashSize + 1] { 0 };
+	char* hash = new char[HASH_SIZE + 1] { 0 };
 	EVP_MD_CTX* context = EVP_MD_CTX_new();
 	const EVP_MD* sha256 = EVP_sha256();
 	unsigned int lengthOfHash = 0;
@@ -62,15 +62,15 @@ void User::RemakeToken()
 void User::CreateToken()
 {
 	srand(static_cast<unsigned int>(time(nullptr)));
-	unsigned char token[hashSize + 1] = { 0 };
-	for (int i = 0; i < hashSize; i++) {
+	unsigned char token[HASH_SIZE + 1] = { 0 };
+	for (int i = 0; i < HASH_SIZE; i++) {
 		unsigned int random = rand() % 255 + 33;
 		token[i] = (char)random;
 
 	}
 	
 
-	memcpy_s(_token, hashSize, token, hashSize);
-	_token[hashSize] = '\0';
+	memcpy_s(_token, HASH_SIZE, token, HASH_SIZE);
+	_token[HASH_SIZE] = '\0';
 
 }

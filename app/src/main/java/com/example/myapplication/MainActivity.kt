@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import ServerConnect
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuInflater
@@ -16,6 +17,8 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.io.File
+import java.io.FileInputStream
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,9 +28,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var openImageIntent : Intent
 
     val connection = ServerConnect.instance()
+    override fun getApplicationContext(): Context {
+        return super.getApplicationContext()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        CONTEXT = applicationContext
 
         // Inflate the layout
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -76,12 +83,21 @@ class MainActivity : AppCompatActivity() {
 
         // Handle user avatar click (popup menu)
         profile.setOnClickListener {
-            showUserAvatarMenu(it, navController)
+            //showUserAvatarMenu(it, navController)
+            testFeature()
         }
     }
 
-    private fun showUserAvatarMenu(view: View, navController: androidx.navigation.NavController) {
+    fun testFeature()
+    {
+        //This one is for sending an image
+        //startActivityForResult(openImageIntent, OPEN_IMAGE)
+        //This is for requesting an image
+       connection?.requestData("image", ResourceType.PNG)
+    }
 
+    private fun showUserAvatarMenu(view: View, navController: androidx.navigation.NavController) {
+        // Create and show the popup menu
         val popup = PopupMenu(this, view)
         val inflater: MenuInflater = popup.menuInflater
         inflater.inflate(R.menu.menu_main, popup.menu)
@@ -91,9 +107,27 @@ class MainActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.edit_profile_menuitem -> {
 
-                    navController.navigate(R.id.action_HomeFragment_to_profileFragment)
+
                     true
                 }
+
+                R.id.goals_trophies_menuitem -> {
+
+
+                    true
+                }
+
+                R.id.block_list_menuitem -> {
+
+                    true
+                }
+
+                R.id.pending_duels_menuitem -> {
+
+
+                    true
+                }
+
                 R.id.settings_menuitem -> {
 
                     navController.navigate(R.id.action_HomeFragment_to_SettingsFragment)
@@ -106,24 +140,45 @@ class MainActivity : AppCompatActivity() {
         }
 
         popup.show()
+        //click register for making the popup
 
     }
 
-    //override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // val navController = findNavController(R.id.nav_host_fragment_activity_main)
-        // return when (item.itemId) {
-            // R.id.settings_menuitem -> {
-                // Navigate to SettingsFragment
-               // navController.navigate(R.id.action_HomeFragment_to_SettingsFragment)
-              //  true
-            //}
+    //DON'T DELETE
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, returnIntent: Intent?) {
+        super.onActivityResult(requestCode, resultCode, returnIntent)
+        if (resultCode != RESULT_OK) {
+            return
+        }
+        if (requestCode == OPEN_IMAGE) {
+            val returnUri = returnIntent?.data ?: return
+            val pfd = contentResolver.openFileDescriptor(returnIntent!!.data!!, "r")
+            val fis = FileInputStream(pfd!!.fileDescriptor)
+            connection?.sendImageToServer(fis)
+        }
+    }
 
-          //  else -> super.onOptionsItemSelected(item)
-        //}
-    //}
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val navController = findNavController(R.id.nav_host_fragment_activity_main)
+        return when (item.itemId) {
+            R.id.settings_menuitem -> {
+                // Navigate to SettingsFragment
+                navController.navigate(R.id.action_HomeFragment_to_SettingsFragment)
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+    companion object {
+        var CONTEXT : Context? = null
+        const val OPEN_IMAGE = 56
     }
 }
