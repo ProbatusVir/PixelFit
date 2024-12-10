@@ -14,6 +14,11 @@ class InstructorAdapter(var mList : List<InstructorData>) : RecyclerView.Adapter
         val description : TextView = v.findViewById(R.id.description)
     }
 
+    fun setFilteredList(instructorList : List<InstructorData>) {
+        this.mList = instructorList
+        notifyDataSetChanged()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InstructorViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.instructor_layout, parent, false)
         return InstructorViewHolder(view)
