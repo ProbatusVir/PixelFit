@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import ServerConnect
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuInflater
@@ -16,6 +17,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.io.File
 import java.io.FileInputStream
 
 class MainActivity : AppCompatActivity() {
@@ -26,9 +28,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var openImageIntent : Intent
 
     val connection = ServerConnect.instance()
+    override fun getApplicationContext(): Context {
+        return super.getApplicationContext()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        CONTEXT = applicationContext
 
         // Inflate the layout
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -87,7 +93,7 @@ class MainActivity : AppCompatActivity() {
         //This one is for sending an image
         //startActivityForResult(openImageIntent, OPEN_IMAGE)
         //This is for requesting an image
-        connection?.requestData("image", ResourceType.PNG)
+       connection?.requestData("image", ResourceType.PNG)
     }
 
     private fun showUserAvatarMenu(view: View, navController: androidx.navigation.NavController) {
@@ -172,6 +178,7 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
     companion object {
+        var CONTEXT : Context? = null
         const val OPEN_IMAGE = 56
     }
 }
