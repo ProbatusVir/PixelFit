@@ -15,7 +15,7 @@ class InstructorAdapter(var mList : List<InstructorData>) : RecyclerView.Adapter
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InstructorViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.fragment_instructor, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.instructor_layout, parent, false)
         return InstructorViewHolder(view)
     }
 

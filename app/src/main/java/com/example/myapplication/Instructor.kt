@@ -43,6 +43,12 @@ class Instructor : Fragment() {
     }
 
     private fun addDataToList() {
-        mList.add(InstructorData("Title", "description", "https://www.youtube.com/watch?v=IODxDxX7oi4"))
+        mList.add(InstructorData("Push Up",
+            "a bodyweight exercise that targets the chest, shoulders, triceps, and core muscles.",
+            "https://www.youtube.com/watch?v=IODxDxX7oi4"))
+        mList.add(InstructorData("Sit ups", "description", ""))
+        mList.add(InstructorData("Squats", "description", "https://www.youtube.com/watch?v=IODxDxX7oi4"))
+        mList.add(InstructorData("Plank", "description", "https://www.youtube.com/watch?v=IODxDxX7oi4"))
+        mList.add(InstructorData("Lunges", "description", "https://www.youtube.com/watch?v=IODxDxX7oi4"))
     }
 }
