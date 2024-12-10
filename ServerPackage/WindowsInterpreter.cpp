@@ -245,7 +245,9 @@ void WindowsInterpreter::SendImage(const SOCKET clientSocket, const InboundPacke
 
 	OutboundHeader outHeader(command, header.token_size, header.token, message_size);
 
-	send(clientSocket, outHeader.Serialize(), message_size, 0);
+	const char* out = outHeader.Serialize();
+	
+	send(clientSocket, out, outHeader.serialized_size, 0);
 	send(clientSocket, (char*)&type, sizeof(type), 0);
 
 	const char* read_point = data;
