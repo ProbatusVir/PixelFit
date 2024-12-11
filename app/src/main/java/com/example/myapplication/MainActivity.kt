@@ -1,6 +1,6 @@
 package com.example.myapplication
 
-import TokenHelper
+import Loader
 import ServerConnect
 import android.content.Context
 import android.content.Intent
@@ -96,7 +96,14 @@ class MainActivity : AppCompatActivity() {
         //startActivityForResult(openImageIntent, OPEN_IMAGE)
         //This is for requesting an image
        //connection?.requestData("image", ResourceType.PNG)
-        //TokenHelper("You\nKilled\nMy\nDog!\nPrepare\nTo\nDie!")
+        val a = Loader("""src=<iframe embed=utoob.com/coolworkouts/pushup></iframe>
+title=Push ups
+description=What, you don't know what a pushup is? Are you fr?^Get a load of this... this guy doesn't even know how to do a pushup
+equipment=freeweight
+targets=abdominals,bicep,core muscles
+calories=8000/m
+difficulty=2""")
+        val b = a.fetchVariable("tiTlE")
     }
 
     private fun showUserAvatarMenu(view: View, navController: androidx.navigation.NavController) {
