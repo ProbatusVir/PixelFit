@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import TokenHelper
 import ServerConnect
 import android.content.Context
 import android.content.Intent
@@ -17,6 +18,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import org.xml.sax.Parser
 import java.io.File
 import java.io.FileInputStream
 
@@ -83,8 +85,8 @@ class MainActivity : AppCompatActivity() {
 
         // Handle user avatar click (popup menu)
         profile.setOnClickListener {
-            //showUserAvatarMenu(it, navController)
-            testFeature()
+            showUserAvatarMenu(it, navController)
+            //testFeature()
         }
     }
 
@@ -93,7 +95,8 @@ class MainActivity : AppCompatActivity() {
         //This one is for sending an image
         //startActivityForResult(openImageIntent, OPEN_IMAGE)
         //This is for requesting an image
-       connection?.requestData("image", ResourceType.PNG)
+       //connection?.requestData("image", ResourceType.PNG)
+        //TokenHelper("You\nKilled\nMy\nDog!\nPrepare\nTo\nDie!")
     }
 
     private fun showUserAvatarMenu(view: View, navController: androidx.navigation.NavController) {
