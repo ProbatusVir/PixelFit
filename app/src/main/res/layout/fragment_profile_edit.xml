@@ -57,14 +57,13 @@
                 android:textColor="#000000"
                 android:layout_marginBottom="4dp" />
 
-        <TextView
-                android:id="@+id/height_value"
+        <Spinner
+                android:id="@+id/height_spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/height_value"
-                android:textSize="14sp"
-                android:textColor="#666666"
-                android:layout_marginBottom="16dp" />
+                android:entries="@array/height_options"
+                android:layout_marginBottom="16dp"
+                android:minHeight="48dp"/>
 
         <!-- Weight -->
         <TextView
@@ -77,14 +76,13 @@
                 android:textColor="#000000"
                 android:layout_marginBottom="4dp" />
 
-        <TextView
-                android:id="@+id/weight_value"
+        <Spinner
+                android:id="@+id/weight_spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/weight_value"
-                android:textSize="14sp"
-                android:textColor="#666666"
-                android:layout_marginBottom="16dp" />
+                android:entries="@array/weight_options"
+                android:layout_marginBottom="16dp"
+                android:minHeight="48dp"/>
 
         <!-- Sex -->
         <TextView
@@ -97,47 +95,42 @@
                 android:textColor="#000000"
                 android:layout_marginBottom="4dp" />
 
-        <TextView
-                android:id="@+id/sex_value"
+        <Spinner
+                android:id="@+id/sex_spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/sex_value"
-                android:textSize="14sp"
-                android:textColor="#666666"
+                android:entries="@array/sex_options"
+                android:layout_marginBottom="16dp"
+                android:minHeight="48dp"/>
 
-                android:layout_marginBottom="16dp" />
-
+        <!-- Calorie Goal -->
         <TextView
                 android:id="@+id/calorie_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/calorie_goal"
+                android:text="@string/sex_label"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="#000000"
-
                 android:layout_marginBottom="4dp" />
 
-        <TextView
-                android:id="@+id/calorie_value"
+        <Spinner
+                android:id="@+id/calorie_spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/calorie_value"
-                android:textSize="14sp"
-                android:textColor="#666666"
-
-                android:layout_marginBottom="16dp" />
+                android:entries="@array/sex_options"
+                android:layout_marginBottom="16dp"
+                android:minHeight="48dp"/>
 
         <!-- Edit Profile Button -->
         <Button
                 android:id="@+id/btn_edit_profile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/edit_profile"
-                android:backgroundTint="@android:color/holo_blue_light"
+                android:text="@string/save"
+                android:backgroundTint="#FF6200EE"
                 android:textColor="#FFFFFF"
                 android:layout_marginBottom="8dp" />
 
     </LinearLayout>
 </ScrollView>
-

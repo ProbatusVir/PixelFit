@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity() {
 
         // Handle user avatar click (popup menu)
         profile.setOnClickListener {
-            //showUserAvatarMenu(it, navController)
+            showUserAvatarMenu(it, navController)
             testFeature()
         }
     }
@@ -107,24 +107,7 @@ class MainActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.edit_profile_menuitem -> {
 
-
-                    true
-                }
-
-                R.id.goals_trophies_menuitem -> {
-
-
-                    true
-                }
-
-                R.id.block_list_menuitem -> {
-
-                    true
-                }
-
-                R.id.pending_duels_menuitem -> {
-
-
+                    navController.navigate(R.id.action_HomeFragment_to_profileFragment)
                     true
                 }
 
