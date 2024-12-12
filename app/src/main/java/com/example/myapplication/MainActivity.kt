@@ -130,6 +130,21 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    //DON'T DELETE
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, returnIntent: Intent?) {
+        super.onActivityResult(requestCode, resultCode, returnIntent)
+        if (resultCode != RESULT_OK) {
+            return
+        }
+        if (requestCode == OPEN_IMAGE) {
+            val returnUri = returnIntent?.data ?: return
+            val pfd = contentResolver.openFileDescriptor(returnIntent!!.data!!, "r")
+            val fis = FileInputStream(pfd!!.fileDescriptor)
+            connection?.sendImageToServer(fis)
+        }
+    }
+
     override fun onDestroy() {
         val profileViewModel = ProfileViewModel()
         profileViewModel.saveProfileToJson(this, "profile.json")
