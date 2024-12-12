@@ -141,13 +141,16 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    //PSSSSSSSSSSSSSSSSSSSSSSSSST
+    //HEY, YOU SHOULD READ ME
+    //PLEASE READ BELOW
     //DON'T DELETE
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, returnIntent: Intent?) {
         super.onActivityResult(requestCode, resultCode, returnIntent)
         if (resultCode != RESULT_OK) {
             return
-        }
+        } //
         if (requestCode == OPEN_IMAGE) {
             val returnUri = returnIntent?.data ?: return
             val pfd = contentResolver.openFileDescriptor(returnIntent.data!!, "r")
