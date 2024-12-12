@@ -1,5 +1,5 @@
 import java.util.HashMap
 
 object Shared {
-    var directories = HashMap<String, ArrayList<String>>()
+    var directories = HashMap<String, List<String>>()
 }

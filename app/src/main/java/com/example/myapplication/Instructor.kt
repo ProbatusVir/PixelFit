@@ -38,7 +38,7 @@ class Instructor : Fragment() {
         recyclerView = view.findViewById(R.id.recycler_view)
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-
+        ServerConnect.instance()?.requestData("workouts", ResourceType.DIR)
         addDataToList()
 
         mAdapter = InstructorAdapter(mList)

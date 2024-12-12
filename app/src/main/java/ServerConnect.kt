@@ -94,7 +94,7 @@ class ServerConnect private constructor() {
      */
     private fun listenForServer()
     {
-        handleToken()
+        //handleToken()
         while (true)
         {
             val command = readHeader()
@@ -255,9 +255,12 @@ class ServerConnect private constructor() {
     }
 
     private fun receiveDir(buffer : ByteArray) {
-        val file = File(MainActivity.CONTEXT?.filesDir,"dir")
-        val out = FileOutputStream(file)
-        out.write(buffer, Int.SIZE_BYTES, buffer.size - Int.SIZE_BYTES)
+        val data = String(buffer).split(Char(0))
+        val split = data[1].split('\n')
+        val values = split.slice(1 until split.lastIndex)
+
+        Shared.directories[split[0]] = values
+
     }
 
     //Safely close the connection
@@ -283,9 +286,9 @@ class ServerConnect private constructor() {
         fun instance() = INSTANCE
         fun destroyInstance() {INSTANCE?.disconnect(); INSTANCE = null}
         private var INSTANCE : ServerConnect? = ServerConnect()
-        private const val SERVER_NAME = "2.tcp.ngrok.io"
+        private const val SERVER_NAME = "10.0.2.2"
         private const val LOCALHOST = "10.0.2.2"
-        private const val PORT = 10692
+        private const val PORT = 5930
         private const val HASH_SIZE = 32
         private const val LENGTH_OF_COMMAND_AND_MESSAGE_HEADER = Int.SIZE_BYTES * 3 + 1 //This is good for an authenticated read, might have to cut it out later.
         //server endian
