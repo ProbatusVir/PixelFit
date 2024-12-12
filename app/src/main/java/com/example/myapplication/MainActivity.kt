@@ -1,5 +1,7 @@
 package com.example.myapplication
 
+import InstructorAdapter
+import InstructorData
 import ServerConnect
 import android.content.Context
 import android.content.Intent
@@ -9,12 +11,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageButton
 import android.widget.PopupMenu
+import android.widget.SearchView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet.Constraint
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.io.FileInputStream
@@ -24,39 +32,30 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
 
-    private lateinit var openImageIntent : Intent
-
-    val connection = ServerConnect.instance()
-    override fun getApplicationContext(): Context {
-        return super.getApplicationContext()
-    }
+    private val connection = ServerConnect()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        CONTEXT = applicationContext
 
-        // Inflate the layout
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initialize UI components
         val profile = findViewById<ImageButton>(R.id.user_avatar)
+
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
 
-        // Set up the NavHostFragment and NavController
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
-        val navController = navHostFragment.navController
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
 
-        // Set up bottom navigation with NavController
-        val navView: BottomNavigationView = binding.bottomNav
+        val navView : BottomNavigationView = binding.bottomNav
+
+        val navController = navHostFragment.navController
         navView.setupWithNavController(navController)
 
-        // Define top-level destinations
-        appBarConfiguration = AppBarConfiguration(
+        val appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.HomeFragment, R.id.FriendsFragment, R.id.GroupFragment, R.id.InstructorFragment
             )
+
         )
 
         // Show/hide bottom navigation and profile based on destination
@@ -67,6 +66,9 @@ class MainActivity : AppCompatActivity() {
                     profile.visibility = View.GONE
                 }
 
+                R.id.InstructorFragment-> {
+                    profile.visibility = View.GONE
+                }
                 else -> {
                     bottomNav.visibility = View.VISIBLE
                     profile.visibility = View.VISIBLE
@@ -159,7 +161,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
+    //implement this when the screens (fragments???) exist
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         return when (item.itemId) {

@@ -79,8 +79,12 @@ class ServerConnect private constructor() {
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
 
-        try { socket = Socket(serverAddress, PORT) }
-        finally { println("Attempted to make socket") }
+        try {
+            socket = Socket(serverAddress, PORT)
+        }
+        finally {
+            println("Attempted to make socket")
+        }
 
     }
 
@@ -89,6 +93,7 @@ class ServerConnect private constructor() {
      */
     private fun listenForServer()
     {
+        handleToken()
         while (true)
         {
             val command = readHeader()
@@ -107,7 +112,7 @@ class ServerConnect private constructor() {
                 else -> println("Received unexpected command")
             }
         }
-    } 
+    }
 
     /**
      * Read in an integer from the ByteStream. Used in ListenForServer
