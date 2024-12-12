@@ -1,6 +1,5 @@
 package com.example.myapplication
 
-import Loader
 import ServerConnect
 import android.content.Context
 import android.content.Intent
@@ -18,8 +17,6 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import org.xml.sax.Parser
-import java.io.File
 import java.io.FileInputStream
 
 class MainActivity : AppCompatActivity() {
@@ -153,7 +150,7 @@ class MainActivity : AppCompatActivity() {
         }
         if (requestCode == OPEN_IMAGE) {
             val returnUri = returnIntent?.data ?: return
-            val pfd = contentResolver.openFileDescriptor(returnIntent!!.data!!, "r")
+            val pfd = contentResolver.openFileDescriptor(returnIntent.data!!, "r")
             val fis = FileInputStream(pfd!!.fileDescriptor)
             connection?.sendImageToServer(fis)
         }
