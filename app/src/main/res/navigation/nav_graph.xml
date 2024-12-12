@@ -13,6 +13,7 @@
         <action android:id="@+id/action_HomeFragment_to_SettingsFragment" app:destination="@id/SettingsFragment"/>
         <action android:id="@+id/action_HomeFragment_to_profileFragment" app:destination="@id/profileFragment"/>
         <action android:id="@+id/action_HomeFragment_to_profileFragment2" app:destination="@id/profileFragment"/>
+        <action android:id="@+id/action_HomeFragment_to_profileFragment3" app:destination="@id/profileFragment"/>
     </fragment>
 
     <fragment
@@ -60,5 +61,7 @@
         <action android:id="@+id/action_profileFragment_to_profileEdit" app:destination="@id/profileEdit"/>
     </fragment>
     <fragment android:id="@+id/profileEdit" android:name="com.example.myapplication.ProfileEdit"
-              android:label="fragment_profile_edit" tools:layout="@layout/fragment_profile_edit"/>
+              android:label="fragment_profile_edit" tools:layout="@layout/fragment_profile_edit">
+        <action android:id="@+id/action_profileEdit_to_profileFragment" app:destination="@id/profileFragment"/>
+    </fragment>
 </navigation>
