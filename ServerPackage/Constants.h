@@ -1,6 +1,10 @@
 #pragma once
 #include <openssl/sha.h>
+#include <algorithm>
 
+
+consteval int rstrtoint(const char str[sizeof(int)]) { int result = 0; for (int i = 0; i < sizeof(result); i++) result += str[i] * (1 << (8 * i)); return result; }
+consteval int strtoint(const char str[sizeof(int)]) { int result = 0; for (int i = 0; i < sizeof(result); i++) result += str[i] * (1 << (8 * ((sizeof(result) - 1) - i))); return result; }
 
 	enum class Command : int
 	{
@@ -17,8 +21,11 @@
 		RequestData,
 	};
 
+	//No matter what, I guess because of how hex literals work, there is no elegant way of doing this. So these have to be opposite endian of the Kotlin client
 	enum class ResourceType : int {
-		PNG = 1196314761 //This makes MUCH more sense on the Kotlin side, I swear.
+		PNG = rstrtoint("PNG"),
+		DIR = rstrtoint("DIR"),
+		
 	};
 
 	enum class MessageResult : int {
