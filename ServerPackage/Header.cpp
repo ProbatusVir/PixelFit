@@ -2,10 +2,6 @@
 #include <thread>
 #include <chrono>
 
-const char* HackyConcatenator(const size_t fields, const char** data, const size_t* sizes);
-const char* HackyConcatenator(const size_t fields, const char** data, const size_t* sizes, char*& array, size_t& array_size);
-
-
 unsigned int Header::ReadByteHeader(const SOCKET clientSocket)
 {
 	unsigned int byteHeader = 0;
@@ -78,10 +74,8 @@ const char* OutboundHeader::Serialize()
 	//commmand ts, t, bs, buffer			
 	const char* data[] = { (const char*)&command, (const char*)&token_size, (const char*)token, (const char*)&buffer_size};
 	const size_t sizes[] = { sizeof(command),		sizeof(token_size),		token_size,			sizeof(buffer_size)};
-	constexpr static const size_t fields = sizeof(sizes) / sizeof(sizes[0]);
 
-	return HackyConcatenator(fields, data, sizes, serialized, serialized_size);
-	static_assert(sizeof(sizes) / sizeof(sizes[0]) == sizeof(data) / sizeof(data[0]));
+	return CONCATENATEB(data, sizes, serialized, serialized_size);
 }
 
 OutboundPacket::OutboundPacket(Command _command, const unsigned int _tk_size, const char* _token, const unsigned int _bf_size, const char* _buffer) :
@@ -95,10 +89,8 @@ const char* OutboundPacket::Serialize()
 	//commmand ts, t, bs, buffer			
 	const char* data[] = { (const char*)&command, (const char*)&token_size, (const char*)token, (const char*)&buffer_size,	buffer };
 	const size_t sizes[] = { sizeof(command),		sizeof(token_size),		token_size,			sizeof(buffer_size),		buffer_size };
-	constexpr static const size_t fields = sizeof(sizes) / sizeof(sizes[0]);
-
-	return HackyConcatenator(fields, data, sizes, serialized, serialized_size);
-	static_assert(sizeof(sizes) / sizeof(sizes[0]) == sizeof(data) / sizeof(data[0]));
+	
+	return CONCATENATEB(data, sizes, serialized, serialized_size);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,10 +100,8 @@ const char* InboundHeader::Serialize()
 	//ts, t, bs
 	const char* data[] = { (const char*)&token_size, (const char*)token, (const char*)&buffer_size };
 	const size_t sizes[] = { sizeof(token_size),		token_size,			sizeof(buffer_size) };
-	constexpr static const size_t fields = sizeof(sizes) / sizeof(sizes[0]);
 	
-	return HackyConcatenator(fields , data, sizes, serialized, serialized_size);
-	static_assert(sizeof(sizes) / sizeof(sizes[0]) == sizeof(data) / sizeof(data[0]));
+	return CONCATENATEB(data, sizes, serialized, serialized_size);
 }
 
 const char* InboundPacket::Serialize()
@@ -119,25 +109,62 @@ const char* InboundPacket::Serialize()
 	//ts, t, bs, buffer			
 	const char* data[] = { (const char*)&token_size, (const char*)token, (const char*)&buffer_size, buffer };
 	const size_t sizes[] = { sizeof(token_size),		token_size,			sizeof(buffer_size),	buffer_size };
-	constexpr static const size_t fields = sizeof(sizes) / sizeof(sizes[0]);
 
-	return HackyConcatenator(fields, data, sizes, serialized, serialized_size);
-	static_assert(sizeof(sizes) / sizeof(sizes[0]) == sizeof(data) / sizeof(data[0]));
+	return CONCATENATEB(data, sizes, serialized, serialized_size);
 }
 
-//I've been wanting to do something like this, but I still need to workshop this idea...
-const char* HackyConcatenator(const size_t fields, const char** data, const size_t* sizes)
+/// <summary>
+/// Concatenate an arbitrary number of strings, where all sizes are known, and you wish bind the array to a particular address, and wish to capture the array size
+/// </summary>
+/// <param name="fields">The number of items in the data and sizes arrays</param>
+/// <param name="data">An array of data</param>
+/// <param name="sizes:">Array of sizes corresponding to the data values' sizes</param>
+/// <param name="arr:">The pointer variable to be reassigned to point to the new data</param>
+/// <param name="arr_size:">Will be reassigned to the new array's size</param>
+/// <returns></returns>
+const char* Concatenator(const size_t fields, const char** data, const size_t* sizes, char*& array, size_t& array_size)
 {
-	size_t array_size = 0;
-	char* array;
+	if (array)
+		delete[] array;
+	array_size = 0;
+
 	char* write_point;
 	//Get buffer size
 	for (int i = 0; i < fields; i++)
 		array_size += sizes[i];
 
-	array = new char[array_size];
+	array = new char[array_size + 1]; array[array_size] = '\0';
 	write_point = array;
-	
+
+	//Fill buffer
+	for (int i = 0; i < fields; i++)
+	{
+		memcpy(write_point, data[i], sizes[i]);
+		write_point += sizes[i];
+	}
+
+	return array;
+}
+/// <summary>
+/// Concatenate an arbitrary number of fields where all strings are null terminated
+/// </summary>
+/// <param name="fields"></param>
+/// <param name="data"></param>
+/// <returns></returns>
+const char* Concatenator(const size_t fields, const char** data)
+{
+	size_t array_size = 0;
+	char* array;
+	char* write_point;
+	size_t* sizes = new size_t[fields];
+
+	//Get buffer size
+	for (int i = 0; i < fields; i++)
+		array_size += sizes[i] = strlen(data[i]);
+
+	array = new char[array_size + 1]; array[array_size] = '\0';
+	write_point = array;
+
 	//Fill buffer
 	for (int i = 0; i < fields; i++)
 	{
@@ -149,26 +176,22 @@ const char* HackyConcatenator(const size_t fields, const char** data, const size
 }
 
 /// <summary>
-/// 
+/// Concatenate an arbitrary number of fields where all sizes are known
 /// </summary>
-/// <param name="fields">The number of items in the data and sizes arrays</param>
-/// <param name="data">An array of data</param>
-/// <param name="sizes:">Array of sizes corresponding to the data values' sizes</param>
-/// <param name="arr:">The pointer variable to be reassigned to point to the new data</param>
-/// <param name="arr_size:">Will be reassigned to the new array's size</param>
+/// <param name="fields"></param>
+/// <param name="data"></param>
+/// <param name="sizes"></param>
 /// <returns></returns>
-const char* HackyConcatenator(const size_t fields, const char** data, const size_t* sizes, char*& array, size_t& array_size)
+const char* Concatenator(const size_t fields, const char** data, const size_t* sizes)
 {
-	if (array)
-		delete[] array;
-	array_size = 0;
-
+	size_t array_size = 0;
+	char* array;
 	char* write_point;
 	//Get buffer size
 	for (int i = 0; i < fields; i++)
 		array_size += sizes[i];
 
-	array = new char[array_size];
+	array = new char[array_size + 1]; array[array_size] = '\0'; //just in case...
 	write_point = array;
 
 	//Fill buffer

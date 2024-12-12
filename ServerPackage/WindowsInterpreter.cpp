@@ -6,6 +6,7 @@
 #include <thread>
 #include <fstream>
 #include <chrono>
+#include <filesystem>
 
 void WindowsInterpreter::InterpretMessage(const SOCKET& clientSocket, Command command)
 {
@@ -210,6 +211,9 @@ void WindowsInterpreter::SendData(const SOCKET clientSocket)
 	case (int)ResourceType::PNG:
 		SendImage(clientSocket, header);
 		break;
+	case (int)ResourceType::DIR:
+		SendDirectory(clientSocket, header);
+		break;
 	}
 }
 
@@ -222,18 +226,12 @@ void WindowsInterpreter::SendImage(const SOCKET clientSocket, const InboundPacke
 	constexpr static const char suffix[] = ".png";
 	const char* reader = header.buffer + sizeof(int);
 
-	char* image_name;
 	FileOps fop = FileOps();
 
 	const char* file_path = EnvironmentFile::Instance()->FetchEnvironmentVariable("file_save_path");
-	const size_t file_path_size = strlen(file_path);
-	const size_t name_size = strlen(reader);
 
-	image_name = new char[file_path_size + name_size + sizeof(suffix)];
-	memcpy_s(image_name,								file_path_size, file_path,	file_path_size);
-	memcpy_s(image_name + file_path_size,				name_size,		reader,		name_size);
-	memcpy_s(image_name + file_path_size +	name_size,	sizeof(suffix), suffix,		sizeof(suffix));
-
+	const char* components[] = { file_path, reader, suffix };
+	const char* image_name = CONCATENATE(components);
 
 	const char* data = fop.ReadFullFile(image_name, false);
 	const size_t file_size = fop.FileSize();
@@ -261,6 +259,50 @@ void WindowsInterpreter::SendImage(const SOCKET clientSocket, const InboundPacke
 	}
 
 	delete[] image_name;
+}
+
+void WindowsInterpreter::SendDirectory(const SOCKET clientSocket, const InboundPacket& header)
+{
+	constexpr static const Command command = Command::RequestData;
+	constexpr static const ResourceType type = ResourceType::DIR;
+	const char* reader = header.buffer + sizeof(int);
+
+	FileOps fop = FileOps();
+
+	const char* file_path = EnvironmentFile::Instance()->FetchEnvironmentVariable("file_save_path");
+
+	const char* components[] = { file_path, reader };
+	const char* full_directory = CONCATENATE(components);
+
+	std::string data = std::string();
+
+	if (!std::filesystem::is_directory(full_directory))
+	{
+		std::cerr << "Directory \"" << full_directory << "\" not found!\n";
+		return;
+	}
+
+	for (const auto& entry : std::filesystem::directory_iterator(full_directory))
+		data += entry.path().stem().generic_string() + '\n';
+
+	const unsigned int message_size = (unsigned int)(sizeof(type) + data.length());
+
+	OutboundHeader outHeader (command, header.token_size, header.token, message_size);
+
+	const char* out = outHeader.Serialize();
+
+	send(clientSocket, out, outHeader.serialized_size, 0);
+	send(clientSocket, (char*)&type, sizeof(type), 0);
+
+	const char* read_point = data.data();
+	for (size_t bytes_left = message_size; bytes_left;)
+	{
+		const size_t packet_size = min(bytes_left, PACKET_SIZE);
+
+		send(clientSocket, read_point, (int)packet_size, 0);
+		bytes_left -= packet_size;
+		read_point += packet_size;
+	}
 }
 
 unsigned int WindowsInterpreter::ReadByteHeader(const SOCKET& clientSocket)

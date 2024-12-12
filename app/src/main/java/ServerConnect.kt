@@ -30,7 +30,8 @@ enum class Command(val int : Int) {
 
 enum class ResourceType(val int:  Int)
 {
-    PNG(0x89504E47.toInt()), //this is first four bytes of the PNG header.
+    PNG(0x504E4700), //this is first four bytes of the PNG header.
+    DIR(0x44495200)
 }
 
 enum class MessageResult(val int : Int) {
@@ -213,8 +214,7 @@ class ServerConnect private constructor() {
         //        + fileName.toByteArray())
 
         val fileNameAsBA = fileName.toByteArray() //.order(ENDIAN)
-        //val properType = ByteBuffer.allocate(Int.SIZE_BYTES).putInt(type.int).order(ENDIAN).array()
-        val properType = ByteBuffer.allocate(Int.SIZE_BYTES).putInt(type.int).order(ByteOrder.BIG_ENDIAN).array()
+        val properType = ByteBuffer.allocate(Int.SIZE_BYTES).putInt(type.int).array()
         val buffer = properType + fileNameAsBA
         sendToServer(Command.RequestData.int, buffer)
 
@@ -231,12 +231,13 @@ class ServerConnect private constructor() {
         while (bytesRead < bufferSize) {
             bytesRead += inputStream!!.read(buffer, bytesRead, bufferSize - bytesRead)
         }
-        //when (readHeader())
-        //{
-        //    ResourceType.PNG.int -> receiveImage(buffer)
-        //}
-        readHeader()
-        receiveImage(buffer)
+
+        val type = ByteBuffer.wrap(buffer).getInt()
+        when (type)
+        {
+            ResourceType.PNG.int -> receiveImage(buffer)
+            ResourceType.DIR.int -> receiveDir(buffer)
+        }
     }
 
 
@@ -245,6 +246,12 @@ class ServerConnect private constructor() {
         val out = FileOutputStream(file)
         out.write(buffer, Int.SIZE_BYTES, buffer.size - Int.SIZE_BYTES)
 
+    }
+
+    private fun receiveDir(buffer : ByteArray) {
+        val file = File(MainActivity.CONTEXT?.filesDir,"dir")
+        val out = FileOutputStream(file)
+        out.write(buffer, Int.SIZE_BYTES, buffer.size - Int.SIZE_BYTES)
     }
 
     //Safely close the connection
@@ -270,9 +277,9 @@ class ServerConnect private constructor() {
         fun instance() = INSTANCE
         fun destroyInstance() {INSTANCE?.disconnect(); INSTANCE = null}
         private var INSTANCE : ServerConnect? = ServerConnect()
-        private const val SERVER_NAME = "8.tcp.ngrok.io"
+        private const val SERVER_NAME = "2.tcp.ngrok.io"
         private const val LOCALHOST = "10.0.2.2"
-        private const val PORT = 14982
+        private const val PORT = 10692
         private const val HASH_SIZE = 32
         private const val LENGTH_OF_COMMAND_AND_MESSAGE_HEADER = Int.SIZE_BYTES * 3 + 1 //This is good for an authenticated read, might have to cut it out later.
         //server endian

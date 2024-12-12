@@ -1,6 +1,5 @@
 package com.example.myapplication
 
-import TokenHelper
 import ServerConnect
 import android.content.Context
 import android.content.Intent
@@ -18,8 +17,6 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import org.xml.sax.Parser
-import java.io.File
 import java.io.FileInputStream
 
 class MainActivity : AppCompatActivity() {
@@ -92,11 +89,8 @@ class MainActivity : AppCompatActivity() {
 
     fun testFeature()
     {
-        //This one is for sending an image
-        //startActivityForResult(openImageIntent, OPEN_IMAGE)
         //This is for requesting an image
-       //connection?.requestData("image", ResourceType.PNG)
-        //TokenHelper("You\nKilled\nMy\nDog!\nPrepare\nTo\nDie!")
+       connection?.requestData("workouts", ResourceType.DIR)
     }
 
     private fun showUserAvatarMenu(view: View, navController: androidx.navigation.NavController) {
@@ -147,16 +141,19 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    //PSSSSSSSSSSSSSSSSSSSSSSSSST
+    //HEY, YOU SHOULD READ ME
+    //PLEASE READ BELOW
     //DON'T DELETE
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, returnIntent: Intent?) {
         super.onActivityResult(requestCode, resultCode, returnIntent)
         if (resultCode != RESULT_OK) {
             return
-        }
+        } //
         if (requestCode == OPEN_IMAGE) {
             val returnUri = returnIntent?.data ?: return
-            val pfd = contentResolver.openFileDescriptor(returnIntent!!.data!!, "r")
+            val pfd = contentResolver.openFileDescriptor(returnIntent.data!!, "r")
             val fis = FileInputStream(pfd!!.fileDescriptor)
             connection?.sendImageToServer(fis)
         }
