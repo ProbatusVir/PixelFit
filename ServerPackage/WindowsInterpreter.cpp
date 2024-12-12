@@ -274,7 +274,7 @@ void WindowsInterpreter::SendDirectory(const SOCKET clientSocket, const InboundP
 	const char* components[] = { file_path, reader };
 	const char* full_directory = CONCATENATE(components);
 
-	std::string data = std::string();
+	std::string data = std::string(reader) + '\n';
 
 	if (!std::filesystem::is_directory(full_directory))
 	{
