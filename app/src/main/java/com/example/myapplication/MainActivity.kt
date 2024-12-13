@@ -102,28 +102,12 @@ class MainActivity : AppCompatActivity() {
 
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                R.id.edit_profile_menuitem -> {
+                R.id.profile_menuitem -> {
 
 
                     true
                 }
 
-                R.id.goals_trophies_menuitem -> {
-
-
-                    true
-                }
-
-                R.id.block_list_menuitem -> {
-
-                    true
-                }
-
-                R.id.pending_duels_menuitem -> {
-
-
-                    true
-                }
 
                 R.id.settings_menuitem -> {
 
