@@ -1,3 +1,5 @@
+import java.io.File
+import java.io.FileOutputStream
 import java.util.*
 
 object ActiveUser : User() {
@@ -8,18 +10,61 @@ object ActiveUser : User() {
 
     lateinit var name : String
 
+    var sex : Boolean = false //True is male, will consult with Devin
     var caloriesBurned : Double = 0.0
     var calorieGoals : Int = 0
     var timeSpentExercising : Int = 0 // Minutes
 
     var weight : Double = 0.0    //lbs
-    var height : Height //inches
+    var height : Height = Height(0.0)//inches
 
     var partsWorked : BooleanArray = BooleanArray(Parts.entries.size)
 
-    //TODO: Implement these, and remember, we only need to SAVE one user's data.
-    fun loadFromFile() {}
-    fun saveToFile() {}
+    fun loadFromFile() : Boolean {
+        val file = File(Shared.filesDir, FILE_NAME)
+
+        if (!file.exists()) return false
+
+        val variables = Loader(file)
+        name = variables.fetchVariable("name")
+        sex = variables.fetchBooleanVariable("sex")
+        caloriesBurned = variables.fetchDoubleVariable("caloriesBurned")
+        calorieGoals = variables.fetchIntegralVariable("calorieGoals")
+        timeSpentExercising = variables.fetchIntegralVariable("timeSpentExercising")
+        weight = variables.fetchDoubleVariable("weight")
+        height = Height(variables.fetchDoubleVariable("height"))
+        for (part in Parts.entries) {
+            partsWorked[part.ordinal] = variables.fetchBooleanVariable(part.name)
+        }
+
+        if (isOlderThanADay(file))
+        {
+            caloriesBurned = 0.0
+            timeSpentExercising = 0
+            for (i in partsWorked.indices)
+                partsWorked[i] = false
+            saveToFile()
+        }
+        return true
+    }
+    fun saveToFile() {
+        //Things are always saved in freedom units: lbs, in, KCal, minutes, no need for flagging or conversion here.
+        val file = File(Shared.filesDir, FILE_NAME)
+
+        file.writeText("name=$name\n")
+        file.appendText(String.format(Locale.US,"sex=%1s\n", sex))
+        file.appendText(String.format(Locale.US,"caloriesBurned=%.2f\n", caloriesBurned))
+        file.appendText(String.format(Locale.US,"calorieGoals=%d\n", calorieGoals))
+        file.appendText(String.format(Locale.US,"timeSpentExercising=%d\n", timeSpentExercising))
+        file.appendText(String.format(Locale.US,"weight=%.2f\n", weight))
+        file.appendText(String.format(Locale.US, "height=%.2f\n", height.heightInIn()))
+        var partsString = ""
+        for (part in Parts.entries) {
+            partsString += String.format(Locale.US, "%1s=%2b\n", part.name, partsWorked[part.ordinal])
+        }
+        partsString.trimEnd() //The last \n was causing problems
+        file.appendText(partsString)
+    }
 
     fun weight() : Double = if (Preferences.metric) weightInKgs() else weight
     fun displayWeight() : String = weight().toString() + (if (Preferences.metric) "kg" else "lb")
@@ -46,13 +91,17 @@ object ActiveUser : User() {
 
     fun bmi() : Double = weightInKgs() / (height.heightInM() * height.heightInM())
 
-    init {
-        height = Height(0.0)
-        caloriesBurned = 314.0
-        partsWorked[Parts.Arms.ordinal] = true
-        partsWorked[Parts.Legs.ordinal] = true
-        partsWorked[Parts.Torso.ordinal] = true
-        partsWorked[Parts.Head.ordinal] = false
-        timeSpentExercising = 105
+    //TODO: Implement... maybe...
+    private fun isOlderThanADay(file : File) : Boolean
+    {
+        file.isFile //this is dumb IDE appeasement
+        return false
     }
+
+    init {
+        loadFromFile()
+
+    }
+
+    const val FILE_NAME = "ActiveUser.usr"
 }
