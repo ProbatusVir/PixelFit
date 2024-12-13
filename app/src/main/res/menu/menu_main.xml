@@ -3,7 +3,7 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="com.example.myapplication.MainActivity">
 
-    <item android:id="@+id/edit_profile_menuitem"
+    <item android:id="@+id/profile_menuitem"
           android:title="@string/avatar_dropdown_item1"
           android:orderInCategory="1"
           app:showAsAction="never"/>

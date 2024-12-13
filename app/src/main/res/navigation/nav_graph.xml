@@ -12,6 +12,8 @@
             tools:layout="@layout/fragment_first">
         <action android:id="@+id/action_HomeFragment_to_SettingsFragment" app:destination="@id/SettingsFragment"/>
         <action android:id="@+id/action_HomeFragment_to_profileFragment" app:destination="@id/profileFragment"/>
+        <action android:id="@+id/action_HomeFragment_to_profileFragment2" app:destination="@id/profileFragment"/>
+        <action android:id="@+id/action_HomeFragment_to_profileFragment3" app:destination="@id/profileFragment"/>
     </fragment>
 
     <fragment
@@ -55,5 +57,11 @@
               android:name="com.example.myapplication.fragment_change_username" android:label="fragment_change_username"
               tools:layout="@layout/fragment_change_username"/>
     <fragment android:id="@+id/profileFragment" android:name="com.example.myapplication.ProfileFragment"
-              android:label="fragment_profile" tools:layout="@layout/fragment_profile"/>
+              android:label="fragment_profile" tools:layout="@layout/fragment_profile">
+        <action android:id="@+id/action_profileFragment_to_profileEdit" app:destination="@id/profileEdit"/>
+    </fragment>
+    <fragment android:id="@+id/profileEdit" android:name="com.example.myapplication.ProfileEdit"
+              android:label="fragment_profile_edit" tools:layout="@layout/fragment_profile_edit">
+        <action android:id="@+id/action_profileEdit_to_profileFragment" app:destination="@id/profileFragment"/>
+    </fragment>
 </navigation>
