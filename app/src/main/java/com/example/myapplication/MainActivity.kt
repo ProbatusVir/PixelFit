@@ -2,7 +2,6 @@ package com.example.myapplication
 
 import Shared
 import ServerConnect
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuInflater

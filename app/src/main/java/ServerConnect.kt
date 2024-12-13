@@ -1,11 +1,9 @@
 import android.os.StrictMode
-import com.example.myapplication.MainActivity
 import java.io.*
 import java.net.InetAddress
 import java.net.Socket
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import Shared
 
 /**
  * Some things to work on, Request data probably shouldn't be sent back, so that
