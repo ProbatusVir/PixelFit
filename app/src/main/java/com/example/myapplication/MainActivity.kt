@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import Shared
 import ServerConnect
 import android.content.Context
 import android.content.Intent
@@ -81,12 +82,13 @@ class MainActivity : AppCompatActivity() {
             showUserAvatarMenu(it, navController)
             //testFeature()
         }
+
+        Shared.context = this
     }
 
     fun testFeature()
-    {
-        //This is for requesting an image
-       connection?.requestData("workouts", ResourceType.DIR)
+    {  //This is for requesting an image
+       connection?.requestData("coolfile", ResourceType.PNG)
     }
 
     private fun showUserAvatarMenu(view: View, navController: androidx.navigation.NavController) {
@@ -157,7 +159,6 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
     companion object {
-        var CONTEXT : Context? = null
         const val OPEN_IMAGE = 56
     }
 }
