@@ -255,7 +255,7 @@ class ServerConnect private constructor() {
             endOfName++
         }
         val fileName = String(buffer, Int.SIZE_BYTES, endOfName - Int.SIZE_BYTES)
-        val file = File(Shared.context.filesDir, fileName + extension)
+        val file = File(Shared.filesDir, fileName + extension)
         val out = FileOutputStream(file)
 
         out.write(buffer, endOfName + 1, buffer.size - (endOfName + 1))

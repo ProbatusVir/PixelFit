@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity() {
             //testFeature()
         }
 
-        Shared.context = this
+        Shared.filesDir = applicationContext.filesDir
     }
 
     fun testFeature()
@@ -121,9 +121,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    //PSSSSSSSSSSSSSSSSSSSSSSSSST
-    //HEY, YOU SHOULD READ ME
-    //PLEASE READ BELOW
     //DON'T DELETE
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, returnIntent: Intent?) {
