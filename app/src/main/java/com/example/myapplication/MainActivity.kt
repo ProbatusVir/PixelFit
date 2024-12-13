@@ -104,6 +104,7 @@ class MainActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.profile_menuitem -> {
 
+                    navController.navigate(R.id.profileFragment)
 
                     true
                 }
@@ -111,7 +112,7 @@ class MainActivity : AppCompatActivity() {
 
                 R.id.settings_menuitem -> {
 
-                    navController.navigate(R.id.action_HomeFragment_to_SettingsFragment)
+                    navController.navigate(R.id.SettingsFragment)
 
                     true
                 }
