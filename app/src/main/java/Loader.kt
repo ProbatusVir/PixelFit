@@ -1,28 +1,39 @@
 import java.io.File
+import java.io.IOException
 
 
 class Loader {
 
-    private var data = String()
+    private var data = HashMap<String, String>()
 
     constructor(file: File) {
-        data = file.readBytes().toString()
+        initialize(file.readText().toString())
     }
 
     constructor(str: String) {
-        data = str
+        initialize(str)
+    }
+
+    private fun initialize(str : String)
+    {
+        val tokens = str.split('\n')
+        for (token in tokens) {
+            val split = token.split('=')
+            data[split[0]] = split[1]
+        }
     }
 
     fun fetchVariable(name : String): String {
-        val tokens = data.split('\n')
-        for (token in tokens) {
-            val split = token.split('=')
-            if (split[0].equals(name, true))
-                return split[1]
-        }
-
-        return String()
+        if (!data.containsKey(name))
+            throw(IOException("Make sure the variable you're looking for exists!"))
+        else
+            return data[name]!!
     }
 
     fun fetchIntegralVariable(name : String) = fetchVariable(name).toInt()
+
+    fun fetchDoubleVariable(name : String) = fetchVariable(name).toDouble()
+
+    //This will default to false without excepting.
+    fun fetchBooleanVariable(name : String) = fetchVariable(name).toBoolean()
 }
