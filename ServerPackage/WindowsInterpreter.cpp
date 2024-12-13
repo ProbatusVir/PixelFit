@@ -51,6 +51,55 @@ void WindowsInterpreter::InterpretMessage(const SOCKET& clientSocket, Command co
 	}
 }
 
+void SendPiecewise(const SOCKET clientSocket, const char* data, const size_t message_size) {
+	for (size_t bytes_left = message_size; bytes_left;)
+	{
+		const size_t packet_size = min(bytes_left, PACKET_SIZE);
+
+		send(clientSocket, data, (int)packet_size, 0);
+		bytes_left -= packet_size;
+		data += packet_size;
+	}
+
+}
+
+void SimpleFileSend(const SOCKET clientSocket, const InboundPacket& header, const ResourceType type, const char* suffix) {
+	constexpr static const Command command = Command::RequestData;
+	const char* reader = header.buffer + sizeof(int);
+
+	FileOps fop = FileOps();
+
+	const size_t file_stem_length = strlen(reader);
+	char* file_stem = new char[file_stem_length + 2]; file_stem[file_stem_length] = '\0'; file_stem[file_stem_length + 1] = '\0';
+	memcpy(file_stem, reader, file_stem_length);
+
+	const char* file_path = EnvironmentFile::Instance()->FetchEnvironmentVariable("file_save_path");
+
+	const char* components[] = { file_path, file_stem, suffix };
+	const char* file_name = CONCATENATE(components);
+	file_stem[file_stem_length] = '\n';
+
+	const char* data = fop.ReadFullFile(file_name, false);
+	const size_t file_size = fop.FileSize();
+
+	//Create message
+
+	const unsigned int message_size = (unsigned int)(sizeof(type) + file_size + (file_stem_length + 1)); //no null
+
+
+	OutboundHeader outHeader(command, header.token_size, header.token, message_size);
+
+	const char* out = outHeader.Serialize();
+
+	send(clientSocket, out, outHeader.serialized_size, 0);
+	send(clientSocket, (char*)&type, sizeof(type), 0);
+	send(clientSocket, file_stem, file_stem_length + 1, 0);
+	SendPiecewise(clientSocket, data, message_size);
+
+	delete[] file_stem;
+	delete[] file_name;
+}
+
 void WindowsInterpreter::DisconnectClient(const SOCKET& clientSocket)
 {
 	if (_clientPairs.size()) {
@@ -214,6 +263,9 @@ void WindowsInterpreter::SendData(const SOCKET clientSocket)
 	case (int)ResourceType::DIR:
 		SendDirectory(clientSocket, header);
 		break;
+	case (int)ResourceType::WORK:
+		SendWork(clientSocket, header);
+		break;
 	}
 }
 
@@ -221,44 +273,7 @@ void WindowsInterpreter::SendData(const SOCKET clientSocket)
 //FIXME: make me actually work, there's some funnky stuff going on with getting the image name, and that's the only problem...
 void WindowsInterpreter::SendImage(const SOCKET clientSocket, const InboundPacket& header)
 {
-	constexpr static const Command command = Command::RequestData;
-	constexpr static const ResourceType type = ResourceType::PNG;
-	constexpr static const char suffix[] = ".png";
-	const char* reader = header.buffer + sizeof(int);
-
-	FileOps fop = FileOps();
-
-	const char* file_path = EnvironmentFile::Instance()->FetchEnvironmentVariable("file_save_path");
-
-	const char* components[] = { file_path, reader, suffix };
-	const char* image_name = CONCATENATE(components);
-
-	const char* data = fop.ReadFullFile(image_name, false);
-	const size_t file_size = fop.FileSize();
-	
-	//Create message
-
-	const unsigned int message_size = (unsigned int)(sizeof(type) + file_size); //no null
-
-
-	OutboundHeader outHeader(command, header.token_size, header.token, message_size);
-
-	const char* out = outHeader.Serialize();
-	
-	send(clientSocket, out, outHeader.serialized_size, 0);
-	send(clientSocket, (char*)&type, sizeof(type), 0);
-
-	const char* read_point = data;
-	for (size_t bytes_left = message_size; bytes_left;)
-	{
-		const size_t packet_size = min(bytes_left, PACKET_SIZE);
-		
-		send(clientSocket, read_point, (int)packet_size, 0);
-		bytes_left -= packet_size;
-		read_point += packet_size;
-	}
-
-	delete[] image_name;
+	SimpleFileSend(clientSocket, header, ResourceType::PNG, ".png");
 }
 
 void WindowsInterpreter::SendDirectory(const SOCKET clientSocket, const InboundPacket& header)
@@ -303,6 +318,11 @@ void WindowsInterpreter::SendDirectory(const SOCKET clientSocket, const InboundP
 		bytes_left -= packet_size;
 		read_point += packet_size;
 	}
+}
+
+void WindowsInterpreter::SendWork(const SOCKET clientSocket, const InboundPacket& header)
+{
+	SimpleFileSend(clientSocket, header, ResourceType::WORK, ".work");
 }
 
 unsigned int WindowsInterpreter::ReadByteHeader(const SOCKET& clientSocket)
