@@ -32,7 +32,8 @@ enum class Command(val int : Int) {
 enum class ResourceType(val int:  Int)
 {
     PNG(0x504E4700), //this is first four bytes of the PNG header.
-    DIR(0x44495200)
+    DIR(0x44495200),
+    WORK(0x574F524B),
 }
 
 enum class MessageResult(val int : Int) {
@@ -248,7 +249,7 @@ class ServerConnect private constructor() {
 
 
     private fun receiveImage(buffer : ByteArray) {
-        val file = File(MainActivity.CONTEXT?.filesDir,"coolfile.png")
+        val file = File(Shared.context.filesDir,"coolfile.png")
         val out = FileOutputStream(file)
         out.write(buffer, Int.SIZE_BYTES, buffer.size - Int.SIZE_BYTES)
 
