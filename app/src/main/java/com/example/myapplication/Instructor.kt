@@ -38,7 +38,9 @@ class Instructor : Fragment() {
         recyclerView = view.findViewById(R.id.recycler_view)
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        ServerConnect.instance()?.requestData("workouts", ResourceType.DIR)
+
+        if (!Shared.directories.contains(DIRECTORY))
+            ServerConnect.instance()?.requestData(DIRECTORY, ResourceType.DIR)
         addDataToList()
 
         mAdapter = InstructorAdapter(mList)
@@ -82,5 +84,9 @@ class Instructor : Fragment() {
         mList.add(InstructorData("Squats", "description", ""))
         mList.add(InstructorData("Plank", "description", ""))
         mList.add(InstructorData("Lunges", "description", ""))
+    }
+
+    companion object {
+        const val DIRECTORY = "workouts"
     }
 }
