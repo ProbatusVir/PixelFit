@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         // Show/hide bottom navigation and profile based on destination
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.LoginFragment, R.id.signUp, R.id.SettingsFragment -> {
+                R.id.LoginFragment, R.id.signUp, R.id.SettingsFragment, R.id.profileFragment, R.id.profileEdit -> {
                     bottomNav.visibility = View.GONE
                     profile.visibility = View.GONE
                 }

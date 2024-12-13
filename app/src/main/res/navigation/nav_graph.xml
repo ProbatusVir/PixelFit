@@ -59,6 +59,7 @@
     <fragment android:id="@+id/profileFragment" android:name="com.example.myapplication.ProfileFragment"
               android:label="fragment_profile" tools:layout="@layout/fragment_profile">
         <action android:id="@+id/action_profileFragment_to_profileEdit" app:destination="@id/profileEdit"/>
+        <action android:id="@+id/action_profileFragment_to_HomeFragment" app:destination="@id/HomeFragment"/>
     </fragment>
     <fragment android:id="@+id/profileEdit" android:name="com.example.myapplication.ProfileEdit"
               android:label="fragment_profile_edit" tools:layout="@layout/fragment_profile_edit">

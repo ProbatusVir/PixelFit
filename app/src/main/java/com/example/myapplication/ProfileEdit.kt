@@ -39,6 +39,10 @@ class ProfileEdit : Fragment() {
 
             findNavController().navigate(R.id.action_profileEdit_to_profileFragment)
         }
+
+        binding.backButton.setOnClickListener {
+            findNavController().navigate(R.id.profileFragment)
+        }
     }
 
     override fun onDestroyView() {

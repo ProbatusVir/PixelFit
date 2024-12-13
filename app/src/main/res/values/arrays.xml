@@ -17,15 +17,15 @@
     </string-array>
 
     <string-array name="weight_options">
-        <item>4 FT</item>
-        <item>5 FT</item>
-        <item>6 FT</item>
+        <item>100 LBS</item>
+        <item>200 LBS</item>
+        <item>300 LBS</item>
     </string-array>
 
     <string-array name="sex_options">
-        <item>4 FT</item>
-        <item>5 FT</item>
-        <item>6 FT</item>
+        <item>Male</item>
+        <item>Female</item>
+        <item>Other</item>
     </string-array>
 
     <string-array name="calorie_options">
