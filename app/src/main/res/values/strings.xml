@@ -25,6 +25,10 @@
     <string name="info_header_calories_burned">Calories burned:</string>
     <string name="info_header_time_spent_total">Time spent exercising:</string>
 
+    <!-- Title & description placeholders -->
+    <string name="title">Title</string>
+    <string name="body">Description</string>
+
 
     <!-- Speakable text -->
 
