@@ -80,7 +80,6 @@ class ServerConnect private constructor() {
     private fun getMySocket() {
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
-
         try {
             socket = Socket(serverAddress, PORT)
         }
@@ -244,14 +243,28 @@ class ServerConnect private constructor() {
         {
             ResourceType.PNG.int -> receiveImage(buffer)
             ResourceType.DIR.int -> receiveDir(buffer)
+            ResourceType.WORK.int -> receiveWork(buffer)
         }
     }
 
+    private fun simpleReceiveFile(buffer : ByteArray, extension : String)
+    {
+        var endOfName = 0
+        for (i in 0 until buffer.size)
+        {
+            if (buffer[i] == '\n'.code.toByte())
+                break
+            endOfName++
+        }
+        val fileName = String(buffer, Int.SIZE_BYTES, endOfName - Int.SIZE_BYTES)
+        val file = File(Shared.context.filesDir, fileName + extension)
+        val out = FileOutputStream(file)
+
+        out.write(buffer, endOfName + 1, buffer.size - (endOfName + 1))
+    }
 
     private fun receiveImage(buffer : ByteArray) {
-        val file = File(Shared.context.filesDir,"coolfile.png")
-        val out = FileOutputStream(file)
-        out.write(buffer, Int.SIZE_BYTES, buffer.size - Int.SIZE_BYTES)
+        simpleReceiveFile(buffer, ".png")
 
     }
 
@@ -262,6 +275,10 @@ class ServerConnect private constructor() {
 
         Shared.directories[split[0]] = values
 
+    }
+
+    private fun receiveWork(buffer : ByteArray) {
+        simpleReceiveFile(buffer, ".work")
     }
 
     //Safely close the connection
