@@ -103,8 +103,7 @@ void SimpleFileSend(const SOCKET clientSocket, const InboundPacket& header, cons
 void WindowsInterpreter::DisconnectClient(const SOCKET& clientSocket)
 {
 	if (_clientPairs.size()) {
-		auto client = _clientPairs.begin();
-		for (; client != _clientPairs.end();) {
+		for (auto client = _clientPairs.begin(); client != _clientPairs.end();) {
 			if (client->second.clientSocket == clientSocket) {
 				client = _clientPairs.erase(client);
 			}
@@ -119,10 +118,10 @@ void WindowsInterpreter::DisconnectClient(const SOCKET& clientSocket)
 void WindowsInterpreter::HandleLoginUser(const SOCKET& clientSocket)
 {
 
-	unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
+	const unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
 	if (sizeOfHeader != 0) {
 		char* buffer = new char[sizeOfHeader + 1];
-		unsigned int bytesRead = recv(clientSocket, buffer, sizeOfHeader, 0);
+		const unsigned int bytesRead = recv(clientSocket, buffer, sizeOfHeader, 0);
 		if (bytesRead != 0) {
 			bool success = true;
 			User user = _commands.LoginUser(buffer, success);
@@ -166,7 +165,7 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 		static constexpr unsigned int msgSuccess = (int)MessageResult::LoginSuccess;
 		char response[sizeOfResponse];
 
-		std::string tokenAsStr = CreateToken(user);
+		const std::string tokenAsStr = CreateToken(user);
 		char* token = user.Token();
 		// This is necessary for our response array to be sized with null terminator
 		memcpy_s(response, sizeOfInt, &msgSuccess, sizeOfInt);
@@ -178,7 +177,7 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 		clientPair.clientSocket = clientSocket;
 		clientPair.token = token;
 
-		std::pair<std::string, WindowsUserPair> newPair(tokenAsStr, clientPair);
+		const std::pair<std::string, WindowsUserPair> newPair(tokenAsStr, clientPair);
 		_clientPairs.insert(newPair);
 
 		std::cout << "Successfully logged in user \"" << user.Username() << "\"!\n";
@@ -203,11 +202,11 @@ void WindowsInterpreter::MessageToServer(const SOCKET& clientSocket)
 {
 	User user;
 	if (VerifyUserAuth(clientSocket, user)) {
-		unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
+		const unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
 		bool success = false;
 		char* buffer = new char[sizeOfHeader + 1];
 
-		int bytesRead = recv(clientSocket, buffer, sizeOfHeader, 0);
+		const int bytesRead = recv(clientSocket, buffer, sizeOfHeader, 0);
 		if (bytesRead) {
 			success = true;
 			std::cout << buffer << '\n';
@@ -219,7 +218,6 @@ void WindowsInterpreter::MessageToServer(const SOCKET& clientSocket)
 	else SendMessageToClient(clientSocket, false);
 }
 
-//TODO: Can probably clean this up too.
 void WindowsInterpreter::SendMessageToClient(const SOCKET& clientSocket, bool success)
 {
 	static constexpr const char success_message[] = "Message Received";
@@ -250,7 +248,7 @@ void WindowsInterpreter::SendData(const SOCKET clientSocket)
 {
 	InboundPacket header(clientSocket);
 
-	char* reader = header.buffer;
+	const char* reader = header.buffer;
 	int resource_type = 0;
 	memcpy_s(&resource_type, sizeOfInt, reader, sizeOfInt);
 	reader += sizeOfInt;
@@ -377,7 +375,7 @@ void WindowsInterpreter::NewDiscussionPost(const SOCKET& clientSocket)
 	User user;
 	
 	if (VerifyUserAuth(clientSocket, user)) {
-		unsigned int byteHeader = ReadByteHeader(clientSocket);
+		const unsigned int byteHeader = ReadByteHeader(clientSocket);
 		if (byteHeader > 0) {
 			char* buffer = new char[byteHeader + 1];
 			recv(clientSocket, buffer, byteHeader, 0);
@@ -435,13 +433,11 @@ void WindowsInterpreter::SendPostToClients(const SOCKET& clientSocket, const cha
 
 void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
 {
-	static constexpr const char file_ext[] = ".png";
-	static constexpr unsigned int wait_period = 5; //seconds
-	InboundPacket header(clientSocket, wait_period);
+	InboundPacket header(clientSocket, 5);
 	
 	const char* file_buffer = header.buffer;
 	const unsigned int file_size = header.buffer_size;
-
+	
 	//Get file name
 	EnvironmentFile* env = EnvironmentFile::Instance();
 	const char* path = env->FetchEnvironmentVariable("file_save_path");
@@ -449,12 +445,9 @@ void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
 	if (!path) { std::cerr << "Unable to find the \"file_save_path\" variable in your .env file\n"; return; }
 
 	const char* username = FindUserByToken(header.token)->Username();
-	const size_t username_length = strlen(username);
-	const size_t path_length = strlen(path);
-	char* file_name = new char[path_length + username_length + sizeof(file_ext)];
-	memcpy_s(file_name, path_length, path, path_length);
-	memcpy_s(file_name + path_length, username_length, username, username_length);
-	memcpy_s(file_name + path_length + username_length, sizeof(file_ext), file_ext, sizeof(file_ext));
+
+	const char* components[] = { path, username, ".png" };
+	const char* file_name = CONCATENATE(components);
 
 	// Verify file
 	if (!file_size) { std::cerr << "Did not receive a file.\n";  return;}
