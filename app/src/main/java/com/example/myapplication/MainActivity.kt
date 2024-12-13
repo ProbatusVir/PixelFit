@@ -98,32 +98,15 @@ class MainActivity : AppCompatActivity() {
 
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                R.id.edit_profile_menuitem -> {
+                R.id.profile_menuitem -> {
 
-
-                    true
-                }
-
-                R.id.goals_trophies_menuitem -> {
-
-
-                    true
-                }
-
-                R.id.block_list_menuitem -> {
-
-                    true
-                }
-
-                R.id.pending_duels_menuitem -> {
-
-
+                    navController.navigate(R.id.profileFragment)
                     true
                 }
 
                 R.id.settings_menuitem -> {
 
-                    navController.navigate(R.id.action_HomeFragment_to_SettingsFragment)
+                    navController.navigate(R.id.SettingsFragment)
 
                     true
                 }
