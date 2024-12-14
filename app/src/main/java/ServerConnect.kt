@@ -1,7 +1,6 @@
 import android.os.StrictMode
 import com.example.myapplication.Instructor
 import java.io.*
-import java.net.ConnectException
 import java.net.InetAddress
 import java.net.Socket
 import java.nio.ByteBuffer
