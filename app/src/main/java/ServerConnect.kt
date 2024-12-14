@@ -1,6 +1,7 @@
 import android.os.StrictMode
 import com.example.myapplication.Instructor
 import java.io.*
+import java.net.ConnectException
 import java.net.InetAddress
 import java.net.Socket
 import java.nio.ByteBuffer
@@ -79,11 +80,13 @@ class ServerConnect private constructor() {
     private fun getMySocket() {
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
-        try {
-            socket = Socket(serverAddress, PORT)
-        }
-        finally {
-            println("Attempted to make socket")
+        while (socket == null) {
+            try {
+                socket = Socket(serverAddress, PORT)
+            } catch(e : Exception) {/* no-op */ }
+            finally {
+                println("Attempted to make socket")
+            }
         }
 
     }
@@ -317,7 +320,7 @@ class ServerConnect private constructor() {
         fun instance() = INSTANCE
         fun destroyInstance() {INSTANCE?.disconnect(); INSTANCE = null}
         private var INSTANCE : ServerConnect? = ServerConnect()
-        private const val SERVER_NAME = "10.0.2.2"
+        private const val SERVER_NAME = "2.tcp.ngrok.io"
         private const val LOCALHOST = "10.0.2.2"
         private const val PORT = 5930
         private const val HASH_SIZE = 32
