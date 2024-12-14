@@ -87,7 +87,7 @@ class Instructor : Fragment() {
     }
 
     fun loadDataFromServer() {
-        if (ServerConnect.instance() == null) return
+        if (ServerConnect.instance()?.isConnected() == false) return
         if (Shared.directories.containsKey(DIRECTORY)) return
 
         val connection = ServerConnect.instance()!!

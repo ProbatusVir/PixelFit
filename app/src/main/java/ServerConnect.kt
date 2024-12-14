@@ -296,6 +296,10 @@ class ServerConnect private constructor() {
         )
     }
 
+    fun isConnected() : Boolean {
+        return socket != null
+    }
+
     //Safely close the connection
     private fun disconnect() {
         try {
