@@ -84,7 +84,7 @@ void SimpleFileSend(const SOCKET clientSocket, const InboundPacket& header, cons
 
 	//Create message
 
-	const unsigned int message_size = (unsigned int)(sizeof(type) + file_size + (file_stem_length + 1)); //no null
+	const unsigned int message_size = (unsigned int)(sizeof(type) + (file_stem_length + 1) + file_size ); //no null
 
 
 	OutboundHeader outHeader(command, header.token_size, header.token, message_size);
@@ -94,7 +94,7 @@ void SimpleFileSend(const SOCKET clientSocket, const InboundPacket& header, cons
 	send(clientSocket, out, outHeader.serialized_size, 0);
 	send(clientSocket, (char*)&type, sizeof(type), 0);
 	send(clientSocket, file_stem, file_stem_length + 1, 0);
-	SendPiecewise(clientSocket, data, message_size);
+	SendPiecewise(clientSocket, data, file_size);
 
 	delete[] file_stem;
 	delete[] file_name;
