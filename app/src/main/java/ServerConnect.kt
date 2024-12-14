@@ -1,4 +1,5 @@
 import android.os.StrictMode
+import com.example.myapplication.Instructor
 import java.io.*
 import java.net.InetAddress
 import java.net.Socket
@@ -245,8 +246,7 @@ class ServerConnect private constructor() {
         }
     }
 
-    private fun simpleReceiveFile(buffer : ByteArray, extension : String)
-    {
+    private fun findFirstOf(buffer : ByteArray, delim : Char = '\n') : Int {
         var endOfName = 0
         for (i in 0 until buffer.size)
         {
@@ -254,6 +254,12 @@ class ServerConnect private constructor() {
                 break
             endOfName++
         }
+        return endOfName
+    }
+
+    private fun simpleReceiveFile(buffer : ByteArray, extension : String)
+    {
+        val endOfName = findFirstOf(buffer)
         val fileName = String(buffer, Int.SIZE_BYTES, endOfName - Int.SIZE_BYTES)
         val file = File(Shared.filesDir, fileName + extension)
         val out = FileOutputStream(file)
@@ -276,7 +282,16 @@ class ServerConnect private constructor() {
     }
 
     private fun receiveWork(buffer : ByteArray) {
-        simpleReceiveFile(buffer, ".work")
+        val endOfName = findFirstOf(buffer)
+        val strep = String(buffer, endOfName + 1, buffer.size - (endOfName + 1))
+        val data = Loader(strep)
+        Instructor.mList.add(
+            InstructorData(
+            data.fetchVariable("title"),
+            data.fetchVariable("description"),
+            data.fetchVariable("src")
+            )
+        )
     }
 
     //Safely close the connection
