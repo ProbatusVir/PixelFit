@@ -11,7 +11,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageButton
 import android.widget.PopupMenu
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
@@ -34,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val profile = findViewById<ImageButton>(R.id.user_avatar)
+        val profile = findViewById<com.google.android.material.imageview.ShapeableImageView>(R.id.user_avatar)
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
 
@@ -86,8 +85,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun testFeature()
-    {  //This is for requesting an image
-       connection?.requestData("coolfile", ResourceType.PNG)
+    {   //This is for requesting an image
+        //connection?.requestData("coolfile", ResourceType.PNG)
+        startActivityForResult(openImageIntent, OPEN_IMAGE)
     }
 
     private fun showUserAvatarMenu(view: View, navController: androidx.navigation.NavController) {
@@ -130,9 +130,12 @@ class MainActivity : AppCompatActivity() {
         } //
         if (requestCode == OPEN_IMAGE) {
             val returnUri = returnIntent?.data ?: return
-            val pfd = contentResolver.openFileDescriptor(returnIntent.data!!, "r")
-            val fis = FileInputStream(pfd!!.fileDescriptor)
-            connection?.sendImageToServer(fis)
+            //I'm keeping this here so we still have the tools to copy the file)
+            //val pfd = contentResolver.openFileDescriptor(returnIntent.data!!, "r")
+            //val fis = FileInputStream(pfd!!.fileDescriptor)
+            val avatarImage = binding.userAvatar
+            avatarImage.setImageURI(returnUri)
+
         }
     }
 
