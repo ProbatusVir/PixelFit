@@ -74,6 +74,11 @@ object ActiveUser : User() {
         String.format(Locale.US, "%d hours\n%d minutes!", timeSpentExercising / 60, timeSpentExercising % 60)
 
 
+    fun goalPercent() : Double {
+
+        return if (calorieGoals == 0) 0.0
+        else caloriesBurned / calorieGoals
+    }
     fun displayPartsWorked() : String {
         var str = String()
 
