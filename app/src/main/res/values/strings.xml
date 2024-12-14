@@ -41,6 +41,7 @@
     <string name="description_clock_placeholder">Clock placeholder graphic</string>
     <string name="description_emoji_placeholder">Clock placeholder graphic</string>
     <string name="description_user_avatar_icon">User avatar icon</string>
+    <string name="description_goal_assessment_icon">Graphic showing how well the user is doing</string>
 
 
     <!-- Presentation text -->
