@@ -12,25 +12,23 @@ import androidx.navigation.ui.navigateUp
 import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
-import androidx.core.net.toUri
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import java.io.File
-import java.io.FileInputStream
+import kotlin.io.path.deleteIfExists
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
 
-    private lateinit var openImageIntent : Intent
-
     private val connection = ServerConnect.instance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Shared.filesDir = applicationContext.filesDir
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -56,7 +54,7 @@ class MainActivity : AppCompatActivity() {
         // Show/hide bottom navigation and profile based on destination
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.LoginFragment, R.id.signUp, R.id.SettingsFragment -> {
+                R.id.LoginFragment, R.id.signUp, R.id.SettingsFragment, R.id.profileFragment, R.id.profileEdit -> {
                     bottomNav.visibility = View.GONE
                     profile.visibility = View.GONE
                 }
@@ -73,26 +71,16 @@ class MainActivity : AppCompatActivity() {
 
         loadPfp()
 
-        openImageIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-            type = "image/png"
-            addCategory(Intent.CATEGORY_OPENABLE)
-            intent.action = Intent.ACTION_GET_CONTENT
-            intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-        }
-
         // Handle user avatar click (popup menu)
         profile.setOnClickListener {
             showUserAvatarMenu(it, navController)
             //testFeature()
         }
-
-        Shared.filesDir = applicationContext.filesDir
     }
 
     fun testFeature()
     {   //This is for requesting an image
         //connection?.requestData("coolfile", ResourceType.PNG)
-        startActivityForResult(openImageIntent, OPEN_IMAGE)
     }
 
     private fun showUserAvatarMenu(view: View, navController: androidx.navigation.NavController) {
@@ -126,24 +114,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    //DON'T DELETE
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, returnIntent: Intent?) {
-        super.onActivityResult(requestCode, resultCode, returnIntent)
-        if (resultCode != RESULT_OK) {
-            return
-        } //
-        if (requestCode == OPEN_IMAGE) {
-            val returnUri = returnIntent?.data ?: return
-            //I'm keeping this here so we still have the tools to copy the file)
-            //val pfd = contentResolver.openFileDescriptor(returnIntent.data!!, "r")
-            //val fis = FileInputStream(pfd!!.fileDescriptor)
-            val avatarImage = binding.userAvatar
-            avatarImage.setImageURI(returnUri)
-
-        }
-    }
-
     //implement this when the screens (fragments???) exist
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
@@ -158,23 +128,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadPfp() {
+    fun loadPfp() {
         val avatar = binding.userAvatar
-        val avatarFile = File(filesDir, PROFILE_IMAGE_NAME)
+        val uri = Shared.getPfpUri() ?: return
 
-        if (!avatarFile.exists()) return
-
-        val avatarURI = avatarFile.toUri()
-        avatar.setImageURI(avatarURI)
+        //flush and refresh
+        avatar.setImageURI(null)
+        avatar.setImageURI(uri)
 
     }
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
-    companion object {
-        const val OPEN_IMAGE = 56
-        const val PROFILE_IMAGE_NAME = "pfp.png"
     }
 }
