@@ -12,10 +12,12 @@ import androidx.navigation.ui.navigateUp
 import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
+import androidx.core.net.toUri
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.io.File
 import java.io.FileInputStream
 
 class MainActivity : AppCompatActivity() {
@@ -68,6 +70,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        loadPfp()
+
         openImageIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             type = "image/png"
             addCategory(Intent.CATEGORY_OPENABLE)
@@ -153,11 +158,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadPfp() {
+        val avatar = binding.userAvatar
+        val avatarFile = File(filesDir, PROFILE_IMAGE_NAME)
+
+        if (!avatarFile.exists()) return
+
+        val avatarURI = avatarFile.toUri()
+        avatar.setImageURI(avatarURI)
+
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
     companion object {
         const val OPEN_IMAGE = 56
+        const val PROFILE_IMAGE_NAME = "pfp.png"
     }
 }
