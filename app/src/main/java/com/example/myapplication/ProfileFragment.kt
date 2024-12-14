@@ -48,6 +48,16 @@ class ProfileFragment : Fragment() {
             findNavController().navigate(R.id.action_profileFragment_to_profileEdit)
         }
 
+        loadPfp()
+
+    }
+
+    private fun loadPfp() {
+        val profileImage = binding.profileImage
+        val uri = Shared.getPfpUri() ?: return
+        //flush and refresh
+        profileImage.setImageURI(null)
+        profileImage.setImageURI(uri)
     }
 
     override fun onDestroyView() {
