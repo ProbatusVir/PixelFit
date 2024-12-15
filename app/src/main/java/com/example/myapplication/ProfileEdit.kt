@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity.RESULT_OK
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -52,6 +53,16 @@ class ProfileEdit : Fragment() {
             val sex = binding.sexSpinner.selectedItem.toString()
             val calorieGoal = binding.calorieSpinner.selectedItem.toString()
 
+            ///////////// literally just profile stuff
+            val profile = File(context?.filesDir, Shared.PROFILE_IMAGE_NAME)
+            val temp = File(context?.filesDir, TEMP_FILE)
+            if (temp.exists()) {
+                temp.copyTo(profile, overwrite = true)
+            }
+            (activity as MainActivity).loadPfp()
+            temp.delete()
+            /////////////
+
             profileViewModel.updateProfile(username, bio, height, weight, sex, calorieGoal)
             profileViewModel.saveProfileToJson(requireContext(), "profile.json")
 
@@ -75,16 +86,15 @@ class ProfileEdit : Fragment() {
             val fis = FileInputStream(pfd?.fileDescriptor)
             val data = fis.readAllBytes()
 
-            //Write the data
-            val out = File(context?.filesDir, Shared.PROFILE_IMAGE_NAME)
-            out.writeBytes(data)
-
-            //Display the data
-            loadPfp()
-            val act : MainActivity = activity as MainActivity
-            act.loadPfp()
-
+            preSave(data)
         }
+    }
+
+    private fun preSave(data : ByteArray) {
+        val tempFile = File(context?.filesDir, TEMP_FILE)
+        tempFile.writeBytes(data)
+        loadTempPfp()
+
     }
 
     private fun loadPfp() {
@@ -92,6 +102,15 @@ class ProfileEdit : Fragment() {
         val uri = Shared.getPfpUri() ?: return
 
         pfp.setImageURI(null)
+        pfp.setImageURI(uri)
+    }
+
+    private fun loadTempPfp() {
+        val pfp = binding.profileImage
+        val tempFile = File(context?.filesDir, TEMP_FILE)
+        val uri = if (!tempFile.exists()) null
+                    else tempFile.toUri()
+
         pfp.setImageURI(uri)
     }
 
@@ -103,5 +122,6 @@ class ProfileEdit : Fragment() {
 
     companion object {
         const val OPEN_IMAGE = 56 //can be literally any distinct number
+        const val TEMP_FILE = "temp.png"
     }
 }
