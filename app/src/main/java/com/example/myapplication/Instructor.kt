@@ -87,10 +87,10 @@ class Instructor : Fragment() {
     }
 
     fun loadDataFromServer() {
-        if (ServerConnect.instance()?.isConnected() == false) return
+        if (!(ServerConnect.connected() && ServerConnect.authenticated())) return
         if (Shared.directories.containsKey(DIRECTORY)) return
 
-        val connection = ServerConnect.instance()!!
+        val connection = ServerConnect
 
         connection.requestData(DIRECTORY, ResourceType.DIR)
         while (!Shared.directories.containsKey(DIRECTORY)) {/* no-op */} //just to halt the thread

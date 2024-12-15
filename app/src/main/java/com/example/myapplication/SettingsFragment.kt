@@ -34,7 +34,7 @@ class SettingsFragment : Fragment() {
 
         binding.buttonLogOut.setOnClickListener {
             findNavController().navigate(R.id.action_SettingsFragment_to_LoginFragment)
-            ServerConnect.instance()?.logOut()
+            ServerConnect.logOut()
         }
 
         binding.backButton.setOnClickListener {
