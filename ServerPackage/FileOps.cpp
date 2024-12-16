@@ -132,7 +132,7 @@ const char* EnvironmentFile::FetchEnvironmentVariable(const char* variable)
 
 void EnvironmentFile::LoadEnvironment()
 {
-	static constexpr const char* file_name = ".env";
+	constexpr const char file_name[] = ".env";
 
 	ReadFullFile(file_name, true);
 	

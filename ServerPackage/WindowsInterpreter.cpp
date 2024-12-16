@@ -160,9 +160,9 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 {
 	if (success) {
 
-		static constexpr unsigned int sizeOfToken = HASH_SIZE + 1;
-		static constexpr unsigned int sizeOfResponse = sizeOfInt * 2 + sizeOfToken;
-		static constexpr unsigned int msgSuccess = (int)MessageResult::LoginSuccess;
+		constexpr unsigned int sizeOfToken = HASH_SIZE + 1;
+		constexpr unsigned int sizeOfResponse = sizeOfInt * 2 + sizeOfToken;
+		constexpr unsigned int msgSuccess = (int)MessageResult::LoginSuccess;
 		char response[sizeOfResponse];
 
 		const std::string tokenAsStr = CreateToken(user);
@@ -184,10 +184,10 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 
 	}
 	else {
-		static constexpr const char failedAttempt[] = "Unauthorized username or password";
-		static constexpr const unsigned int sizeOfResponse = sizeOfInt * 2 + sizeof(failedAttempt);
-		static constexpr unsigned int failed = (unsigned int)MessageResult::Failed;
-		static constexpr unsigned int lengthOfFailedAttempt = sizeof(failedAttempt) - 1;
+		constexpr const char failedAttempt[] = "Unauthorized username or password";
+		constexpr const unsigned int sizeOfResponse = sizeOfInt * 2 + sizeof(failedAttempt);
+		constexpr unsigned int failed = (unsigned int)MessageResult::Failed;
+		constexpr unsigned int lengthOfFailedAttempt = sizeof(failedAttempt) - 1;
 
 		char response[sizeOfResponse];
 
@@ -220,8 +220,8 @@ void WindowsInterpreter::MessageToServer(const SOCKET& clientSocket)
 
 void WindowsInterpreter::SendMessageToClient(const SOCKET& clientSocket, bool success)
 {
-	static constexpr const char success_message[] = "Message Received";
-	static constexpr const char fail_message[] = "Error reading message";
+	constexpr const char success_message[] = "Message Received";
+	constexpr const char fail_message[] = "Error reading message";
 	unsigned int command;
 	unsigned int message_length;
 	const char* message;
