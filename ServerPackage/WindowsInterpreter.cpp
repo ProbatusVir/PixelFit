@@ -91,9 +91,9 @@ void SimpleFileSend(const SOCKET clientSocket, const InboundPacket& header, cons
 
 	const char* out = outHeader.Serialize();
 
-	send(clientSocket, out, outHeader.serialized_size, 0);
+	send(clientSocket, out, (int)outHeader.serialized_size, 0);
 	send(clientSocket, (char*)&type, sizeof(type), 0);
-	send(clientSocket, file_stem, file_stem_length + 1, 0);
+	send(clientSocket, file_stem, (int)file_stem_length + 1, 0);
 	SendPiecewise(clientSocket, data, file_size);
 
 	delete[] file_stem;
@@ -304,7 +304,7 @@ void WindowsInterpreter::SendDirectory(const SOCKET clientSocket, const InboundP
 
 	const char* out = outHeader.Serialize();
 
-	send(clientSocket, out, outHeader.serialized_size, 0);
+	send(clientSocket, out, (int)outHeader.serialized_size, 0);
 	send(clientSocket, (char*)&type, sizeof(type), 0);
 
 	const char* read_point = data.data();
