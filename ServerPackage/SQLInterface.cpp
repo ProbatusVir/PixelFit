@@ -5,12 +5,10 @@
 #include "Header.h" //This is pretty much just for the concatenation... maybe I should put this somewhere else...
 
 #include <sql.h>
-#include <iostream>
 #include <odbcss.h>		
 #include <odbcinst.h>
 #include <sqlext.h>
 #include <fstream>
-#include <string>
 #include <filesystem>
 
 // https://www.ibm.com/docs/en/db2-for-zos/13?topic=functions-sqlallochandle-allocate-handle
@@ -112,10 +110,9 @@ void SQLInterface::LoadCredentials()
 {
 	EnvironmentFile* loader = EnvironmentFile::Instance();
 
-	static constexpr const char field1[] = "DSN=";
-	static constexpr const char field2[] = ";Trusted_Connection=Yes;WSID=";
-	static constexpr const char end[] = ";";
-	static constexpr const unsigned int static_size = sizeof(field1) + sizeof(field2) + sizeof(end) - 3;
+	constexpr const char field1[] = "DSN=";
+	constexpr const char field2[] = ";Trusted_Connection=Yes;WSID=";
+	constexpr const char end[] = ";";
 	
 
 	const char* dsn = loader->FetchEnvironmentVariable("dsn");
@@ -130,12 +127,12 @@ bool SQLInterface::LoginRequest(const char* username, const char* password)
 	SQLHSTMT statement = SetupAlloc();
 	bool isValid = false;
 	// TODO: UPDATE THE [User] to target your dbo.[insert db table name here]
-	static constexpr const char* checkForUsername = "SELECT nvcUserName, nvcPasswordHash FROM dbo.[tblUser] WHERE nvcUserName = ? AND nvcPasswordHash = ?";
+	constexpr const char checkForUsername[] = "SELECT nvcUserName, nvcPasswordHash FROM dbo.[tblUser] WHERE nvcUserName = ? AND nvcPasswordHash = ?";
 
 	SQLRETURN result = SQLPrepareA(statement, (SQLCHAR*)checkForUsername, SQL_NTS);
 
-	HandleBindOfChars(statement, 1, 100, username);
-	HandleBindOfChars(statement, 2, 255, password);
+	HandleBindOfChars(statement, 1, USERNAME_SIZE, username);
+	HandleBindOfChars(statement, 2, HASH_SIZE, password);
 
 	result = SQLExecDirectA(statement, (SQLCHAR*)checkForUsername, SQL_NTS);
 	
@@ -155,9 +152,12 @@ bool SQLInterface::LoginRequest(const char* username, const char* password)
 	
 
 }
-void SQLInterface::GetEveryExistingUsername(const char* query)
+std::vector<std::string> SQLInterface::GetEveryExistingUsername()
 {
-	"SELECT nvcUsername";
+	constexpr const char query[] = "SELECT nvcUserName FROM [dbo].[tblUser]";
+	SQLHSTMT statement = SetupAlloc();
+	SQLRETURN result = SQLExecDirectA(statement, (SQLCHAR*)query, sizeof(query));
+	return ReturnEval(result, statement);
 }
 /// <summary>
 /// Attempts to make a new user, if the username already exists this will fail and kick back a false 
@@ -172,13 +172,8 @@ bool SQLInterface::InsertNewUser(const char* name, const char* username, const c
 {
 	bool userNotRegistered = true;
 	bool isValid = false;
-	static constexpr const char* checkForAvailableUsername = "SELECT nvcUserName FROM [dbo].[tblUser]";
-	SQLHSTMT statement = SetupAlloc();
-	SQLRETURN result = SQLExecDirectA(statement, (SQLCHAR*)checkForAvailableUsername, SQL_NTS);
-	std::vector<std::string> usernames =  ReturnEval(result, statement);
+	std::vector<std::string> usernames = GetEveryExistingUsername();
 	
-	
-
 	for (std::string& registered : usernames) {
 		
 		//All strings are space padded if they are smaller than the allotted size. so they must be trimmed.
@@ -196,14 +191,12 @@ bool SQLInterface::InsertNewUser(const char* name, const char* username, const c
 			break;
 		}
 	}
-	// This must be done as a statement is only good for one use.
-	// Due to checking on if a user exists, that consumes one use and therefore we must reset it.
-	ResetHandle(statement);
 
 	// This section handles if the user does not exist and puts them into the db
 	if (userNotRegistered) {
-		static constexpr const char* insertSqlCmd = "INSERT INTO [dbo].[tblUser] (nvcName, nvcEmailAddress, nvcUserName, nvcPasswordHash) VALUES (?,?,?,?)";
-		result = SQLPrepareA(statement, (SQLCHAR*)insertSqlCmd, SQL_NTS);
+		constexpr const char insertSqlCmd[] = "INSERT INTO [dbo].[tblUser] (nvcName, nvcEmailAddress, nvcUserName, nvcPasswordHash) VALUES (?,?,?,?)";
+		SQLHSTMT statement = SetupAlloc();
+		SQLRETURN result = SQLPrepareA(statement, (SQLCHAR*)insertSqlCmd, sizeof(insertSqlCmd));
 		if (result != SQL_SUCCESS) {
 			std::cerr << "Error with adding to db\n";
 			ErrorLogFromSQL(statement, result);
@@ -229,12 +222,13 @@ bool SQLInterface::InsertNewUser(const char* name, const char* username, const c
 		else {
 			ErrorLogFromSQL(statement, result);
 		}
+
+		SQLFreeHandle(SQL_HANDLE_STMT, statement);
 	}
 	else
 		std::cerr << "User not created due to existing user with the same username." << '\n';
 
 	// Always free the handle when we are done with the function
-	SQLFreeHandle(SQL_HANDLE_STMT, statement);
 	return isValid;
 }
 /// <summary>
@@ -271,9 +265,7 @@ std::vector<std::string> SQLInterface::ReturnEval(SQLRETURN result, SQLHSTMT& st
 			}
 		}
 	}
-	else {
-		data.push_back("Error");
-	}
+	//Pushing back "Error" is even worse than having a 0 sized vector...
 	return data;
 }
 // The entire purpose of this is to again reduce redundancies and bury stuff that isnt going to change
@@ -291,7 +283,7 @@ void SQLInterface::HandleBindOfIntegers(SQLHSTMT& statement, int param, int colu
 }
 
 
-void SQLInterface::ErrorLogFromSQL(SQLHSTMT& statement, SQLRETURN error)
+void SQLInterface::ErrorLogFromSQL(const SQLHSTMT& statement, const SQLRETURN error)
 {
 	const char* error_message = nullptr;
 
