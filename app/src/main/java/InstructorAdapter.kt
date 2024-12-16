@@ -80,17 +80,17 @@ class InstructorAdapter(var mList : List<InstructorData>) : RecyclerView.Adapter
     }
     private fun toggleVideoPlayback(webView: WebView) {
         if(playerView != null && playerView == webView) {
-            webView.evaluateJavascript("pauseVideo()") {}
+            webView.loadUrl("javascript:player.pauseVideo();")
             playerView = null
         }else{
-            playerView?.evaluateJavascript("pauseVideo()", null)
-            webView.evaluateJavascript("playVideo()", null)
+            playerView?.loadUrl("javascript:player.pauseVideo();")
+            webView.loadUrl("javascript:player.playVideo();")
             playerView = webView
             //webView.reload()
         }
     }
     fun pauseAll(){
-        playerView?.evaluateJavascript("pauseVideo()", null)
+        playerView?.loadUrl("javascript:player.pauseVideo();")
         playerView = null
     }
 }
