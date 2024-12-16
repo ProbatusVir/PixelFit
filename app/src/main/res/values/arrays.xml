@@ -9,4 +9,29 @@
         <item>reply</item>
         <item>reply_all</item>
     </string-array>
+
+    <string-array name="height_options">
+        <item>4 FT</item>
+        <item>5 FT</item>
+        <item>6 FT</item>
+    </string-array>
+
+    <string-array name="weight_options">
+        <item>4 FT</item>
+        <item>5 FT</item>
+        <item>6 FT</item>
+    </string-array>
+
+    <string-array name="sex_options">
+        <item>4 FT</item>
+        <item>5 FT</item>
+        <item>6 FT</item>
+    </string-array>
+
+    <string-array name="calorie_options">
+        <item>500 Cal</item>
+        <item>1000 Cal</item>
+        <item>1500 Cal</item>
+        <item>2000 Cal</item>
+    </string-array>
 </resources>

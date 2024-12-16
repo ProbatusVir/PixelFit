@@ -3,21 +3,9 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="com.example.myapplication.MainActivity">
 
-    <item android:id="@+id/edit_profile_menuitem"
+    <item android:id="@+id/profile_menuitem"
           android:title="@string/avatar_dropdown_item1"
           android:orderInCategory="1"
-          app:showAsAction="never"/>
-    <item android:id="@+id/goals_trophies_menuitem"
-          android:title="@string/avatar_dropdown_item2"
-          android:orderInCategory="2"
-          app:showAsAction="never"/>
-    <item android:id="@+id/block_list_menuitem"
-          android:title="@string/avatar_dropdown_item3"
-          android:orderInCategory="3"
-          app:showAsAction="never"/>
-    <item android:id="@+id/pending_duels_menuitem"
-          android:title="@string/avatar_dropdown_item4"
-          android:orderInCategory="4"
           app:showAsAction="never"/>
     <item android:id="@+id/settings_menuitem"
           android:title="@string/avatar_dropdown_item5"

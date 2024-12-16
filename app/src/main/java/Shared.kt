@@ -1,5 +1,18 @@
+import android.net.Uri
+import androidx.core.net.toUri
+import java.io.File
 import java.util.HashMap
 
 object Shared {
-    var directories = HashMap<String, ArrayList<String>>()
+    lateinit var filesDir : File
+    var directories = HashMap<String, List<String>>()
+
+    fun getPfpUri() : Uri? {
+        val imageFile = File(filesDir, PROFILE_IMAGE_NAME)
+
+        return if (!imageFile.exists()) null
+        else imageFile.toUri()
+    }
+
+    const val PROFILE_IMAGE_NAME = "pfp.png"
 }

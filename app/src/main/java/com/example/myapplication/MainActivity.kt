@@ -1,7 +1,7 @@
 package com.example.myapplication
 
+import Shared
 import ServerConnect
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuInflater
@@ -11,30 +11,29 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageButton
 import android.widget.PopupMenu
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import java.io.FileInputStream
+import kotlin.io.path.deleteIfExists
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
 
-    private lateinit var openImageIntent : Intent
-
-    private val connection = ServerConnect.instance()
+    private val connection = ServerConnect
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        Shared.filesDir = applicationContext.filesDir
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val profile = findViewById<ImageButton>(R.id.user_avatar)
+        val profile = findViewById<com.google.android.material.imageview.ShapeableImageView>(R.id.user_avatar)
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
 
@@ -55,7 +54,7 @@ class MainActivity : AppCompatActivity() {
         // Show/hide bottom navigation and profile based on destination
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.LoginFragment, R.id.signUp, R.id.SettingsFragment -> {
+                R.id.LoginFragment, R.id.signUp, R.id.SettingsFragment, R.id.profileFragment, R.id.profileEdit -> {
                     bottomNav.visibility = View.GONE
                     profile.visibility = View.GONE
                 }
@@ -69,12 +68,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        openImageIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-            type = "image/png"
-            addCategory(Intent.CATEGORY_OPENABLE)
-            intent.action = Intent.ACTION_GET_CONTENT
-            intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-        }
+
+        loadPfp()
 
         // Handle user avatar click (popup menu)
         profile.setOnClickListener {
@@ -84,9 +79,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun testFeature()
-    {
-        //This is for requesting an image
-       connection?.requestData("workouts", ResourceType.DIR)
+    {   //This is for requesting an image
+        //connection?.requestData("coolfile", ResourceType.PNG)
     }
 
     private fun showUserAvatarMenu(view: View, navController: androidx.navigation.NavController) {
@@ -98,32 +92,15 @@ class MainActivity : AppCompatActivity() {
 
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                R.id.edit_profile_menuitem -> {
+                R.id.profile_menuitem -> {
 
-
-                    true
-                }
-
-                R.id.goals_trophies_menuitem -> {
-
-
-                    true
-                }
-
-                R.id.block_list_menuitem -> {
-
-                    true
-                }
-
-                R.id.pending_duels_menuitem -> {
-
-
+                    navController.navigate(R.id.profileFragment)
                     true
                 }
 
                 R.id.settings_menuitem -> {
 
-                    navController.navigate(R.id.action_HomeFragment_to_SettingsFragment)
+                    navController.navigate(R.id.SettingsFragment)
 
                     true
                 }
@@ -135,24 +112,6 @@ class MainActivity : AppCompatActivity() {
         popup.show()
         //click register for making the popup
 
-    }
-
-    //PSSSSSSSSSSSSSSSSSSSSSSSSST
-    //HEY, YOU SHOULD READ ME
-    //PLEASE READ BELOW
-    //DON'T DELETE
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, returnIntent: Intent?) {
-        super.onActivityResult(requestCode, resultCode, returnIntent)
-        if (resultCode != RESULT_OK) {
-            return
-        } //
-        if (requestCode == OPEN_IMAGE) {
-            val returnUri = returnIntent?.data ?: return
-            val pfd = contentResolver.openFileDescriptor(returnIntent.data!!, "r")
-            val fis = FileInputStream(pfd!!.fileDescriptor)
-            connection?.sendImageToServer(fis)
-        }
     }
 
     //implement this when the screens (fragments???) exist
@@ -169,12 +128,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun loadPfp() {
+        val avatar = binding.userAvatar
+        val uri = Shared.getPfpUri() ?: return
+
+        //flush and refresh
+        avatar.setImageURI(null)
+        avatar.setImageURI(uri)
+
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
-    companion object {
-        var CONTEXT : Context? = null
-        const val OPEN_IMAGE = 56
     }
 }

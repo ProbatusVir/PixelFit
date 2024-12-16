@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import InstructorAdapter
 import InstructorData
+import ServerConnect
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -20,7 +21,6 @@ class Instructor : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var searchView: SearchView
     private lateinit var cardView: CardView
-    private var mList = ArrayList<InstructorData>()
     private lateinit var mAdapter: InstructorAdapter
 
 //    override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +39,8 @@ class Instructor : Fragment() {
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
+        if (!Shared.directories.contains(DIRECTORY))
+            loadDataFromServer()
         addDataToList()
 
         mAdapter = InstructorAdapter(mList)
@@ -82,5 +84,28 @@ class Instructor : Fragment() {
         mList.add(InstructorData("Squats", "description", ""))
         mList.add(InstructorData("Plank", "description", ""))
         mList.add(InstructorData("Lunges", "description", ""))
+    }
+
+    fun loadDataFromServer() {
+        if (!(ServerConnect.connected() && ServerConnect.authenticated())) return
+        if (Shared.directories.containsKey(DIRECTORY)) return
+
+        val connection = ServerConnect
+
+        connection.requestData(DIRECTORY, ResourceType.DIR)
+        while (!Shared.directories.containsKey(DIRECTORY)) {/* no-op */} //just to halt the thread
+
+        val directoryList = Shared.directories[DIRECTORY]!!
+        for (dir in directoryList) {
+            connection.requestData("$DIRECTORY/$dir", ResourceType.WORK)
+        }
+
+        val requests = directoryList.size
+        while (mList.size != requests) { /* no-op */}
+    }
+
+    companion object {
+        const val DIRECTORY = "workouts"
+        var mList = ArrayList<InstructorData>()
     }
 }

@@ -1,6 +1,6 @@
 //Only use this ctor the first time, otherwise we load from file or server.
 class Height(initHeight: Double) {
-    var height : Double = 0.0
+    var height : Double = 0.0 //In inches
 
     private companion object Conversions {
         private const val IN_TO_CM: Double = 2.54;                  private const val CM_TO_IN: Double = 1 / IN_TO_CM

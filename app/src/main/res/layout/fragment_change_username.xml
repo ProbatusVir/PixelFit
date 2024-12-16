@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:gravity="center"
+        android:background="@android:color/white">
+
+    <!-- Title Text -->
+    <TextView
+            android:id="@+id/popup_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/change_your_username"
+            android:textSize="24sp"
+            android:textColor="@android:color/black"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
+
+    <!-- Email Input Field -->
+    <EditText
+            android:id="@+id/newUsername_input"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="Enter New Username"
+            android:autofillHints="emailAddress"
+            android:textColorHint="@color/gray"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:inputType="textEmailSubject"
+            android:background="@drawable/border_black"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp" />
+
+    <!-- Save Button -->
+    <Button
+            android:id="@+id/popup_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/save"
+            android:layout_marginTop="8dp" />
+
+</LinearLayout>

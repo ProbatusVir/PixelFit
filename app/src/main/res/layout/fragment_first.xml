@@ -35,9 +35,10 @@
                         android:src="@drawable/baseline_tag_faces_24"
                         android:layout_weight="1"
                         android:layout_width="1dp"
-                        android:layout_height="match_parent" android:id="@+id/imageView4"
+                        android:layout_height="250dp" android:id="@+id/goal_assessment_graphic"
+                        android:scaleType="fitCenter"
                         tools:ignore="NestedWeights"
-                        android:contentDescription="@string/description_emoji_placeholder"/>
+                        android:contentDescription="@string/description_goal_assessment_icon"/>
                 <TextView
                         style="@style/body_text"
                         android:textSize="32sp"
@@ -100,7 +101,7 @@
                         android:layout_weight="1"
                         android:src="@drawable/baseline_access_time_24"
                         android:layout_width="1dp"
-                        android:layout_height="match_parent" android:id="@+id/imageView5"
+                        android:layout_height="250dp" android:id="@+id/time_spent_graphic"
                         tools:ignore="NestedWeights"
                         android:contentDescription="@string/description_clock_placeholder"/>
                 <ImageView

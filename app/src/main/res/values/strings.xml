@@ -1,9 +1,9 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">PixelFit</string>
 
     <!-- Avatar dropdown menu strings -->
     <string name="avatar_icon">Profile</string>
-    <string name="avatar_dropdown_item1">Edit Profile</string>
+    <string name="avatar_dropdown_item1">Profile</string>
     <string name="avatar_dropdown_item2">Goals &amp; Trophies</string>
     <string name="avatar_dropdown_item3">Block List</string>
     <string name="avatar_dropdown_item4">Pending Duels</string>
@@ -41,6 +41,7 @@
     <string name="description_clock_placeholder">Clock placeholder graphic</string>
     <string name="description_emoji_placeholder">Clock placeholder graphic</string>
     <string name="description_user_avatar_icon">User avatar icon</string>
+    <string name="description_goal_assessment_icon">Graphic showing how well the user is doing</string>
 
 
     <!-- Presentation text -->
@@ -86,6 +87,29 @@
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
 
     <!-- Settings Text -->
-    <string name="private_profile">Private Profile</string>
+    <string name="change_username">Change Username</string>
+    <string name="change_password">Change Password</string>
+    <string name="blocked_users">Blocked Users</string>
     <string name="log_out">Log Out</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Change Username Text -->
+    <string name="change_your_username">Change Your Username</string>
+    <string name="save">Save</string>
+
+    <!-- Profile Fragment Text -->
+    <string name="edit_profile">Edit Profile</string>
+    <string name="bio_text">This is the user bio. Here you can write about yourself.</string>
+    <string name="profile_image_description">Profile Picture</string>
+    <string name="username">Username</string>
+    <string name="height_label">Height</string>
+    <string name="height_value">Value</string>
+    <string name="weight_label">Weight</string>
+    <string name="weight_value">Value</string>
+    <string name="sex_label">Gender</string>
+    <string name="sex_value">Value</string>
+    <string name="calorie_goal">Calorie Goal</string>
+    <string name="calorie_value">Value</string>
 </resources>

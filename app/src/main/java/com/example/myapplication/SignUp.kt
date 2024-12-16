@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import ServerConnect
 import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -40,7 +41,7 @@ class SignUp : Fragment() {
             val password = binding.passwordInput.text.toString()
             val name = binding.nameInput.text.toString()
             val passwordCheck = binding.reenterPasswordInput.text.toString()
-            val connection = ServerConnect.instance()
+            val connection = ServerConnect
 
             if (name.isNotEmpty()&& email.isNotEmpty() && password.isNotEmpty() && passwordCheck.isNotEmpty() ) {
 
@@ -64,7 +65,7 @@ class SignUp : Fragment() {
                             val username = email
 
                             //FIXME: this needs handled more gracefully
-                            connection?.signUp(name, username, email, password)
+                            connection.signUp(name, username, email, password)
 
                             findNavController().navigate(R.id.action_signUp_to_HomeFragment)
                         }

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp"
+            android:background="#FFFFFF">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+        <!-- Profile Picture -->
+        <ImageView
+                android:id="@+id/profile_image"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:contentDescription="@string/profile_image_description"
+                android:scaleType="centerCrop"
+                android:background="@drawable/circle_background"
+        />
+
+        <!-- Username -->
+        <TextView
+                android:id="@+id/username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/username"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:layout_marginBottom="8dp" />
+
+        <!-- Bio -->
+        <TextView
+                android:id="@+id/user_bio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/bio_text"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:layout_marginBottom="16dp"
+                android:gravity="center"
+                android:paddingHorizontal="16dp" />
+
+        <!-- Height -->
+        <TextView
+                android:id="@+id/height_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/height_label"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:layout_marginBottom="4dp" />
+
+        <Spinner
+                android:id="@+id/height_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/height_options"
+                android:layout_marginBottom="16dp"
+                android:minHeight="48dp"/>
+
+        <!-- Weight -->
+        <TextView
+                android:id="@+id/weight_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/weight_label"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:layout_marginBottom="4dp" />
+
+        <Spinner
+                android:id="@+id/weight_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/weight_options"
+                android:layout_marginBottom="16dp"
+                android:minHeight="48dp"/>
+
+        <!-- Sex -->
+        <TextView
+                android:id="@+id/sex_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sex_label"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:layout_marginBottom="4dp" />
+
+        <Spinner
+                android:id="@+id/sex_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/sex_options"
+                android:layout_marginBottom="16dp"
+                android:minHeight="48dp"/>
+
+        <!-- Calorie Goal -->
+        <TextView
+                android:id="@+id/calorie_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sex_label"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:layout_marginBottom="4dp" />
+
+        <Spinner
+                android:id="@+id/calorie_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/sex_options"
+                android:layout_marginBottom="16dp"
+                android:minHeight="48dp"/>
+
+        <!-- Edit Profile Button -->
+        <Button
+                android:id="@+id/btn_save"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/save"
+                android:backgroundTint="#FF6200EE"
+                android:textColor="#FFFFFF"
+                android:layout_marginBottom="8dp" />
+
+    </LinearLayout>
+</ScrollView>
