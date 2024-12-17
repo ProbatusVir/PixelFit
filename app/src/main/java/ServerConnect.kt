@@ -23,9 +23,12 @@ enum class Command(val int : Int) {
     DiscussionPost(6),
     GetUser(7),
     BanUser(8),
-    SendImageToServer(9),
+    SendPfpToServer(9),
     LogOut(10),
     RequestData(11),
+    GetAllUsers(12),
+    GetUsersContaining(13),
+    GetActiveUsers(14),
 }
 
 enum class ResourceType(val int:  Int)
@@ -170,6 +173,8 @@ object ServerConnect {
             messageToServer += ByteBuffer.allocate(Int.SIZE_BYTES).order(ENDIAN).putInt(tokenSize).array()
             messageToServer += token!!
         }
+        else
+            messageToServer += ByteBuffer.allocate(Int.SIZE_BYTES).order(ENDIAN).putInt(0).array()
 
         messageToServer += ByteBuffer.allocate(Int.SIZE_BYTES).order(ENDIAN).putInt(lengthOfMessage).array()
         messageToServer += message + 0x00
@@ -194,17 +199,17 @@ object ServerConnect {
         sendToServer(Command.Login.int, message)
     }
 
-    fun sendImageToServer(file : File) {
+    fun sendPfpToServer(file : File) {
         Thread{
         val input = file.readBytes()
-        sendToServer(Command.SendImageToServer.int, input.toString())
+        sendToServer(Command.SendPfpToServer.int, String(input))
         }.start()
     }
 
-    fun sendImageToServer(file : FileInputStream) {
+    fun sendPfpToServer(file : FileInputStream) {
         Thread {
             val input = file.readBytes()
-            sendToServer(Command.SendImageToServer.int, input)
+            sendToServer(Command.SendPfpToServer.int, input)
             file.close()
         }.start()
     }
