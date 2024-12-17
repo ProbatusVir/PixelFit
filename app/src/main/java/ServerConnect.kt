@@ -114,6 +114,9 @@ object ServerConnect {
                 Command.GetUser.int -> {}
                 Command.BanUser.int -> {}
                 Command.RequestData.int -> receiveData()
+                Command.GetUser.int -> receiveUsers()
+                Command.GetAllUsers.int -> receiveUsers()
+                Command.GetUsersContaining.int -> receiveUsers()
                 else -> println("Received unexpected command")
             }
         }
@@ -300,6 +303,30 @@ object ServerConnect {
             )
         )
     }
+
+    //This needs serious refactoring.
+    private fun receiveUsers() {
+        Shared.userQueryResults = ArrayList()
+
+        val tokenSize = readHeader()
+        val token = ByteArray(tokenSize)
+        inputStream!!.read(token, 0, tokenSize)
+        val bufferSize = readHeader()
+        val buffer = ByteArray(bufferSize)
+        var bytesRead = 0
+        while (bytesRead < bufferSize) {
+            bytesRead += inputStream!!.read(buffer, bytesRead, bufferSize - bytesRead)
+        }
+
+        val data = String(buffer).split('\n')
+        Shared.userQueryResults = ArrayList(data)
+    }
+
+    fun getAllUsers() = sendToServer(Command.GetAllUsers.int, ByteArray(0))
+
+    fun getUsersContaining() = sendToServer(Command.GetUsersContaining.int, ByteArray(0))
+
+    fun getActiveUsers() = sendToServer(Command.GetActiveUsers.int, ByteArray(0))
 
     fun connected() : Boolean {
         return socket != null
