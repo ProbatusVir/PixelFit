@@ -471,15 +471,25 @@ void WindowsInterpreter::ReceivePfp(const SOCKET& clientSocket)
 
 void WindowsInterpreter::GetAllUsers(const SOCKET clientSocket)
 {
+	InboundPacket header(clientSocket);
 	std::vector<std::string> usernames = SQLInterface::Instance()->GetEveryExistingUsername();
+	std::string message;
+
 	for (std::string& username : usernames)
 	{
 		const size_t whitespace = username.find(' ');
 		if (whitespace != std::string::npos)
 			username.erase(whitespace);
 
-		
+		message += username + '\n';
 	}
+	message.pop_back();
+	
+	OutboundHeader outHeader(Command::GetAllUsers, header.token_size, header.token, message.size());
+	outHeader.Serialize();
+	send(clientSocket, outHeader.serialized, outHeader.serialized_size, 0);
+	SendPiecewise(clientSocket, message.data(), message.size());
+
 }
 
 void WindowsInterpreter::GetActiveUsers(const SOCKET clientSocket) {}
