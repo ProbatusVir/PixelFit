@@ -32,7 +32,7 @@
         </androidx.cardview.widget.CardView>
 
         <TextView
-                android:id="@+id/titleTv"
+                android:id="@+id/usernameVar"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="@string/username_placeholder"
