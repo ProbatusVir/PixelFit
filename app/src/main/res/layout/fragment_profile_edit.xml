@@ -126,7 +126,7 @@
                 android:id="@+id/calorie_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/sex_label"
+                android:text="@string/calorie_goal"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="#000000"
@@ -136,7 +136,7 @@
                 android:id="@+id/calorie_spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:entries="@array/sex_options"
+                android:entries="@array/calorie_options"
                 android:layout_marginBottom="16dp"
                 android:minHeight="48dp"/>
 
