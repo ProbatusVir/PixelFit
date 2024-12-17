@@ -25,6 +25,7 @@ consteval int strtoint(const char str[sizeof(int)]) { int result = 0; for (int i
 	enum class ResourceType : int {
 		PNG = rstrtoint("PNG"),
 		DIR = rstrtoint("DIR"),
+		WORK = rstrtoint("WORK"),
 		
 	};
 

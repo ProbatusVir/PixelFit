@@ -43,6 +43,7 @@ class FirstFragment : Fragment() {
     {
         updateText(view)
         updateModel(view)
+        displayProgress()
     }
 
     private fun updateText(view : View)
@@ -81,6 +82,22 @@ class FirstFragment : Fragment() {
             layer.setTint(Color.RED)
         else
             layer.setTint(Color.WHITE)
+    }
+
+    private fun displayProgress()
+    {
+        val graphic = _binding?.goalAssessmentGraphic
+        val percent = ActiveUser.goalPercent()
+        val resourceId = if (percent == 0.0)
+            R.drawable.goal_not_started
+        else if (percent <= .5)
+            R.drawable.goal_below_half
+        else if (percent > .5 && percent < 1.0)
+            R.drawable.goal_past_half
+        else
+            R.drawable.goal_met
+
+        graphic?.setImageResource(resourceId)
     }
 
     override fun onDestroyView() {

@@ -1,59 +1,111 @@
 package com.example.myapplication
 
+import InstructorAdapter
+import InstructorData
+import ServerConnect
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SearchView
+import android.widget.Toast
+import androidx.cardview.widget.CardView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import java.util.*
+import kotlin.collections.ArrayList
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [Instructor.newInstance] factory method to
- * create an instance of this fragment.
- */
 class Instructor : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var searchView: SearchView
+    private lateinit var cardView: CardView
+    private lateinit var mAdapter: InstructorAdapter
+
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//
+//    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_instructor, container, false)
+        val view = inflater.inflate(R.layout.fragment_instructor, container, false)
+        searchView = view.findViewById(R.id.search_view)
+        recyclerView = view.findViewById(R.id.recycler_view)
+        recyclerView.setHasFixedSize(true)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        if (!Shared.directories.contains(DIRECTORY))
+            loadDataFromServer()
+        addDataToList()
+
+        mAdapter = InstructorAdapter(mList)
+        recyclerView.adapter = mAdapter
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                filterList(newText?.toLowerCase(Locale.getDefault()))
+                return true
+            }
+        })
+
+        return view
+    }
+
+    private fun filterList(query : String?) {
+        if(query != null) {
+            val filterdList = ArrayList<InstructorData>()
+            for(i in mList){
+                if(i.title.lowercase(Locale.ROOT).contains(query)){
+                    filterdList.add(i)
+                }
+            }
+            if(filterdList.isEmpty()) {
+                Toast.makeText(context, "No Instructors found", Toast.LENGTH_SHORT).show()
+            }else{
+                mAdapter.setFilteredList(filterdList)
+            }
+        }
+    }
+
+    private fun addDataToList() {
+        mList.add(InstructorData("Push Up",
+            "a bodyweight exercise that targets the chest, shoulders, triceps, and core muscles.",
+            "https://www.youtube.com/watch?v=IODxDxX7oi4"))
+        mList.add(InstructorData("Sit ups", "description", ""))
+        mList.add(InstructorData("Squats", "description", ""))
+        mList.add(InstructorData("Plank", "description", ""))
+        mList.add(InstructorData("Lunges", "description", ""))
+    }
+
+    fun loadDataFromServer() {
+        if (!(ServerConnect.connected() && ServerConnect.authenticated())) return
+        if (Shared.directories.containsKey(DIRECTORY)) return
+
+        val connection = ServerConnect
+
+        connection.requestData(DIRECTORY, ResourceType.DIR)
+        while (!Shared.directories.containsKey(DIRECTORY)) {/* no-op */} //just to halt the thread
+
+        val directoryList = Shared.directories[DIRECTORY]!!
+        for (dir in directoryList) {
+            connection.requestData("$DIRECTORY/$dir", ResourceType.WORK)
+        }
+
+        val requests = directoryList.size
+        while (mList.size != requests) { /* no-op */}
     }
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment CommunityBoard.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            Instructor().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+        const val DIRECTORY = "workouts"
+        var mList = ArrayList<InstructorData>()
     }
 }

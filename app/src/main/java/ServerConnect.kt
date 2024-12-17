@@ -1,5 +1,5 @@
 import android.os.StrictMode
-import com.example.myapplication.MainActivity
+import com.example.myapplication.Instructor
 import java.io.*
 import java.net.InetAddress
 import java.net.Socket
@@ -31,7 +31,8 @@ enum class Command(val int : Int) {
 enum class ResourceType(val int:  Int)
 {
     PNG(0x504E4700), //this is first four bytes of the PNG header.
-    DIR(0x44495200)
+    DIR(0x44495200),
+    WORK(0x574F524B),
 }
 
 enum class MessageResult(val int : Int) {
@@ -46,7 +47,7 @@ enum class MessageResult(val int : Int) {
 }
 
 
-class ServerConnect private constructor() {
+object ServerConnect {
 
     private val serverAddress = getMyServerAddress()
     //TODO: add some error handling
@@ -78,9 +79,14 @@ class ServerConnect private constructor() {
     private fun getMySocket() {
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
-
-        try { socket = Socket(serverAddress, PORT) }
-        finally { println("Attempted to make socket") }
+        while (socket == null) {
+            try {
+                socket = Socket(serverAddress, PORT)
+            } catch(e : Exception) {/* no-op */ }
+            finally {
+                println("Attempted to make socket")
+            }
+        }
 
     }
 
@@ -89,6 +95,7 @@ class ServerConnect private constructor() {
      */
     private fun listenForServer()
     {
+        //handleToken()
         while (true)
         {
             val command = readHeader()
@@ -107,7 +114,7 @@ class ServerConnect private constructor() {
                 else -> println("Received unexpected command")
             }
         }
-    } 
+    }
 
     /**
      * Read in an integer from the ByteStream. Used in ListenForServer
@@ -237,21 +244,65 @@ class ServerConnect private constructor() {
         {
             ResourceType.PNG.int -> receiveImage(buffer)
             ResourceType.DIR.int -> receiveDir(buffer)
+            ResourceType.WORK.int -> receiveWork(buffer)
         }
     }
 
+    private fun findFirstOf(buffer : ByteArray, delim : Char = '\n') : Int {
+        var endOfName = 0
+        for (i in 0 until buffer.size)
+        {
+            if (buffer[i] == '\n'.code.toByte())
+                break
+            endOfName++
+        }
+        return endOfName
+    }
+
+    private fun simpleReceiveFile(buffer : ByteArray, extension : String)
+    {
+        val endOfName = findFirstOf(buffer)
+        val fileName = String(buffer, Int.SIZE_BYTES, endOfName - Int.SIZE_BYTES)
+        val file = File(Shared.filesDir, fileName + extension)
+        val out = FileOutputStream(file)
+
+        out.write(buffer, endOfName + 1, buffer.size - (endOfName + 1))
+    }
 
     private fun receiveImage(buffer : ByteArray) {
-        val file = File(MainActivity.CONTEXT?.filesDir,"coolfile.png")
-        val out = FileOutputStream(file)
-        out.write(buffer, Int.SIZE_BYTES, buffer.size - Int.SIZE_BYTES)
+        simpleReceiveFile(buffer, ".png")
 
     }
 
     private fun receiveDir(buffer : ByteArray) {
-        val file = File(MainActivity.CONTEXT?.filesDir,"dir")
-        val out = FileOutputStream(file)
-        out.write(buffer, Int.SIZE_BYTES, buffer.size - Int.SIZE_BYTES)
+        val data = String(buffer).split(Char(0))
+        val split = data[1].split('\n')
+        val values = split.slice(1 until split.lastIndex)
+
+        Shared.directories[split[0]] = values
+
+    }
+
+    private fun receiveWork(buffer : ByteArray) {
+        val endOfName = findFirstOf(buffer)
+        val strep = String(buffer, endOfName + 1, buffer.size - (endOfName + 1))
+        val data = Loader(strep)
+        Instructor.mList.add(
+            InstructorData(
+            data.fetchVariable("title"),
+            data.fetchVariable("description"),
+            data.fetchVariable("src")
+            )
+        )
+    }
+
+    fun connected() : Boolean {
+        return socket != null
+    }
+
+    fun authenticated() : Boolean
+    {
+        return token != null
     }
 
     //Safely close the connection
@@ -262,7 +313,7 @@ class ServerConnect private constructor() {
                     it.close()
             }
         } finally {}
-        destroyInstance() }
+    }
 
     init {
         Thread {
@@ -273,16 +324,11 @@ class ServerConnect private constructor() {
         }.start()
     }
 
-    companion object {
-        fun instance() = INSTANCE
-        fun destroyInstance() {INSTANCE?.disconnect(); INSTANCE = null}
-        private var INSTANCE : ServerConnect? = ServerConnect()
-        private const val SERVER_NAME = "2.tcp.ngrok.io"
+        private const val SERVER_NAME = "6.tcp.ngrok.io"
         private const val LOCALHOST = "10.0.2.2"
-        private const val PORT = 10692
+        private const val PORT = 17241
         private const val HASH_SIZE = 32
         private const val LENGTH_OF_COMMAND_AND_MESSAGE_HEADER = Int.SIZE_BYTES * 3 + 1 //This is good for an authenticated read, might have to cut it out later.
         //server endian
         private val ENDIAN = ByteOrder.LITTLE_ENDIAN
-    }
 }

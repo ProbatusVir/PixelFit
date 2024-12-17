@@ -20,12 +20,13 @@ public:
 	void FetchUser(const char* query);
 	bool InsertNewUser(const char* name, const char* username, const char* email, const char* password);
 	bool LoginRequest(const char* username, const char* password);
+	std::vector<std::string> GetEveryExistingUsername();
 
 private:
 	void ConnectToDB();
 	void InterpretState(const SQLRETURN code, const char* name, const bool indented = true);
 	void LoadCredentials();
-	void ErrorLogFromSQL(SQLHSTMT& statement);
+	void ErrorLogFromSQL(const SQLHSTMT& statement, const SQLRETURN error);
 
 	SQLHSTMT SetupAlloc(); 	// I (Ryan) got tired of writng the same 2 lines and large macros so I buried it into a function call
 	std::vector<std::string> ReturnEval(SQLRETURN result, SQLHSTMT& statement);
@@ -38,7 +39,7 @@ private:
 
 	static SQLInterface* m_instance;
 
-	char* connStr = nullptr;
+	const char* connStr = nullptr;
 	SQLHENV m_hEnv = nullptr;	// Environment handle
 	SQLHDBC m_hDbc = nullptr;	// Database Connection handle
 };

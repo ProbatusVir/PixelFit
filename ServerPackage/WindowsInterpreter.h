@@ -40,6 +40,7 @@ private:
 	void SendData(const SOCKET clientSocket);
 	void SendImage(const SOCKET clientSocket, const InboundPacket& header);
 	void SendDirectory(const SOCKET clientSocket, const InboundPacket& header);
+	void SendWork(const SOCKET clientSocket, const InboundPacket& header);
 	void LogOut(const SOCKET clientSocket);
 	User* FindUserByToken(const char* clientSocket);
 	User* FindUserByToken (const std::string& clientSocket);

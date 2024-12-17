@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import Shared
 import ServerConnect
 import android.content.Context
 import android.content.Intent
@@ -57,6 +58,7 @@ class MainActivity : AppCompatActivity() {
             setOf(
                 R.id.HomeFragment, R.id.FriendsFragment, R.id.GroupFragment, R.id.InstructorFragment
             )
+
         )
 
         // Show/hide bottom navigation and profile based on destination
@@ -67,6 +69,9 @@ class MainActivity : AppCompatActivity() {
                     profile.visibility = View.GONE
                 }
 
+                R.id.InstructorFragment-> {
+                    profile.visibility = View.GONE
+                }
                 else -> {
                     bottomNav.visibility = View.VISIBLE
                     profile.visibility = View.VISIBLE
@@ -109,10 +114,15 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
 
+                R.id.profile_menuitem -> {
+
+                    navController.navigate(R.id.profileFragment)
+                    true
+                }
 
                 R.id.settings_menuitem -> {
 
-                    navController.navigate(R.id.SettingsFragment)
+                    navController.navigate(R.id.action_HomeFragment_to_SettingsFragment)
 
                     true
                 }
@@ -156,6 +166,16 @@ class MainActivity : AppCompatActivity() {
 
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    fun loadPfp() {
+        val avatar = binding.userAvatar
+        val uri = Shared.getPfpUri() ?: return
+
+        //flush and refresh
+        avatar.setImageURI(null)
+        avatar.setImageURI(uri)
+
     }
 
     override fun onSupportNavigateUp(): Boolean {

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">PixelFit</string>
 
     <!-- Avatar dropdown menu strings -->
     <string name="avatar_icon">Profile</string>
@@ -25,6 +25,10 @@
     <string name="info_header_calories_burned">Calories burned:</string>
     <string name="info_header_time_spent_total">Time spent exercising:</string>
 
+    <!-- Title & description placeholders -->
+    <string name="title">Title</string>
+    <string name="body">Description</string>
+
 
     <!-- Speakable text -->
 
@@ -37,6 +41,7 @@
     <string name="description_clock_placeholder">Clock placeholder graphic</string>
     <string name="description_emoji_placeholder">Clock placeholder graphic</string>
     <string name="description_user_avatar_icon">User avatar icon</string>
+    <string name="description_goal_assessment_icon">Graphic showing how well the user is doing</string>
 
 
     <!-- Presentation text -->
