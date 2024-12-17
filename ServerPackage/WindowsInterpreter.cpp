@@ -7,6 +7,7 @@
 #include <fstream>
 #include <chrono>
 #include <filesystem>
+#include "SQLInterface.h"
 
 void WindowsInterpreter::InterpretMessage(const SOCKET& clientSocket, Command command)
 {
@@ -39,14 +40,23 @@ void WindowsInterpreter::InterpretMessage(const SOCKET& clientSocket, Command co
 		// restrictive function only allowing certain people to ban users, likely from group, or altogether from the app.
 		break;
 
-	case Command::SendImageToServer:
-		ReceiveImage(clientSocket);
+	case Command::SendPfpToServer:
+		ReceivePfp(clientSocket);
 		break;
 	case Command::RequestData: 
 		SendData(clientSocket);
 		break;
 	case Command::LogOut:
 		LogOut(clientSocket);
+		break;
+	case Command::GetAllUsers :
+		GetAllUsers(clientSocket);
+		break;
+	case Command::GetUsersContaining :
+		GetUsersContaining(clientSocket);
+		break;
+	case Command::GetActiveUsers :
+		GetActiveUsers(clientSocket);
 		break;
 	}
 }
@@ -117,7 +127,7 @@ void WindowsInterpreter::DisconnectClient(const SOCKET& clientSocket)
 
 void WindowsInterpreter::HandleLoginUser(const SOCKET& clientSocket)
 {
-
+	const unsigned int tokenSize = ReadByteHeader(clientSocket);
 	const unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
 	if (sizeOfHeader != 0) {
 		char* buffer = new char[sizeOfHeader + 1];
@@ -431,7 +441,7 @@ void WindowsInterpreter::SendPostToClients(const SOCKET& clientSocket, const cha
 
 }
 
-void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
+void WindowsInterpreter::ReceivePfp(const SOCKET& clientSocket)
 {
 	InboundPacket header(clientSocket, 5);
 	
@@ -458,6 +468,23 @@ void WindowsInterpreter::ReceiveImage(const SOCKET& clientSocket)
 	file.write(file_buffer, file_size);
 	file.close();
 }
+
+void WindowsInterpreter::GetAllUsers(const SOCKET clientSocket)
+{
+	std::vector<std::string> usernames = SQLInterface::Instance()->GetEveryExistingUsername();
+	for (std::string& username : usernames)
+	{
+		const size_t whitespace = username.find(' ');
+		if (whitespace != std::string::npos)
+			username.erase(whitespace);
+
+		
+	}
+}
+
+void WindowsInterpreter::GetActiveUsers(const SOCKET clientSocket) {}
+
+void WindowsInterpreter::GetUsersContaining(const SOCKET clientSocket) {}
 
 void WindowsInterpreter::LogOut(const SOCKET clientSocket)
 {

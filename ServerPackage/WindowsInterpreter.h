@@ -36,11 +36,14 @@ private:
 	void NewDiscussionPost(const SOCKET& clientSocket);
 	void SendPostToClients(const SOCKET&clientSocket, const char* buffer, const size_t sizeOfBuffer);
 	void CreateMessagePacket(DiscussionPost& post , const size_t packetSize);
-	void ReceiveImage(const SOCKET& clientSocket);
+	void ReceivePfp(const SOCKET& clientSocket);
 	void SendData(const SOCKET clientSocket);
 	void SendImage(const SOCKET clientSocket, const InboundPacket& header);
 	void SendDirectory(const SOCKET clientSocket, const InboundPacket& header);
 	void SendWork(const SOCKET clientSocket, const InboundPacket& header);
+	void GetActiveUsers(const SOCKET clientSocket);
+	void GetUsersContaining(const SOCKET clientSocket);
+	void GetAllUsers(const SOCKET clientSocket);
 	void LogOut(const SOCKET clientSocket);
 	User* FindUserByToken(const char* clientSocket);
 	User* FindUserByToken (const std::string& clientSocket);

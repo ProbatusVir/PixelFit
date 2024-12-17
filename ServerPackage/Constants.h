@@ -16,9 +16,12 @@ consteval int strtoint(const char str[sizeof(int)]) { int result = 0; for (int i
 		DiscussionPost,
 		GetUser,
 		BanUser,
-		SendImageToServer,
+		SendPfpToServer,
 		LogOut,
 		RequestData,
+		GetAllUsers,
+		GetUsersContaining,
+		GetActiveUsers,
 	};
 
 	//No matter what, I guess because of how hex literals work, there is no elegant way of doing this. So these have to be opposite endian of the Kotlin client
