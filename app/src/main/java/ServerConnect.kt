@@ -202,7 +202,7 @@ object ServerConnect {
     fun sendPfpToServer(file : File) {
         Thread{
         val input = file.readBytes()
-        sendToServer(Command.SendPfpToServer.int, String(input))
+        sendToServer(Command.SendPfpToServer.int, input)
         }.start()
     }
 
