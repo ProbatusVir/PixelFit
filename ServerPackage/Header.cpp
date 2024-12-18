@@ -12,8 +12,12 @@ unsigned int Header::ReadByteHeader(const SOCKET clientSocket)
 Header::Header(const SOCKET socket)
 {
 	token_size = ReadByteHeader(socket);
-	token = new char[token_size + 1];
-	recv(socket, (char*)token, token_size, 0);
+	
+	if (token_size)
+	{
+		token = new char[token_size + 1];
+		recv(socket, (char*)token, token_size, 0);
+	}
 
 	buffer_size = ReadByteHeader(socket);
 }
@@ -39,7 +43,8 @@ Header::~Header()
 Packet::Packet(const SOCKET socket, unsigned int wait) :
 	Header(socket)
 {
-	buffer = new char[buffer_size + 1];
+	if (buffer_size)
+		buffer = new char[buffer_size + 1];
 
 	//This is awful... please don't keep this...
 	std::this_thread::sleep_for(std::chrono::seconds(wait));

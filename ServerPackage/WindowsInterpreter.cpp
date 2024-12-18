@@ -447,6 +447,8 @@ void WindowsInterpreter::ReceivePfp(const SOCKET clientSocket) const
 {
 	const InboundPacket header(clientSocket, 5);
 	
+	if (!header.token) return;
+	
 	const char* file_buffer = header.buffer;
 	const unsigned int file_size = header.buffer_size;
 	
