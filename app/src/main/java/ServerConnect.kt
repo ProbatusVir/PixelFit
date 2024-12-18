@@ -222,6 +222,7 @@ object ServerConnect {
         //The error checking is two-fold, for the token does not exist without a socket.
         //otherwise, we have a REAL problem.
         token?.let { sendToServer(Command.LogOut.int, "") }
+        token = null
     }
 
     fun requestData(fileName : String, type : ResourceType) {
