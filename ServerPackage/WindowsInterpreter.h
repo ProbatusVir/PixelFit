@@ -17,35 +17,38 @@ class WindowsInterpreter
 public:
 	//This will take the client socket and begin interpretations.
 	//From here the appropriate functions will be called and data handled outside of the switch statement.
-	void InterpretMessage(const SOCKET &clientSocket, Command command);
-	void DisconnectClient(const SOCKET& clientSocket);
+	void InterpretMessage(const SOCKET clientSocket, const Command command);
+	void DisconnectClient(const SOCKET clientSocket);
 private:
 
-	void HandleLoginUser(const SOCKET& clientSocket);
-	void HandleNewUser(const SOCKET& clientSocket);
-	void LoginResponseToUser(const SOCKET& clientSocket, User& user, const bool success);
+	void HandleLoginUser(const SOCKET clientSocket);
+	void HandleNewUser(const SOCKET clientSocket);
+	void LoginResponseToUser(const SOCKET clientSocket, User& user, const bool success);
 	// This may get reworked to handle direct messaged or deleted in general.
 	// Another Method needs to be responsible for handling discussion posts
 	// discussion posts have more nuances to handle like is it a comment or main post.
-	void MessageToServer(const SOCKET& clientSocket);
-	void SendMessageToClient(const SOCKET& clientSocket, bool success);
-	unsigned int ReadByteHeader(const SOCKET& clientSocket);
-	bool VerifyUserAuth(const SOCKET& clientSocket, User& user);
-	bool EnsureSingleTokenInstance(const std::string& token);
-	std::string CreateToken(User& user);
-	void NewDiscussionPost(const SOCKET& clientSocket);
-	void SendPostToClients(const SOCKET&clientSocket, const char* buffer, const size_t sizeOfBuffer);
-	void CreateMessagePacket(DiscussionPost& post , const size_t packetSize);
-	void ReceivePfp(const SOCKET& clientSocket);
-	void SendData(const SOCKET clientSocket);
-	void SendImage(const SOCKET clientSocket, const InboundPacket& header);
-	void SendDirectory(const SOCKET clientSocket, const InboundPacket& header);
-	void SendWork(const SOCKET clientSocket, const InboundPacket& header);
-	void GetActiveUsers(const SOCKET clientSocket);
-	void GetUsersContaining(const SOCKET clientSocket);
-	void GetAllUsers(const SOCKET clientSocket);
+	void MessageToServer(const SOCKET clientSocket) const;
+	void SendMessageToClient(const SOCKET clientSocket, bool success) const;
+	unsigned int ReadByteHeader(const SOCKET clientSocket) const;
+	bool VerifyUserAuth(const SOCKET clientSocket, User& user) const;
+	bool EnsureSingleTokenInstance(const std::string& token) const;
+	std::string CreateToken(User& user) const;
+	void NewDiscussionPost(const SOCKET clientSocket);
+	void SendPostToClients(const SOCKET clientSocket, const char* buffer, const size_t sizeOfBuffer) const;
+	void CreateMessagePacket(DiscussionPost& post , const size_t packetSize) const;
+	void ReceivePfp(const SOCKET clientSocket) const;
+	void SendData(const SOCKET clientSocket) const;
+	void SendImage(const SOCKET clientSocket, const InboundPacket& header) const;
+	void SendDirectory(const SOCKET clientSocket, const InboundPacket& header) const;
+	void SendWork(const SOCKET clientSocket, const InboundPacket& header) const;
+	void GetActiveUsers(const SOCKET clientSocket) const;
+	void GetUsersContaining(const SOCKET clientSocket) const;
+	void GetAllUsers(const SOCKET clientSocket) const;
 	void LogOut(const SOCKET clientSocket);
+
+	const User* FindUserByToken(const char* clientSocket) const;
 	User* FindUserByToken(const char* clientSocket);
+	const User* FindUserByToken (const std::string& clientSocket) const;
 	User* FindUserByToken (const std::string& clientSocket);
 
 	//					Token		User+Socket+*token

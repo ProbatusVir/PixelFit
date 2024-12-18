@@ -10,7 +10,7 @@
 #include "SQLInterface.h"
 #include "TokenHelper.h"
 
-void WindowsInterpreter::InterpretMessage(const SOCKET& clientSocket, Command command)
+void WindowsInterpreter::InterpretMessage(const SOCKET clientSocket, const Command command)
 {
 	switch (command) {
 	case Command::Login:
@@ -111,7 +111,7 @@ void SimpleFileSend(const SOCKET clientSocket, const InboundPacket& header, cons
 	delete[] file_name;
 }
 
-void WindowsInterpreter::DisconnectClient(const SOCKET& clientSocket)
+void WindowsInterpreter::DisconnectClient(const SOCKET clientSocket)
 {
 	if (_clientPairs.size()) {
 		for (auto client = _clientPairs.begin(); client != _clientPairs.end();) {
@@ -126,7 +126,7 @@ void WindowsInterpreter::DisconnectClient(const SOCKET& clientSocket)
 	closesocket(clientSocket);
 }
 
-void WindowsInterpreter::HandleLoginUser(const SOCKET& clientSocket)
+void WindowsInterpreter::HandleLoginUser(const SOCKET clientSocket)
 {
 	const unsigned int tokenSize = ReadByteHeader(clientSocket);
 	const unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
@@ -147,7 +147,7 @@ void WindowsInterpreter::HandleLoginUser(const SOCKET& clientSocket)
 	}
 }
 
-void WindowsInterpreter::HandleNewUser(const SOCKET& clientSocket)
+void WindowsInterpreter::HandleNewUser(const SOCKET clientSocket)
 {
 	unsigned int tokenSize = ReadByteHeader(clientSocket);
 	unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
@@ -168,7 +168,7 @@ void WindowsInterpreter::HandleNewUser(const SOCKET& clientSocket)
 
 }
 
-void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& user, const bool success)
+void WindowsInterpreter::LoginResponseToUser(const SOCKET clientSocket, User& user, const bool success)
 {
 	if (success) {
 
@@ -210,7 +210,7 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET& clientSocket, User& u
 	}
 }
 
-void WindowsInterpreter::MessageToServer(const SOCKET& clientSocket)
+void WindowsInterpreter::MessageToServer(const SOCKET clientSocket) const
 {
 	User user;
 	if (VerifyUserAuth(clientSocket, user)) {
@@ -230,7 +230,7 @@ void WindowsInterpreter::MessageToServer(const SOCKET& clientSocket)
 	else SendMessageToClient(clientSocket, false);
 }
 
-void WindowsInterpreter::SendMessageToClient(const SOCKET& clientSocket, bool success)
+void WindowsInterpreter::SendMessageToClient(const SOCKET clientSocket, bool success) const
 {
 	constexpr const char success_message[] = "Message Received";
 	constexpr const char fail_message[] = "Error reading message";
@@ -256,9 +256,9 @@ void WindowsInterpreter::SendMessageToClient(const SOCKET& clientSocket, bool su
 	send(clientSocket, response, PACKET_SIZE, 0);
 }
 
-void WindowsInterpreter::SendData(const SOCKET clientSocket)
+void WindowsInterpreter::SendData(const SOCKET clientSocket) const
 {
-	InboundPacket header(clientSocket);
+	const InboundPacket header(clientSocket);
 
 	const char* reader = header.buffer;
 	int resource_type = 0;
@@ -281,12 +281,12 @@ void WindowsInterpreter::SendData(const SOCKET clientSocket)
 
 //Prolly gonna send the user's token back to them at some point, just to verify this message, but for now... meh
 //FIXME: make me actually work, there's some funnky stuff going on with getting the image name, and that's the only problem...
-void WindowsInterpreter::SendImage(const SOCKET clientSocket, const InboundPacket& header)
+void WindowsInterpreter::SendImage(const SOCKET clientSocket, const InboundPacket& header) const
 {
 	SimpleFileSend(clientSocket, header, ResourceType::PNG, ".png");
 }
 
-void WindowsInterpreter::SendDirectory(const SOCKET clientSocket, const InboundPacket& header)
+void WindowsInterpreter::SendDirectory(const SOCKET clientSocket, const InboundPacket& header) const
 {
 	constexpr static const Command command = Command::RequestData;
 	constexpr static const ResourceType type = ResourceType::DIR;
@@ -330,19 +330,19 @@ void WindowsInterpreter::SendDirectory(const SOCKET clientSocket, const InboundP
 	}
 }
 
-void WindowsInterpreter::SendWork(const SOCKET clientSocket, const InboundPacket& header)
+void WindowsInterpreter::SendWork(const SOCKET clientSocket, const InboundPacket& header) const
 {
 	SimpleFileSend(clientSocket, header, ResourceType::WORK, ".work");
 }
 
-unsigned int WindowsInterpreter::ReadByteHeader(const SOCKET& clientSocket)
+unsigned int WindowsInterpreter::ReadByteHeader(const SOCKET clientSocket) const
 {
 	unsigned int byteHeader = 0;
 	recv(clientSocket, (char*)&byteHeader, sizeOfInt, 0);
 	return byteHeader;
 }
 
-bool WindowsInterpreter::VerifyUserAuth(const SOCKET& clientSocket, User& user)
+bool WindowsInterpreter::VerifyUserAuth(const SOCKET clientSocket, User& user) const
 {
 	const unsigned int header = ReadByteHeader(clientSocket);
 	bool success = false;
@@ -358,7 +358,7 @@ bool WindowsInterpreter::VerifyUserAuth(const SOCKET& clientSocket, User& user)
 	return success;
 }
 
-bool WindowsInterpreter::EnsureSingleTokenInstance(const std::string& token)
+bool WindowsInterpreter::EnsureSingleTokenInstance(const std::string& token) const //This can be simplified
 {
 	if (_clientPairs.find(token) == _clientPairs.end())
 		return true;
@@ -366,7 +366,7 @@ bool WindowsInterpreter::EnsureSingleTokenInstance(const std::string& token)
 	return false;
 }
 
-std::string WindowsInterpreter::CreateToken(User& user)
+std::string WindowsInterpreter::CreateToken(User& user) const
 {
 	std::string checkToken = user.Token();
 
@@ -379,7 +379,7 @@ std::string WindowsInterpreter::CreateToken(User& user)
 	return checkToken;
 }
 
-void WindowsInterpreter::NewDiscussionPost(const SOCKET& clientSocket)
+void WindowsInterpreter::NewDiscussionPost(const SOCKET clientSocket)
 {
 	static constexpr unsigned int command = (unsigned int)Command::NewDiscussionPost;
 
@@ -421,7 +421,7 @@ void WindowsInterpreter::NewDiscussionPost(const SOCKET& clientSocket)
 	}
 }
 
-void WindowsInterpreter::SendPostToClients(const SOCKET& clientSocket, const char* buffer, const size_t sizeOfBuffer)
+void WindowsInterpreter::SendPostToClients(const SOCKET clientSocket, const char* buffer, const size_t sizeOfBuffer) const
 {
 	// Does not entirely work
 	char message[sizeOfInt] = { 0 };
@@ -443,9 +443,9 @@ void WindowsInterpreter::SendPostToClients(const SOCKET& clientSocket, const cha
 
 }
 
-void WindowsInterpreter::ReceivePfp(const SOCKET& clientSocket)
+void WindowsInterpreter::ReceivePfp(const SOCKET clientSocket) const
 {
-	InboundPacket header(clientSocket, 5);
+	const InboundPacket header(clientSocket, 5);
 	
 	const char* file_buffer = header.buffer;
 	const unsigned int file_size = header.buffer_size;
@@ -471,9 +471,9 @@ void WindowsInterpreter::ReceivePfp(const SOCKET& clientSocket)
 	file.close();
 }
 
-void WindowsInterpreter::GetAllUsers(const SOCKET clientSocket)
+void WindowsInterpreter::GetAllUsers(const SOCKET clientSocket) const
 {
-	InboundPacket header(clientSocket);
+	const InboundPacket header(clientSocket);
 	std::vector<std::string> usernames = SQLInterface::Instance()->GetEveryExistingUsername();
 	std::string message;
 
@@ -493,9 +493,9 @@ void WindowsInterpreter::GetAllUsers(const SOCKET clientSocket)
 
 }
 
-void WindowsInterpreter::GetActiveUsers(const SOCKET clientSocket) {
+void WindowsInterpreter::GetActiveUsers(const SOCKET clientSocket) const {
 	//TOKEN, user+socket+*token
-	InboundPacket header(clientSocket);
+	const InboundPacket header(clientSocket);
 	std::string message;
 
 
@@ -516,8 +516,8 @@ void WindowsInterpreter::GetActiveUsers(const SOCKET clientSocket) {
 	SendPiecewise(clientSocket, message.data(), message.size());
 }
 
-void WindowsInterpreter::GetUsersContaining(const SOCKET clientSocket) {
-	InboundPacket in(clientSocket);
+void WindowsInterpreter::GetUsersContaining(const SOCKET clientSocket) const {
+	const InboundPacket in(clientSocket);
 	std::vector<std::string> users = SQLInterface::Instance()->GetEveryUserContaining(in.buffer);
 	std::string message;
 	//const User initiater = FindUserByToken(in.token);
@@ -559,6 +559,24 @@ void WindowsInterpreter::LogOut(const SOCKET clientSocket)
 	}
 	std::cout << "User \"" << pair->second.user.Username() << "\" has signed out!\n";
 	_clientPairs.erase(pair);
+}
+
+const User* WindowsInterpreter::FindUserByToken(const char* token) const
+{
+	const auto existingToken = _clientPairs.find(token);
+	if (existingToken != _clientPairs.end())
+		return &(existingToken->second.user);
+
+	return nullptr;
+}
+
+const User* WindowsInterpreter::FindUserByToken(const std::string& token) const
+{
+	const auto existingToken = _clientPairs.find(token);
+	if (existingToken != _clientPairs.end())
+		return &(existingToken->second.user);
+
+	return nullptr;
 }
 
 User* WindowsInterpreter::FindUserByToken(const char* token)
