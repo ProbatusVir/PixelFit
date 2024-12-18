@@ -8,6 +8,7 @@
 #include <chrono>
 #include <filesystem>
 #include "SQLInterface.h"
+#include "TokenHelper.h"
 
 void WindowsInterpreter::InterpretMessage(const SOCKET& clientSocket, Command command)
 {
@@ -148,6 +149,7 @@ void WindowsInterpreter::HandleLoginUser(const SOCKET& clientSocket)
 
 void WindowsInterpreter::HandleNewUser(const SOCKET& clientSocket)
 {
+	unsigned int tokenSize = ReadByteHeader(clientSocket);
 	unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
 
 	if (sizeOfHeader != 0) {
@@ -477,13 +479,12 @@ void WindowsInterpreter::GetAllUsers(const SOCKET clientSocket)
 
 	for (std::string& username : usernames)
 	{
-		const size_t whitespace = username.find(' ');
-		if (whitespace != std::string::npos)
-			username.erase(whitespace);
+		trimstr(message);
 
 		message += username + '\n';
 	}
-	message.pop_back();
+	if (!message.empty())
+		message.pop_back();
 	
 	OutboundHeader outHeader(Command::GetAllUsers, header.token_size, header.token, message.size());
 	outHeader.Serialize();
@@ -492,9 +493,47 @@ void WindowsInterpreter::GetAllUsers(const SOCKET clientSocket)
 
 }
 
-void WindowsInterpreter::GetActiveUsers(const SOCKET clientSocket) {}
+void WindowsInterpreter::GetActiveUsers(const SOCKET clientSocket) {
+	//TOKEN, user+socket+*token
+	InboundPacket header(clientSocket);
+	std::string message;
 
-void WindowsInterpreter::GetUsersContaining(const SOCKET clientSocket) {}
+
+	for (const std::pair<std::string, WindowsUserPair>& client : _clientPairs)
+	{
+		const WindowsUserPair& current = client.second;
+		const char* username = current.user.Username();
+
+		if (current.clientSocket != clientSocket)
+			message += std::string(username) + '\n';
+	}
+	if (!message.empty())
+		message.pop_back();
+
+	OutboundHeader outHeader(Command::GetActiveUsers, header.token_size, header.token, message.size());
+	outHeader.Serialize();
+	send(clientSocket, outHeader.serialized, outHeader.serialized_size, 0);
+	SendPiecewise(clientSocket, message.data(), message.size());
+}
+
+void WindowsInterpreter::GetUsersContaining(const SOCKET clientSocket) {
+	InboundPacket in(clientSocket);
+	std::vector<std::string> users = SQLInterface::Instance()->GetEveryUserContaining(in.buffer);
+	std::string message;
+	//const User initiater = FindUserByToken(in.token);
+	for (std::string& user : users)
+		message += trimstr(user) + '\n';
+
+	if (!message.empty())
+		message.pop_back();
+
+	OutboundHeader out(Command::GetUsersContaining, in.token_size, in.token, message.size());
+	out.Serialize();
+
+	send(clientSocket, out.serialized, out.serialized_size, 0);
+	SendPiecewise(clientSocket, message.data(), out.buffer_size);
+
+}
 
 void WindowsInterpreter::LogOut(const SOCKET clientSocket)
 {
@@ -539,5 +578,4 @@ User* WindowsInterpreter::FindUserByToken(const std::string& token)
 
 	return nullptr;
 }
-
 
