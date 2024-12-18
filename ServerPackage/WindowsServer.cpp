@@ -17,7 +17,7 @@ WindowsServer::WindowsServer()
 		return;
 	}
 	serverFd = socket(AF_INET, SOCK_STREAM, 0);
-	_interpreter = WindowsInterpreter();
+	_interpreter = WindowsInterpreter::Instance();
 
 }
 
@@ -36,7 +36,7 @@ WindowsServer::WindowsServer(int setupIPType)
 	}
 	
 	serverFd = socket(AF_INET, SOCK_STREAM, 0);
-	_interpreter = WindowsInterpreter();
+	_interpreter = WindowsInterpreter::Instance();
 }
 
 WindowsServer::~WindowsServer()
@@ -126,14 +126,14 @@ void WindowsServer::Start()
 					}
 					else if (bytesRead == 0) {
 						std::cout << "Client disconnected\n";
-						_interpreter.DisconnectClient(*clientIter);
+						_interpreter->DisconnectClient(*clientIter);
 						clientIter = _clients.erase(clientIter);
 						activityFromConnectedClient = true;
 						continue;
 					}
 					else if (bytesRead == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
 						std::cerr << "Socket error: " << WSAGetLastError() << "\n";
-						_interpreter.DisconnectClient(*clientIter);
+						_interpreter->DisconnectClient(*clientIter);
 						clientIter = _clients.erase(clientIter); 
 						activityFromConnectedClient = true;
 						continue;
@@ -198,15 +198,15 @@ void WindowsServer::HandleClient(const SOCKET clientSocket)
 	if (readBuffer > 0) {
 		recv(clientSocket, readCmd, sizeof(Command), 0); // Consume the bytes
 		Command command = static_cast<Command>(readCmd[0]);
-		_interpreter.InterpretMessage(clientSocket, command);
+		_interpreter->InterpretMessage(clientSocket, command);
 	}
 	else if (readBuffer == 0) {
 		std::cout << "Client disconnected\n";
-		_interpreter.DisconnectClient(clientSocket);
+		_interpreter->DisconnectClient(clientSocket);
 	}
 	else if (readBuffer == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
 		std::cerr << "Socket error: " << WSAGetLastError() << "\n";
-		_interpreter.DisconnectClient(clientSocket);
+		_interpreter->DisconnectClient(clientSocket);
 	}
 
 }

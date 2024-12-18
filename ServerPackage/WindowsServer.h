@@ -32,6 +32,6 @@ private:
 	
 	SOCKET serverFd;
 	std::vector<SOCKET> _clients;
-	WindowsInterpreter _interpreter;
+	WindowsInterpreter* _interpreter;
 };
 

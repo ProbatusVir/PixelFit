@@ -10,6 +10,9 @@
 #include "SQLInterface.h"
 #include "TokenHelper.h"
 
+WindowsInterpreter* WindowsInterpreter::instance = nullptr;
+
+
 void WindowsInterpreter::InterpretMessage(const SOCKET clientSocket, const Command command)
 {
 	switch (command) {

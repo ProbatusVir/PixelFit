@@ -51,8 +51,16 @@ private:
 	const User* FindUserByToken (const std::string& clientSocket) const;
 	User* FindUserByToken (const std::string& clientSocket);
 
+	WindowsInterpreter() = default;
+
 	//					Token		User+Socket+*token
 	std::unordered_map<std::string, WindowsUserPair> _clientPairs;
 	CommandSet _commands;
+
+public:
+	static WindowsInterpreter* Instance() { if (instance == nullptr) return new WindowsInterpreter(); else return instance; };
+	static void DestroyInstance() {	delete instance; }
+private:
+	static WindowsInterpreter* instance;
 };
 
