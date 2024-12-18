@@ -4,6 +4,7 @@
 #include "CommandSet.h"
 #include "DiscussionPost.h"
 #include "Header.h"
+#include "ActiveUsers.h"
 
 #include <WinSock2.h>
 #include <unordered_map>
@@ -19,6 +20,7 @@ public:
 	//From here the appropriate functions will be called and data handled outside of the switch statement.
 	void InterpretMessage(const SOCKET clientSocket, const Command command);
 	void DisconnectClient(const SOCKET clientSocket);
+	static unsigned int ReadByteHeader(const SOCKET clientSocket);
 private:
 
 	void HandleLoginUser(const SOCKET clientSocket);
@@ -29,9 +31,6 @@ private:
 	// discussion posts have more nuances to handle like is it a comment or main post.
 	void MessageToServer(const SOCKET clientSocket) const;
 	void SendMessageToClient(const SOCKET clientSocket, bool success) const;
-	unsigned int ReadByteHeader(const SOCKET clientSocket) const;
-	bool VerifyUserAuth(const SOCKET clientSocket, User& user) const;
-	bool EnsureSingleTokenInstance(const std::string& token) const;
 	std::string CreateToken(User& user) const;
 	void NewDiscussionPost(const SOCKET clientSocket);
 	void SendPostToClients(const SOCKET clientSocket, const char* buffer, const size_t sizeOfBuffer) const;
@@ -46,15 +45,9 @@ private:
 	void GetAllUsers(const SOCKET clientSocket) const;
 	void LogOut(const SOCKET clientSocket);
 
-	const User* FindUserByToken(const char* clientSocket) const;
-	User* FindUserByToken(const char* clientSocket);
-	const User* FindUserByToken (const std::string& clientSocket) const;
-	User* FindUserByToken (const std::string& clientSocket);
+	WindowsInterpreter() { _active_users = ActiveUsers::Instance(); }
 
-	WindowsInterpreter() = default;
-
-	//					Token		User+Socket+*token
-	std::unordered_map<std::string, WindowsUserPair> _clientPairs;
+	ActiveUsers* _active_users;
 	CommandSet _commands;
 
 public:

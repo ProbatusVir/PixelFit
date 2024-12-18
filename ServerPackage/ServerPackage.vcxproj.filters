@@ -45,6 +45,9 @@
     <ClCompile Include="Header.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ActiveUsers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WindowsServer.h">
@@ -78,6 +81,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ActiveUsers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

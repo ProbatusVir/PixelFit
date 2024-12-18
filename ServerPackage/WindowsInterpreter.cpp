@@ -114,8 +114,25 @@ void SimpleFileSend(const SOCKET clientSocket, const InboundPacket& header, cons
 	delete[] file_name;
 }
 
+bool VerifyUserAuth(const SOCKET clientSocket, User& user)
+{
+	const unsigned int header = WindowsInterpreter::Instance()->ReadByteHeader(clientSocket);
+	bool success = false;
+
+	if (header) {
+		char* token = new char[header];
+
+		recv(clientSocket, (char*)token, header, 0);
+		return success = (ActiveUsers::Instance()->FindUserByToken(token)) ? true : false;
+
+		delete[] token;
+	}
+	return success;
+}
+
 void WindowsInterpreter::DisconnectClient(const SOCKET clientSocket)
 {
+	std::unordered_map<std::string, WindowsUserPair>& _clientPairs = _active_users->data();
 	if (_clientPairs.size()) {
 		for (auto client = _clientPairs.begin(); client != _clientPairs.end();) {
 			if (client->second.clientSocket == clientSocket) {
@@ -193,7 +210,7 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET clientSocket, User& us
 		clientPair.token = token;
 
 		const std::pair<std::string, WindowsUserPair> newPair(tokenAsStr, clientPair);
-		_clientPairs.insert(newPair);
+		_active_users->data().insert(newPair);
 
 		std::cout << "Successfully logged in user \"" << user.Username() << "\"!\n";
 
@@ -338,42 +355,18 @@ void WindowsInterpreter::SendWork(const SOCKET clientSocket, const InboundPacket
 	SimpleFileSend(clientSocket, header, ResourceType::WORK, ".work");
 }
 
-unsigned int WindowsInterpreter::ReadByteHeader(const SOCKET clientSocket) const
+unsigned int WindowsInterpreter::ReadByteHeader(const SOCKET clientSocket)
 {
 	unsigned int byteHeader = 0;
 	recv(clientSocket, (char*)&byteHeader, sizeOfInt, 0);
 	return byteHeader;
 }
 
-bool WindowsInterpreter::VerifyUserAuth(const SOCKET clientSocket, User& user) const
-{
-	const unsigned int header = ReadByteHeader(clientSocket);
-	bool success = false;
-
-	if (header) {
-		char* token = new char[header];
-
-		recv(clientSocket, (char*)token, header, 0);
-		return success = (FindUserByToken(token)) ? true : false;
-
-		delete[] token;
-	}
-	return success;
-}
-
-bool WindowsInterpreter::EnsureSingleTokenInstance(const std::string& token) const //This can be simplified
-{
-	if (_clientPairs.find(token) == _clientPairs.end())
-		return true;
-	
-	return false;
-}
-
 std::string WindowsInterpreter::CreateToken(User& user) const
 {
 	std::string checkToken = user.Token();
 
-	while (!EnsureSingleTokenInstance(checkToken)) {
+	while (!_active_users->EnsureSingleTokenInstance(checkToken)) {
 		user.RemakeToken();
 		checkToken = user.Token();
 
@@ -427,6 +420,7 @@ void WindowsInterpreter::NewDiscussionPost(const SOCKET clientSocket)
 void WindowsInterpreter::SendPostToClients(const SOCKET clientSocket, const char* buffer, const size_t sizeOfBuffer) const
 {
 	// Does not entirely work
+	std::unordered_map<std::string, WindowsUserPair>& _clientPairs = _active_users->data();
 	char message[sizeOfInt] = { 0 };
 	auto clientIter = _clientPairs.begin();
 	
@@ -461,7 +455,7 @@ void WindowsInterpreter::ReceivePfp(const SOCKET clientSocket) const
 
 	if (!path) { std::cerr << "Unable to find the \"file_save_path\" variable in your .env file\n"; return; }
 
-	const char* username = FindUserByToken(header.token)->Username();
+	const char* username = _active_users->FindUserByToken(header.token)->Username();
 
 	const char* components[] = { path, username, ".png" };
 	const char* file_name = CONCATENATE(components);
@@ -504,7 +498,7 @@ void WindowsInterpreter::GetActiveUsers(const SOCKET clientSocket) const {
 	std::string message;
 
 
-	for (const std::pair<std::string, WindowsUserPair>& client : _clientPairs)
+	for (const std::pair<std::string, WindowsUserPair>& client : _active_users->data())
 	{
 		const WindowsUserPair& current = client.second;
 		const char* username = current.user.Username();
@@ -556,6 +550,8 @@ void WindowsInterpreter::LogOut(const SOCKET clientSocket)
 	}
 
 	//Find and erase
+	std::unordered_map<std::string, WindowsUserPair>& _clientPairs = _active_users->data();
+
 	auto pair = _clientPairs.find(token);
 	if (pair == _clientPairs.end())
 	{
@@ -564,41 +560,5 @@ void WindowsInterpreter::LogOut(const SOCKET clientSocket)
 	}
 	std::cout << "User \"" << pair->second.user.Username() << "\" has signed out!\n";
 	_clientPairs.erase(pair);
-}
-
-const User* WindowsInterpreter::FindUserByToken(const char* token) const
-{
-	const auto existingToken = _clientPairs.find(token);
-	if (existingToken != _clientPairs.end())
-		return &(existingToken->second.user);
-
-	return nullptr;
-}
-
-const User* WindowsInterpreter::FindUserByToken(const std::string& token) const
-{
-	const auto existingToken = _clientPairs.find(token);
-	if (existingToken != _clientPairs.end())
-		return &(existingToken->second.user);
-
-	return nullptr;
-}
-
-User* WindowsInterpreter::FindUserByToken(const char* token)
-{
-	const auto existingToken = _clientPairs.find(token);
-	if (existingToken != _clientPairs.end())
-		return &(existingToken->second.user);
-
-	return nullptr;
-}
-
-User* WindowsInterpreter::FindUserByToken(const std::string& token)
-{
-	const auto existingToken = _clientPairs.find(token);
-	if (existingToken != _clientPairs.end())
-		return &(existingToken->second.user);
-
-	return nullptr;
 }
 

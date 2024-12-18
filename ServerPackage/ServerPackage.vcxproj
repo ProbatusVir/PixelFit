@@ -129,6 +129,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ActiveUsers.cpp" />
     <ClCompile Include="CommandSet.cpp" />
     <ClCompile Include="DiscussionPost.cpp" />
     <ClCompile Include="FileOps.cpp" />
@@ -141,6 +142,7 @@
     <ClCompile Include="WindowsServer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ActiveUsers.h" />
     <ClInclude Include="CommandSet.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="DiscussionPost.h" />
