@@ -114,7 +114,7 @@ object ServerConnect {
                 Command.GetUser.int -> {}
                 Command.BanUser.int -> {}
                 Command.RequestData.int -> receiveData()
-                Command.GetUser.int -> receiveUsers()
+                Command.GetActiveUsers.int -> receiveUsers()
                 Command.GetAllUsers.int -> receiveUsers()
                 Command.GetUsersContaining.int -> receiveUsers()
                 else -> println("Received unexpected command")
@@ -324,7 +324,7 @@ object ServerConnect {
 
     fun getAllUsers() = sendToServer(Command.GetAllUsers.int, ByteArray(0))
 
-    fun getUsersContaining() = sendToServer(Command.GetUsersContaining.int, ByteArray(0))
+    fun getUsersContaining(string: String) = sendToServer(Command.GetUsersContaining.int, string)
 
     fun getActiveUsers() = sendToServer(Command.GetActiveUsers.int, ByteArray(0))
 
@@ -356,9 +356,9 @@ object ServerConnect {
         }.start()
     }
 
-        private const val SERVER_NAME = "6.tcp.ngrok.io"
+        private const val SERVER_NAME = "2.tcp.ngrok.io"
         private const val LOCALHOST = "10.0.2.2"
-        private const val PORT = 17241
+        private const val PORT = 10020
         private const val HASH_SIZE = 32
         private const val LENGTH_OF_COMMAND_AND_MESSAGE_HEADER = Int.SIZE_BYTES * 3 + 1 //This is good for an authenticated read, might have to cut it out later.
         //server endian
