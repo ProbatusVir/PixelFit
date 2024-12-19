@@ -22,6 +22,9 @@ consteval int strtoint(const char str[sizeof(int)]) { int result = 0; for (int i
 		GetAllUsers,
 		GetUsersContaining,
 		GetActiveUsers,
+		BlockUser,
+		FriendUser,
+		CreateChallenge,
 	};
 
 	//No matter what, I guess because of how hex literals work, there is no elegant way of doing this. So these have to be opposite endian of the Kotlin client
@@ -29,7 +32,7 @@ consteval int strtoint(const char str[sizeof(int)]) { int result = 0; for (int i
 		PNG = rstrtoint("PNG"),
 		DIR = rstrtoint("DIR"),
 		WORK = rstrtoint("WORK"),
-		
+		CHALL= rstrtoint("CHALL"),
 	};
 
 	enum class MessageResult : int {
