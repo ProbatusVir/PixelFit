@@ -59,6 +59,7 @@
     <string name="password_input_text">Enter Your Password</string>
     <string name="reenter_password_input_text">Re Enter Your Password</string>
     <string name="back_button">Back Button</string>
+    <string name="next">Next</string>
 
     <!-- Room finder text -->
     <string name="room_header">Room Finder</string>

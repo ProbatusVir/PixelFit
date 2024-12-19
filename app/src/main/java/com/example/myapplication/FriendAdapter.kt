@@ -1,5 +1,4 @@
 package com.example.myapplication
-
 import FriendData
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +14,7 @@ class FriendAdapter(var mList : List<FriendData>) : RecyclerView.Adapter<FriendA
 
     fun setFilteredList(friendList: List<FriendData>) {
         this.mList = friendList
-        notifyDataSetChanged() // Notify RecyclerView of data changes
+        notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int {

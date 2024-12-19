@@ -70,7 +70,13 @@ class ProfileEdit : Fragment() {
         }
 
         binding.backButton.setOnClickListener {
-            findNavController().navigate(R.id.profileFragment)
+            val previousDestination = findNavController().previousBackStackEntry?.destination?.id
+
+            if (previousDestination == R.id.signUp) {
+                findNavController().navigate(R.id.HomeFragment)
+            } else {
+                findNavController().navigate(R.id.profileFragment)
+            }
         }
 
         loadPfp()

@@ -1,7 +1,6 @@
 package com.example.myapplication
 
 import FriendData
-import InstructorData
 import ServerConnect
 import android.os.Bundle
 import androidx.fragment.app.Fragment
