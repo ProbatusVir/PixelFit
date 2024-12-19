@@ -56,5 +56,9 @@ consteval int strtoint(const char str[sizeof(int)]) { int result = 0; for (int i
 	//I'm a little unsure of how to approach these two...
 	static constexpr unsigned int sizeOfInt = 4;
 	static constexpr unsigned int sizeOfDiscussionPost = 1024;
+	
+	static constexpr size_t ROOM_NAME_SIZE = 24;
+	static constexpr size_t DESCRIPTION_SIZE = 256;
+	static constexpr size_t ROOM_SIZE = 10;
 
 
