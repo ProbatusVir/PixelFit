@@ -26,7 +26,7 @@
     </fragment>
 
     <fragment android:id="@+id/FriendsFragment"
-              android:name="com.example.myapplication.AddFriends"
+              android:name="com.example.myapplication.FriendFinder"
               android:label="fragment_add_friends"
               tools:layout="@layout/fragment_add_friends"/>
 

@@ -11,22 +11,27 @@ import android.widget.SearchView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myapplication.databinding.FragmentSecondBinding
 import java.util.*
 import kotlin.collections.ArrayList
 
 class FriendFinder : Fragment() {
 
+    private var _binding: FragmentSecondBinding? = null
+    private val binding get() = _binding!!
+
     private lateinit var recyclerView: RecyclerView
-    private lateinit var searchView: SearchView
+    private lateinit var searchView: androidx.appcompat.widget.SearchView
     private lateinit var mAdapter: FriendAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_add_friends, container, false)
-        searchView = view.findViewById(R.id.searchView)
+
+        // Use the correct type for SearchView
+        searchView = view.findViewById<androidx.appcompat.widget.SearchView>(R.id.searchView)
         recyclerView = view.findViewById(R.id.recyclerView)
 
         recyclerView.setHasFixedSize(true)
@@ -39,7 +44,7 @@ class FriendFinder : Fragment() {
         mAdapter = FriendAdapter(mList)
         recyclerView.adapter = mAdapter
 
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        searchView.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
             }
@@ -52,6 +57,7 @@ class FriendFinder : Fragment() {
 
         return view
     }
+
 
     private fun filterList(query: String?) {
         if (query != null) {
@@ -74,8 +80,13 @@ class FriendFinder : Fragment() {
             add(FriendData("Avery"))
             add(FriendData("Alex"))
             add(FriendData("Corbin"))
+            add(FriendData("Dominick"))
+            add(FriendData("Emily"))
+            add(FriendData("Jackson"))
             add(FriendData("James"))
+            add(FriendData("Kailah"))
             add(FriendData("Rodger"))
+            add(FriendData("Samantha"))
         }
         Log.d("FriendFinder", "Data added to list: $mList")
     }
@@ -83,4 +94,5 @@ class FriendFinder : Fragment() {
     companion object {
         var mList = ArrayList<FriendData>()
     }
+
 }
