@@ -3,7 +3,7 @@
 #include "Constants.h"
 
 #define CONCATENATE(data) Concatenator(sizeof(data) / sizeof(data[0]), data) //Concatenate an arbitrary number of fields where all strings are null terminated
-#define CONCATENATEA(data, sizes) Concatenator(sizeof(data) / sizeof(data[0]), data, sizes); static_assert(sizeof(data) / sizeof(data[0]) == sizeof(sizes) / sizeof(sizes[0])); //Concatenate an arbitrary number of fields where all sizes are known
+#define CONCATENATEA(data, sizes) Concatenator(sizeof(data) / sizeof(data[0]), data, sizes); static_assert(sizeof(data) / sizeof(data[0]) == sizeof(sizes) / sizeof(sizes[0])); //Concatenate an arbitrary number of fields where all sizes are known. Self-null-terminated
 #define CONCATENATEB(data, sizes, arr, arr_size) Concatenator(sizeof(data) / sizeof(data[0]), data, sizes, arr, arr_size); static_assert(sizeof(data) / sizeof(data[0]) == sizeof(sizes) / sizeof(sizes[0])); //Concatenate an arbitrary number of strings, where all sizes are known, and you wish bind the array to a particular address, and wish to capture the array size 
 const char* Concatenator(const size_t fields, const char** data, const size_t* sizes);
 const char* Concatenator(const size_t fields, const char** data, const size_t* sizes, char*& array, size_t& array_size);
