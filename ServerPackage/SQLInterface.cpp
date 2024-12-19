@@ -34,6 +34,38 @@ SQLInterface::~SQLInterface()
 	if (connStr != nullptr) delete[] connStr;
 }
 
+int SQLInterface::GetUserIDByUsername(const char* username)
+{
+	constexpr const char query_start[] = "SELECT iUserID FROM dbo.[tblUser] WHERE nvcUserName = '";
+	constexpr const char query_end[] = "'";
+	const char* components[] = { query_start, username, query_end };
+	const size_t sizes[] = { sizeof(query_start) - 1, strlen(username), sizeof(query_end)};
+
+	const char* query = CONCATENATEA(components, sizes);
+
+	SQLHSTMT statement = SetupAlloc();
+	//SQLRETURN result = SQLExecDirectA(statement, (SQLCHAR*)query, sizes[0] + sizes[1] + 1);
+	SQLRETURN result = SQLExecDirectA(statement, (SQLCHAR*)query, SQL_NTS);
+	
+	SQLINTEGER id = 0;
+	SQLLEN len = 0;
+
+	SQLBindCol(statement, 1, SQLINT4, &id, sizeof(SQLINTEGER), &len);
+	result = SQLFetchScroll(statement, SQL_FETCH_FIRST, 1);
+	
+	if (!(result == SQL_SUCCESS || result == SQL_SUCCESS_WITH_INFO))
+		ErrorLogFromSQL(statement, result);
+
+
+
+
+	SQLFreeHandle(SQL_HANDLE_STMT, statement);
+	delete[] query;
+
+	return id;
+}
+
+
 void SQLInterface::ConnectToDB()
 {
 	// The naming convention is:
@@ -71,9 +103,10 @@ void SQLInterface::ConnectToDB()
 	InterpretState(henvironment_state, "environment handle");
 	InterpretState(hconnection_state, "connection handle");
 	InterpretState(driver_state, "driver state");
-	
 
-}
+	int a = GetUserIDByUsername("NotKotlinusername");
+
+	}
 
 void SQLInterface::InterpretState(const SQLRETURN code, const char* name, const bool indented) const
 {
@@ -85,10 +118,11 @@ void SQLInterface::InterpretState(const SQLRETURN code, const char* name, const 
 	SQLSMALLINT textLength;
 
 
-	if (code == SQL_SUCCESS_WITH_INFO || code == SQL_ERROR) {
+	if (code == SQL_SUCCESS_WITH_INFO ) {
 		SQLGetDiagRecA(SQL_HANDLE_DBC, m_hDbc, 1, sqlState, &nativeError, message, sizeof(message), &textLength);
 		std::cout << "Warning: " << (char*)message << " (SQL State: " << (char*)sqlState << ")\n";
 	}
+
 
 	std::cout << successWithInfo << '\n';
 
@@ -193,6 +227,34 @@ std::vector<std::string> SQLInterface::GetEveryUserContaining(const char* substr
 
 	SQLFreeHandle(SQL_HANDLE_STMT, statement);
 	return hits;
+}
+
+//void SQLInterface::BlockUser(const char* blocker, const char* blocked) const
+//{
+//	if (strcmp(blocker, blocked) == 0)
+//		return;
+//
+//	constexpr const char fetch_query[] = "SELECT iUserID FROM [dbo].[tblUser] WHERE nvcUserName = ?";
+//	SQLHSTMT statement = SetupAlloc();
+//	SQLRETURN result = SQLPrepareA(statement, (SQLCHAR*)fetch_query, sizeof(fetch_query));
+//
+//
+//	constexpr const char insert_query[] = "INSERT INTO [dbo].[tblBlock] (iLesserID, iGreaterID) VALUES (?,?)";
+//	SQLHSTMT statement = SetupAlloc();
+//	SQLRETURN result = SQLPrepareA(statement, (SQLCHAR*)query, sizeof(query));
+//	if (result != SQL_SUCCESS)
+//	{
+//		std::cerr << "Could not block user.";
+//		ErrorLogFromSQL(statement, result);
+//		SQLFreeHandle(SQL_HANDLE_STMT, statement);
+//		return;
+//	}
+//
+//	
+//}
+
+void SQLInterface::ToggleFriendUser(const char* username1, const char* username2) const
+{
 }
 
 /// <summary>
@@ -333,7 +395,12 @@ void SQLInterface::ErrorLogFromSQL(const SQLHSTMT statement, const SQLRETURN err
 		error_message = "Invalid handle!";
 		break;
 	case (SQL_ERROR) :
-		InterpretState(error, "");
+		SQLCHAR sql_state[6];
+		SQLINTEGER native_error;
+		SQLCHAR message[1024];
+		SQLSMALLINT textLength;
+		SQLGetDiagRecA(SQL_HANDLE_STMT, statement, 1, sql_state, &native_error, message, sizeof(message), &textLength);
+		std::cerr << "ERROR: " << (char*)message << '\n';
 		return;
 	default:
 		error_message = "Undiagnosed.";
@@ -343,6 +410,21 @@ void SQLInterface::ErrorLogFromSQL(const SQLHSTMT statement, const SQLRETURN err
 	std::cout << "SQL ERROR " << error << ": " << error_message << '\n';
 }
 
+
+//
+// const char* error_message; //Not SQL related
+//char successWithInfo[1024] = { 0 };
+//SQLCHAR sqlState[6];
+//SQLINTEGER nativeError;
+//SQLCHAR message[1024];
+//SQLSMALLINT textLength;
+//
+//
+//if (code == SQL_SUCCESS_WITH_INFO) {
+//	SQLGetDiagRecA(SQL_HANDLE_DBC, m_hDbc, 1, sqlState, &nativeError, message, sizeof(message), &textLength);
+//	std::cout << "Warning: " << (char*)message << " (SQL State: " << (char*)sqlState << ")\n";
+//}
+//
 // Because Microsofts version of this does not work so I made one that does
 void SQLInterface::ResetHandle(SQLHSTMT& statement)
 {
