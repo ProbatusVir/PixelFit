@@ -2,7 +2,7 @@ package com.example.myapplication
 
 import Shared
 import ServerConnect
-import android.content.Intent
+import android.content.Context
 import android.os.Bundle
 import android.view.MenuInflater
 import androidx.appcompat.app.AppCompatActivity
@@ -16,14 +16,11 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlin.io.path.deleteIfExists
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-
-    private val connection = ServerConnect
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +73,8 @@ class MainActivity : AppCompatActivity() {
             showUserAvatarMenu(it, navController)
             //testFeature()
         }
+
+        val connect = ServerConnect //It's chilling here
     }
 
     fun testFeature()
@@ -138,8 +137,23 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    init {
+        instance = this
+    }
+    fun getContext() : Context = applicationContext
+
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        ActiveUser.saveToFile()
+    }
+
+    companion object {
+        private var instance : MainActivity? = null
+        fun getApplicationContext() : Context = instance!!.applicationContext
     }
 }
