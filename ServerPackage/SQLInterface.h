@@ -22,8 +22,11 @@ public:
 	bool LoginRequest(const char* username, const char* password) const;
 	std::vector<std::string> GetEveryExistingUsername() const;
 	std::vector<std::string> GetEveryUserContaining(const char* substr) const;
+	void BlockUser(const char* username1, const char* username2) const;
+	void ToggleFriendUser(const char* username1, const char* username2) const;
 
 private:
+	int GetUserIDByUsername(const char* username) const;
 	void ConnectToDB();
 	void InterpretState(const SQLRETURN code, const char* name, const bool indented = true) const;
 	void LoadCredentials();
