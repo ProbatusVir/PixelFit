@@ -8,12 +8,13 @@
 const char* Concatenator(const size_t fields, const char** data, const size_t* sizes);
 const char* Concatenator(const size_t fields, const char** data, const size_t* sizes, char*& array, size_t& array_size);
 const char* Concatenator(const size_t fields, const char** data);
+static unsigned int ReadByteHeader(const SOCKET clientSocket);
+static char* DelayRead(const SOCKET socket, const unsigned int wait, const size_t buffer_size);
+
 
 /////////////////////////////////////////////////////// Parents //////////////////////////////////////////////////////////////////
 struct Header
 {
-	static unsigned int ReadByteHeader(const SOCKET clientSocket);
-
 	Header(const SOCKET socket);
 	Header(const unsigned int _tk_size, const char* _token, const unsigned int _bf_size);
 	~Header();
@@ -83,3 +84,16 @@ struct OutboundPacket : public InboundPacket
 	Command command;
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct InboundResourceHeader : public InboundHeader
+{
+	InboundResourceHeader(const SOCKET socket);
+	ResourceType type;
+};
+
+struct InboundResourcePacket : public InboundResourceHeader
+{
+	InboundResourcePacket(const SOCKET socket, unsigned int wait = 0);
+	char* buffer = nullptr;
+};

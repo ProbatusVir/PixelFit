@@ -62,6 +62,8 @@ void WindowsInterpreter::InterpretMessage(const SOCKET clientSocket, const Comma
 	case Command::GetActiveUsers :
 		GetActiveUsers(clientSocket);
 		break;
+	default : 
+		std::cerr << "Invalid command\n";
 	}
 }
 
@@ -77,15 +79,14 @@ void SendPiecewise(const SOCKET clientSocket, const char* data, const size_t mes
 
 }
 
-void SimpleFileSend(const SOCKET clientSocket, const InboundPacket& header, const ResourceType type, const char* suffix) {
+void SimpleFileSend(const SOCKET clientSocket, const InboundResourcePacket& header, const ResourceType type, const char* suffix) {
 	constexpr static const Command command = Command::RequestData;
-	const char* reader = header.buffer + sizeof(int);
 
 	FileOps fop = FileOps();
 
-	const size_t file_stem_length = strlen(reader);
+	const size_t file_stem_length = strlen(header.buffer);
 	char* file_stem = new char[file_stem_length + 2]; file_stem[file_stem_length] = '\0'; file_stem[file_stem_length + 1] = '\0';
-	memcpy(file_stem, reader, file_stem_length);
+	memcpy(file_stem, header.buffer, file_stem_length);
 
 	const char* file_path = EnvironmentFile::Instance()->FetchEnvironmentVariable("file_save_path");
 
@@ -264,46 +265,42 @@ void WindowsInterpreter::SendMessageToClient(const SOCKET clientSocket, bool suc
 
 void WindowsInterpreter::SendData(const SOCKET clientSocket) const
 {
-	const InboundPacket header(clientSocket);
+	const InboundResourcePacket header(clientSocket);
 
-	const char* reader = header.buffer;
-	int resource_type = 0;
-	memcpy_s(&resource_type, sizeOfInt, reader, sizeOfInt);
-	reader += sizeOfInt;
-
-	switch (resource_type)
+	const ResourceType type = header.type;
+	switch (header.type)
 	{
-	case (int)ResourceType::PNG:
+	case ResourceType::PNG:
 		SendImage(clientSocket, header);
 		break;
-	case (int)ResourceType::DIR:
+	case ResourceType::DIR:
 		SendDirectory(clientSocket, header);
 		break;
-	case (int)ResourceType::WORK:
+	case ResourceType::WORK:
 		SendWork(clientSocket, header);
 		break;
+	default:
+		std::cerr << "Invalid resource type.\n";
 	}
 }
 
-void WindowsInterpreter::SendImage(const SOCKET clientSocket, const InboundPacket& header) const
+void WindowsInterpreter::SendImage(const SOCKET clientSocket, const InboundResourcePacket& header) const
 {
-	SimpleFileSend(clientSocket, header, ResourceType::PNG, ".png");
+	SimpleFileSend(clientSocket, header, header.type, ".png");
 }
 
-void WindowsInterpreter::SendDirectory(const SOCKET clientSocket, const InboundPacket& header) const
+void WindowsInterpreter::SendDirectory(const SOCKET clientSocket, const InboundResourcePacket& header) const
 {
 	constexpr static const Command command = Command::RequestData;
-	constexpr static const ResourceType type = ResourceType::DIR;
-	const char* reader = header.buffer + sizeof(int);
 
 	FileOps fop = FileOps();
 
 	const char* file_path = EnvironmentFile::Instance()->FetchEnvironmentVariable("file_save_path");
 
-	const char* components[] = { file_path, reader };
+	const char* components[] = { file_path, header.buffer };
 	const char* full_directory = CONCATENATE(components);
 
-	std::string data = std::string(reader) + '\n';
+	std::string data = std::string(header.buffer) + '\n';
 
 	if (!std::filesystem::is_directory(full_directory))
 	{
@@ -314,14 +311,14 @@ void WindowsInterpreter::SendDirectory(const SOCKET clientSocket, const InboundP
 	for (const auto& entry : std::filesystem::directory_iterator(full_directory))
 		data += entry.path().stem().generic_string() + '\n';
 
-	const unsigned int message_size = (unsigned int)(sizeof(type) + data.length());
+	const unsigned int message_size = (unsigned int)(sizeof(header.type) + data.length());
 
 	OutboundHeader outHeader (command, header.token_size, header.token, message_size);
 
 	const char* out = outHeader.Serialize();
 
 	send(clientSocket, out, (int)outHeader.serialized_size, 0);
-	send(clientSocket, (char*)&type, sizeof(type), 0);
+	send(clientSocket, (char*)&header.type, sizeof(header.type), 0);
 
 	const char* read_point = data.data();
 	for (size_t bytes_left = message_size; bytes_left;)
@@ -334,9 +331,9 @@ void WindowsInterpreter::SendDirectory(const SOCKET clientSocket, const InboundP
 	}
 }
 
-void WindowsInterpreter::SendWork(const SOCKET clientSocket, const InboundPacket& header) const
+void WindowsInterpreter::SendWork(const SOCKET clientSocket, const InboundResourcePacket& header) const
 {
-	SimpleFileSend(clientSocket, header, ResourceType::WORK, ".work");
+	SimpleFileSend(clientSocket, header, header.type, ".work");
 }
 
 unsigned int WindowsInterpreter::ReadByteHeader(const SOCKET clientSocket)

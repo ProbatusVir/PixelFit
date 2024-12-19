@@ -37,9 +37,9 @@ private:
 	void CreateMessagePacket(DiscussionPost& post , const size_t packetSize) const;
 	void ReceivePfp(const SOCKET clientSocket) const;
 	void SendData(const SOCKET clientSocket) const;
-	void SendImage(const SOCKET clientSocket, const InboundPacket& header) const;
-	void SendDirectory(const SOCKET clientSocket, const InboundPacket& header) const;
-	void SendWork(const SOCKET clientSocket, const InboundPacket& header) const;
+	void SendImage(const SOCKET clientSocket, const InboundResourcePacket& header) const;
+	void SendDirectory(const SOCKET clientSocket, const InboundResourcePacket& header) const;
+	void SendWork(const SOCKET clientSocket, const InboundResourcePacket& header) const;
 	void GetActiveUsers(const SOCKET clientSocket) const;
 	void GetUsersContaining(const SOCKET clientSocket) const;
 	void GetAllUsers(const SOCKET clientSocket) const;
