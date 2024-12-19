@@ -48,6 +48,12 @@
     <ClCompile Include="ActiveUsers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Rooms.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Challenge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WindowsServer.h">
@@ -84,6 +90,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ActiveUsers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Rooms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Challenge.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
