@@ -148,44 +148,32 @@ void WindowsInterpreter::DisconnectClient(const SOCKET clientSocket)
 
 void WindowsInterpreter::HandleLoginUser(const SOCKET clientSocket)
 {
-	const unsigned int tokenSize = ReadByteHeader(clientSocket);
-	const unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
-	if (sizeOfHeader != 0) {
-		char* buffer = new char[sizeOfHeader + 1];
-		const unsigned int bytesRead = recv(clientSocket, buffer, sizeOfHeader, 0);
-		if (bytesRead != 0) {
-			bool success = true;
-			User user = _commands.LoginUser(buffer, success);
-			LoginResponseToUser(clientSocket, user, success);
-		}
-		
-
-		delete[] buffer;
-	}
-	else {
+	const InboundPacket in(clientSocket);
+	
+	if (in.buffer_size == 0)
+	{
 		SendMessageToClient(clientSocket, false);
+		return;
 	}
+
+	bool success = true;
+	User user = _commands.LoginUser(in.buffer, success);
+	LoginResponseToUser(clientSocket, user, success);
+
 }
 
 void WindowsInterpreter::HandleNewUser(const SOCKET clientSocket)
 {
-	unsigned int tokenSize = ReadByteHeader(clientSocket);
-	unsigned int sizeOfHeader = ReadByteHeader(clientSocket);
-
-	if (sizeOfHeader != 0) {
-		char* buffer = new char[sizeOfHeader + 1];
-		unsigned int bytesRead = recv(clientSocket, buffer, sizeOfHeader, 0);
-		if (bytesRead != 0) {
-			bool success = true;
-			User newUser = _commands.NewUser(buffer, success);
-			LoginResponseToUser(clientSocket, newUser, success);
-		}
-		
-		delete[] buffer;
+	InboundPacket in(clientSocket);
+	if (in.buffer_size == 0)
+	{
+		SendMessageToClient(clientSocket, false);
+		return;
 	}
 
-	else SendMessageToClient(clientSocket, false);
-
+	bool success = true;
+	User newUser = _commands.NewUser(in.buffer, success);
+	LoginResponseToUser(clientSocket, newUser, success);
 }
 
 void WindowsInterpreter::LoginResponseToUser(const SOCKET clientSocket, User& user, const bool success)
@@ -203,11 +191,9 @@ void WindowsInterpreter::LoginResponseToUser(const SOCKET clientSocket, User& us
 		memcpy_s(response, sizeOfInt, &msgSuccess, sizeOfInt);
 		memcpy_s(response + sizeOfInt, sizeOfInt, &sizeOfToken, sizeOfInt);
 		memcpy_s(response + sizeOfInt * 2, sizeOfToken, token, sizeOfToken);
+		
 		send(clientSocket, response, sizeOfResponse, 0);
-		WindowsUserPair clientPair;
-		clientPair.user = user;
-		clientPair.clientSocket = clientSocket;
-		clientPair.token = token;
+		WindowsUserPair clientPair(user, clientSocket, token);
 
 		const std::pair<std::string, WindowsUserPair> newPair(tokenAsStr, clientPair);
 		_active_users->data().insert(newPair);
@@ -299,8 +285,6 @@ void WindowsInterpreter::SendData(const SOCKET clientSocket) const
 	}
 }
 
-//Prolly gonna send the user's token back to them at some point, just to verify this message, but for now... meh
-//FIXME: make me actually work, there's some funnky stuff going on with getting the image name, and that's the only problem...
 void WindowsInterpreter::SendImage(const SOCKET clientSocket, const InboundPacket& header) const
 {
 	SimpleFileSend(clientSocket, header, ResourceType::PNG, ".png");
@@ -485,9 +469,9 @@ void WindowsInterpreter::GetAllUsers(const SOCKET clientSocket) const
 	if (!message.empty())
 		message.pop_back();
 	
-	OutboundHeader outHeader(Command::GetAllUsers, header.token_size, header.token, message.size());
+	OutboundHeader outHeader(Command::GetAllUsers, (int)header.token_size, header.token, (int)message.size());
 	outHeader.Serialize();
-	send(clientSocket, outHeader.serialized, outHeader.serialized_size, 0);
+	send(clientSocket, outHeader.serialized, (int)outHeader.serialized_size, 0);
 	SendPiecewise(clientSocket, message.data(), message.size());
 
 }
@@ -509,9 +493,9 @@ void WindowsInterpreter::GetActiveUsers(const SOCKET clientSocket) const {
 	if (!message.empty())
 		message.pop_back();
 
-	OutboundHeader outHeader(Command::GetActiveUsers, header.token_size, header.token, message.size());
+	OutboundHeader outHeader(Command::GetActiveUsers, header.token_size, header.token, (int)message.size());
 	outHeader.Serialize();
-	send(clientSocket, outHeader.serialized, outHeader.serialized_size, 0);
+	send(clientSocket, outHeader.serialized, (int)outHeader.serialized_size, 0);
 	SendPiecewise(clientSocket, message.data(), message.size());
 }
 
@@ -526,33 +510,22 @@ void WindowsInterpreter::GetUsersContaining(const SOCKET clientSocket) const {
 	if (!message.empty())
 		message.pop_back();
 
-	OutboundHeader out(Command::GetUsersContaining, in.token_size, in.token, message.size());
+	OutboundHeader out(Command::GetUsersContaining, in.token_size, in.token, (int)message.size());
 	out.Serialize();
 
-	send(clientSocket, out.serialized, out.serialized_size, 0);
+	send(clientSocket, out.serialized, (int)out.serialized_size, 0);
 	SendPiecewise(clientSocket, message.data(), out.buffer_size);
 
 }
 
 void WindowsInterpreter::LogOut(const SOCKET clientSocket)
 {
-	const unsigned int token_size = ReadByteHeader(clientSocket);
-	char* token = new char[token_size + 1]; token[token_size] = '\0';
-	recv(clientSocket, token, token_size, 0);
-	const unsigned int message_size = ReadByteHeader(clientSocket);
-	
-	//Ignore whatever message might be associated here, totally unnecessary.
-	if (message_size)
-	{
-		char* buffer = new char[message_size];
-		recv(clientSocket, buffer, message_size, 0);
-		delete[] buffer;
-	}
+	InboundPacket in(clientSocket);
 
 	//Find and erase
 	std::unordered_map<std::string, WindowsUserPair>& _clientPairs = _active_users->data();
 
-	auto pair = _clientPairs.find(token);
+	auto pair = _clientPairs.find(in.token);
 	if (pair == _clientPairs.end())
 	{
 		std::cerr << "User token not found! Couldn't log out.\n";

@@ -116,9 +116,9 @@ void WindowsServer::Start()
 			for (; clientIter != _clients.end();) {
 				if (FD_ISSET(*clientIter, &readFds)) {
 
-					char testData[4];
-					int bytesRead = recv(*clientIter, testData, sizeOfInt, MSG_PEEK);
-					if (bytesRead > 0 && testData[0] != 0) {
+					Command testData;
+					int bytesRead = recv(*clientIter, (char*)&testData, sizeOfInt, MSG_PEEK);
+					if (bytesRead > 0 && ((char*)&testData)[0] != 0) {
 						HandleClient(*clientIter);
 						// activity was a connected client, not needing a new accept call
 						activityFromConnectedClient = true;
