@@ -38,6 +38,7 @@ class SecondFragment : Fragment() {
         binding.loginButton.setOnClickListener {
             val email = binding.emailInput.text.toString()
             val password = binding.passwordInput.text.toString()
+            ActiveUser.username = email
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
                 val sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
