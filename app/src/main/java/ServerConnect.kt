@@ -33,6 +33,9 @@ enum class Command(val int : Int) {
     GetAllUsers(12),
     GetUsersContaining(13),
     GetActiveUsers(14),
+    BlockUser(15),
+    FriendUser(16),
+    CreateChallenge(17),
 }
 
 enum class ResourceType(val int:  Int)
@@ -40,6 +43,7 @@ enum class ResourceType(val int:  Int)
     PNG(0x504E4700), //this is first four bytes of the PNG header.
     DIR(0x44495200),
     WORK(0x574F524B),
+    CHAL(0x4348414C),
 }
 
 object ServerConnect {
@@ -156,7 +160,7 @@ object ServerConnect {
     /**
      * Sends the command, token, and message to the server.
      */
-    private fun sendToServer(command : Int, message : ByteArray)
+    fun sendToServer(command : Int, message : ByteArray)
     {
         val tokenSize = if (token != null)
             HASH_SIZE + 1 else 0
@@ -183,7 +187,7 @@ object ServerConnect {
         outputStream?.write(messageToServer)
         outputStream?.flush()
     }
-    private fun sendToServer(command : Int, message : String) = sendToServer(command, message.toByteArray())
+    fun sendToServer(command : Int, message : String) = sendToServer(command, message.toByteArray())
 
 
     /**
@@ -332,6 +336,11 @@ object ServerConnect {
 
     fun getActiveUsers() = sendToServer(Command.GetActiveUsers.int, ByteArray(0))
 
+    fun blockUser(username : String) = sendToServer(Command.BlockUser.int, username)
+
+    fun toggleFriendUser(username : String) = sendToServer(Command.FriendUser.int, username)
+
+
     fun connected() : Boolean {
         return socket != null
     }
@@ -368,9 +377,9 @@ object ServerConnect {
         }.start()
     }
 
-        private const val SERVER_NAME = "4.tcp.ngrok.io"
+        private const val SERVER_NAME = "10.0.2.2"
         private const val LOCALHOST = "10.0.2.2"
-        private const val PORT = 13102
+        private const val PORT = 5930
         private const val HASH_SIZE = 32
         private const val LENGTH_OF_COMMAND_AND_MESSAGE_HEADER = Int.SIZE_BYTES * 3 + 1 //This is good for an authenticated read, might have to cut it out later.
         //server endian
