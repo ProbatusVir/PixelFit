@@ -31,7 +31,7 @@
               tools:layout="@layout/fragment_add_friends"/>
 
     <fragment android:id="@+id/GroupFragment"
-              android:name="com.example.myapplication.GroupFinder"
+              android:name="com.example.myapplication.FriendFinder"
               android:label="fragment_group_finder"
               tools:layout="@layout/fragment_group_finder"/>
 
