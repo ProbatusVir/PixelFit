@@ -74,7 +74,8 @@ class MainActivity : AppCompatActivity() {
             //testFeature()
         }
 
-        val connect = ServerConnect //It's chilling here
+        val connect = ServerConnect
+        connect.connected() //It's chilling here
     }
 
     fun testFeature()

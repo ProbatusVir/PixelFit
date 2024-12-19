@@ -260,7 +260,7 @@ object ServerConnect {
         var endOfName = 0
         for (i in 0 until buffer.size)
         {
-            if (buffer[i] == '\n'.code.toByte())
+            if (buffer[i] == delim.code.toByte())
                 break
             endOfName++
         }
