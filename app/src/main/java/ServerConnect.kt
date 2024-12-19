@@ -1,5 +1,9 @@
+import android.os.Handler
+import android.os.Looper
 import android.os.StrictMode
+import android.widget.Toast
 import com.example.myapplication.Instructor
+import com.example.myapplication.MainActivity
 import java.io.*
 import java.net.InetAddress
 import java.net.Socket
@@ -38,20 +42,7 @@ enum class ResourceType(val int:  Int)
     WORK(0x574F524B),
 }
 
-enum class MessageResult(val int : Int) {
-
-    Failed(0),
-    LoginSuccess(1),
-    Success(2);
-
-    companion object {
-        fun fromInt(int : Int) = entries.first {it.int == int}
-    }
-}
-
-
 object ServerConnect {
-
     private val serverAddress = getMyServerAddress()
     //TODO: add some error handling
     private var socket : Socket? = null
@@ -67,11 +58,20 @@ object ServerConnect {
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
 
-        return try {
-             InetAddress.getByName(SERVER_NAME)
-        } catch (e : Exception) {
-            InetAddress.getByName(LOCALHOST) //This alternative keeps the client from crashing when a server is not specified or not active
+        var addr : InetAddress? = null
+        while (addr == null) {
+
+            addr = try {
+                InetAddress.getByName(SERVER_NAME)
+            } catch (e: Exception) {
+                InetAddress.getByName(LOCALHOST) //This alternative keeps the client from crashing when a server is not specified or not active
+            }
+            if (addr == null)
+                makeToast("Failed to find server address.")
         }
+
+        makeToast("Connected to server!")
+        return addr
 
         //https://stackoverflow.com/questions/5806220/how-to-connect-to-my-http-localhost-web-server-from-android-emulator
     }
@@ -85,7 +85,7 @@ object ServerConnect {
         while (socket == null) {
             try {
                 socket = Socket(serverAddress, PORT)
-            } catch(e : Exception) {/* no-op */ }
+            } catch(e : Exception) { makeToast("Failed to connect to server :(")}
             finally {
                 println("Attempted to make socket")
             }
@@ -98,14 +98,13 @@ object ServerConnect {
      */
     private fun listenForServer()
     {
-        //handleToken()
         while (true)
         {
             val command = readHeader()
             when (command)
             {
-                Command.SocketError.int -> println("Socket error")
-                Command.Failed.int -> println("Server disconnected")
+                Command.SocketError.int -> makeToast("Disconnected from server!")
+                Command.Failed.int -> makeToast("Failed to sign in!")
                 Command.Login.int -> handleToken()
                 Command.GetUsers.int -> {}
                 Command.MessageServer.int -> {}
@@ -151,8 +150,7 @@ object ServerConnect {
 
         token = ByteArray(bytesToRead)
         inputStream?.read(token, 0, bytesToRead)
-        println("Your token: $token")
-
+        makeToast(ActiveUser.username + " logged in!")
     }
 
     /**
@@ -223,6 +221,7 @@ object ServerConnect {
         //otherwise, we have a REAL problem.
         token?.let { sendToServer(Command.LogOut.int, "") }
         token = null
+        makeToast(ActiveUser.username + " logged out.")
     }
 
     fun requestData(fileName : String, type : ResourceType) {
@@ -303,6 +302,8 @@ object ServerConnect {
             data.fetchVariable("src")
             )
         )
+
+        makeToast("Your workouts have been delivered.")
     }
 
     //This needs serious refactoring.
@@ -321,6 +322,8 @@ object ServerConnect {
 
         val data = String(buffer).split('\n')
         Shared.userQueryResults = ArrayList(data)
+
+        makeToast("Users have been delivered.")
     }
 
     fun getAllUsers() = sendToServer(Command.GetAllUsers.int, ByteArray(0))
@@ -346,6 +349,14 @@ object ServerConnect {
                     it.close()
             }
         } finally {}
+        makeToast("Disconnected from server.")
+    }
+
+    private fun makeToast(str : String) {
+        val context = MainActivity.getApplicationContext()
+        Handler(Looper.getMainLooper()).post {
+            Toast.makeText(context, str, Toast.LENGTH_SHORT).show()
+        }
     }
 
     init {
