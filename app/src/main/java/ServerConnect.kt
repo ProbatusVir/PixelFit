@@ -33,6 +33,7 @@ enum class Command(val int : Int) {
     GetAllUsers(12),
     GetUsersContaining(13),
     GetActiveUsers(14),
+    CreateChallenge(17)
 }
 
 enum class ResourceType(val int:  Int)
@@ -40,6 +41,9 @@ enum class ResourceType(val int:  Int)
     PNG(0x504E4700), //this is first four bytes of the PNG header.
     DIR(0x44495200),
     WORK(0x574F524B),
+    CHAL(0x4348414C),
+    RCHL(0x5243484C),
+    TCHL(0x5743484C)
 }
 
 object ServerConnect {
@@ -183,7 +187,7 @@ object ServerConnect {
         outputStream?.write(messageToServer)
         outputStream?.flush()
     }
-    private fun sendToServer(command : Int, message : String) = sendToServer(command, message.toByteArray())
+    fun sendToServer(command : Int, message : String) = sendToServer(command, message.toByteArray())
 
 
     /**
@@ -368,7 +372,7 @@ object ServerConnect {
         }.start()
     }
 
-        private const val SERVER_NAME = "4.tcp.ngrok.io"
+        private const val SERVER_NAME = "10.63.38.37"
         private const val LOCALHOST = "10.0.2.2"
         private const val PORT = 13102
         private const val HASH_SIZE = 32

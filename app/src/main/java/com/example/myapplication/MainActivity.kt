@@ -62,6 +62,10 @@ class MainActivity : AppCompatActivity() {
                 R.id.FriendsFragment-> {
                     profile.visibility = View.GONE
                 }
+                R.id.GroupFragment-> {
+                    profile.visibility = View.GONE
+                }
+
                 else -> {
                     bottomNav.visibility = View.VISIBLE
                     profile.visibility = View.VISIBLE
