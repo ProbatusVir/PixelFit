@@ -37,6 +37,8 @@ private:
 	void CreateMessagePacket(DiscussionPost& post , const size_t packetSize) const;
 	void ReceivePfp(const SOCKET clientSocket) const;
 	void SendData(const SOCKET clientSocket) const;
+	void ReceiveChallenges(const SOCKET clientSocket) const; //For users sending challenges
+	void SendChallenges(const SOCKET clientSocket, const InboundResourcePacket& header) const; //For users asking for challenges + unsolicited sending :)
 	void SendImage(const SOCKET clientSocket, const InboundResourcePacket& header) const;
 	void SendDirectory(const SOCKET clientSocket, const InboundResourcePacket& header) const;
 	void SendWork(const SOCKET clientSocket, const InboundResourcePacket& header) const;
