@@ -21,7 +21,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintVertical_bias="500">
             <TextView
-                    style="@style/primary_header"
+                    style="@style/main_text"
                     android:text="@string/info_header_calories_burned"
                     android:textAlignment="center"
                     android:layout_width="match_parent"
@@ -54,14 +54,14 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/fitness_info_layout1">
                 <TextView
-                        style="@style/primary_header"
+                        style="@style/main_text"
                         android:text="@string/info_header_time_spent_total"
                         android:textAlignment="center"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content" android:id="@+id/textView_calories_burned_header"/>
                 <TextView
-                        style="@style/primary_header"
+                        style="@style/main_text"
                         android:text="@string/info_header_worked_on"
                         android:textAlignment="center"
                         android:layout_width="0dp"
