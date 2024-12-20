@@ -51,7 +51,7 @@
 
 
     <!-- Login and sign up text -->
-    <string name="login_header">PixelFit</string>
+    <string name="login_header">Login</string>
     <string name="login_text">Login</string>
     <string name="sign_up_text">Sign Up</string>
     <string name="name_input">Enter Your Name</string>
