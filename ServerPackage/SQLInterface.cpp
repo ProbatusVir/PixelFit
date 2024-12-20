@@ -10,6 +10,7 @@
 #include <sqlext.h>
 #include <fstream>
 #include <filesystem>
+#include <ctype.h>
 
 // https://www.ibm.com/docs/en/db2-for-zos/13?topic=functions-sqlallochandle-allocate-handle
 
@@ -33,6 +34,38 @@ SQLInterface::~SQLInterface()
 		delete m_hEnv;
 	if (connStr != nullptr) delete[] connStr;
 }
+
+static_assert(sizeof(long int) == sizeof(int));
+
+int SQLInterface::GetUserIDByUsername(const char* username) const
+{
+	constexpr const char query_start[] = "SELECT iUserID FROM dbo.[tblUser] WHERE nvcUserName = '";
+	constexpr const char query_end[] = "'";
+	const char* components[] = { query_start, username, query_end };
+	const size_t sizes[] = { sizeof(query_start) - 1, strlen(username), sizeof(query_end)};
+
+	const char* query = CONCATENATEA(components, sizes);
+
+	SQLHSTMT statement = SetupAlloc();
+	SQLRETURN result = SQLExecDirectA(statement, (SQLCHAR*)query, sizes[0] - 1 + sizes[1] + sizes[2]);
+	
+	long int id = -1;
+	SQLLEN len = -1;
+
+	result = SQLBindCol(statement, 1, SQL_C_SLONG, &id, sizeof(id), &len);
+	ErrorLogFromSQL(statement, result);
+	result = SQLFetch(statement);
+	ErrorLogFromSQL(statement, result);
+
+
+
+
+	SQLFreeHandle(SQL_HANDLE_STMT, statement);
+	delete[] query;
+
+	return id;
+}
+
 
 void SQLInterface::ConnectToDB()
 {
@@ -71,9 +104,12 @@ void SQLInterface::ConnectToDB()
 	InterpretState(henvironment_state, "environment handle");
 	InterpretState(hconnection_state, "connection handle");
 	InterpretState(driver_state, "driver state");
-	
 
-}
+	//DEBUG
+	//int a = GetUserIDByUsername("NotKotlinusername");
+	BlockUser("NotKotlinusername", "blahblah@gmail.com");
+
+	}
 
 void SQLInterface::InterpretState(const SQLRETURN code, const char* name, const bool indented) const
 {
@@ -85,10 +121,11 @@ void SQLInterface::InterpretState(const SQLRETURN code, const char* name, const 
 	SQLSMALLINT textLength;
 
 
-	if (code == SQL_SUCCESS_WITH_INFO || code == SQL_ERROR) {
+	if (code == SQL_SUCCESS_WITH_INFO ) {
 		SQLGetDiagRecA(SQL_HANDLE_DBC, m_hDbc, 1, sqlState, &nativeError, message, sizeof(message), &textLength);
 		std::cout << "Warning: " << (char*)message << " (SQL State: " << (char*)sqlState << ")\n";
 	}
+
 
 	std::cout << successWithInfo << '\n';
 
@@ -132,7 +169,7 @@ bool SQLInterface::LoginRequest(const char* username, const char* password) cons
 	SQLRETURN result = SQLPrepareA(statement, (SQLCHAR*)checkForUsername, SQL_NTS);
 
 	HandleBindOfChars(statement, 1, USERNAME_SIZE, username);
-	HandleBindOfChars(statement, 2, HASH_SIZE, password);
+	HandleBindOfChars(statement, 0, HASH_SIZE, password);
 
 	result = SQLExecDirectA(statement, (SQLCHAR*)checkForUsername, SQL_NTS);
 	
@@ -193,6 +230,61 @@ std::vector<std::string> SQLInterface::GetEveryUserContaining(const char* substr
 
 	SQLFreeHandle(SQL_HANDLE_STMT, statement);
 	return hits;
+}
+
+
+
+
+//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+void SQLInterface::BlockUser(const char* blocker, const char* blocked) const
+{
+	if (strcmp(blocker, blocked) == 0)
+		return;
+
+	const int blockerID = GetUserIDByUsername(blocker);
+	const int blockedID = GetUserIDByUsername(blocked);
+
+	const int lesserID = (blockerID < blockedID) ? blockerID : blockedID;
+	const int greaterID = (blockedID > blockerID) ? blockedID : blockerID;
+	char lesserStr[11] = { 0 };
+	char greaterStr[11] = { 0 };
+
+	_itoa_s(lesserID, lesserStr, 10);
+	_itoa_s(greaterID, greaterStr, 10);
+
+	//constexpr const char query[] = "INSERT INTO [dbo].[tblBlock] (iLesserID, iGreaterID) VALUES (?,?)";
+	//constexpr const char a[] = "INSERT INTO dbo.[tblBlock] (iLesserID, iGreaterID) VALUES (";
+	//const char* components[] = {a, lesserStr, ",", greaterStr, ")"};
+	//const size_t sizes[] = { sizeof(a) -1, strlen(lesserStr), 1, strlen(greaterStr), 1 };
+	
+	//const char* query = CONCATENATEA(components, sizes);
+
+	const char* query = "INSERT INTO [dbo].[tblBlock] (iLesserID, iGreaterID) VALUES (50,51)";
+
+	SQLHSTMT statement = SetupAlloc();
+	SQLRETURN result = SQLExecDirectA(statement, (SQLCHAR*)query, sizeof(query));
+	//SQLRETURN result = SQLPrepareA(statement, (SQLCHAR*)query, sizeof(query));
+	//ErrorLogFromSQL(statement, result);
+
+
+	//HandleBindOfIntegers(statement, 1, 4, lesserID);
+	//HandleBindOfIntegers(statement, 2, 4, greaterID);
+
+	//result = SQLExecute(statement);
+
+	if (result != SQL_SUCCESS)
+		std::cerr << "Could not block user.\n";
+
+	ErrorLogFromSQL(statement, result);
+	SQLFreeHandle(SQL_HANDLE_STMT, statement);
+
+	//delete[] query;
+}
+
+void SQLInterface::ToggleFriendUser(const char* username1, const char* username2) const
+{
 }
 
 /// <summary>
@@ -310,13 +402,16 @@ void SQLInterface::HandleBindOfChars(const SQLHSTMT statement, const int param, 
 void SQLInterface::HandleBindOfIntegers(const SQLHSTMT statement, const int param, const int columnWidth, const int data) const
 {
 	SQLLEN dataLength = sizeof(SQLINTEGER);
-	SQLBindParameter(statement, param, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&data, 0, &dataLength);
+	SQLBindParameter(statement, param, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&data, sizeof(data), nullptr);
 }
 
 
 void SQLInterface::ErrorLogFromSQL(const SQLHSTMT statement, const SQLRETURN error) const
 {
 	const char* error_message = nullptr;
+
+	if (error == SQL_SUCCESS || error == SQL_SUCCESS_WITH_INFO)
+		return;
 
 	switch (error)
 	{
@@ -333,7 +428,12 @@ void SQLInterface::ErrorLogFromSQL(const SQLHSTMT statement, const SQLRETURN err
 		error_message = "Invalid handle!";
 		break;
 	case (SQL_ERROR) :
-		InterpretState(error, "");
+		SQLCHAR sql_state[6];
+		SQLINTEGER native_error;
+		SQLCHAR message[1024];
+		SQLSMALLINT textLength;
+		SQLGetDiagRecA(SQL_HANDLE_STMT, statement, 1, sql_state, &native_error, message, sizeof(message), &textLength);
+		std::cerr << "ERROR: " << (char*)message << "\n\tNative Error: " << native_error << "\n\tSQL State: " << sql_state << '\n';
 		return;
 	default:
 		error_message = "Undiagnosed.";

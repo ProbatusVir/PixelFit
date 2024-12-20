@@ -33,7 +33,9 @@ enum class Command(val int : Int) {
     GetAllUsers(12),
     GetUsersContaining(13),
     GetActiveUsers(14),
-    CreateChallenge(17)
+    BlockUser(15),
+    FriendUser(16),
+    CreateChallenge(17),
 }
 
 enum class ResourceType(val int:  Int)
@@ -44,6 +46,7 @@ enum class ResourceType(val int:  Int)
     CHAL(0x4348414C),
     RCHL(0x5243484C),
     TCHL(0x5743484C)
+
 }
 
 object ServerConnect {
@@ -160,7 +163,7 @@ object ServerConnect {
     /**
      * Sends the command, token, and message to the server.
      */
-    private fun sendToServer(command : Int, message : ByteArray)
+    fun sendToServer(command : Int, message : ByteArray)
     {
         val tokenSize = if (token != null)
             HASH_SIZE + 1 else 0
@@ -336,6 +339,11 @@ object ServerConnect {
 
     fun getActiveUsers() = sendToServer(Command.GetActiveUsers.int, ByteArray(0))
 
+    fun blockUser(username : String) = sendToServer(Command.BlockUser.int, username)
+
+    fun toggleFriendUser(username : String) = sendToServer(Command.FriendUser.int, username)
+
+
     fun connected() : Boolean {
         return socket != null
     }
@@ -372,9 +380,9 @@ object ServerConnect {
         }.start()
     }
 
-        private const val SERVER_NAME = "10.63.38.37"
+        private const val SERVER_NAME = "10.0.2.2"
         private const val LOCALHOST = "10.0.2.2"
-        private const val PORT = 13102
+        private const val PORT = 5930
         private const val HASH_SIZE = 32
         private const val LENGTH_OF_COMMAND_AND_MESSAGE_HEADER = Int.SIZE_BYTES * 3 + 1 //This is good for an authenticated read, might have to cut it out later.
         //server endian
