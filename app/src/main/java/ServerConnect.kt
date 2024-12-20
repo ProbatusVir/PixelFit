@@ -44,7 +44,11 @@ enum class ResourceType(val int:  Int)
     DIR(0x44495200),
     WORK(0x574F524B),
     CHAL(0x4348414C),
+    RCHL(0x5243484C),
+    WCHL(0x5743484C)
 }
+
+
 
 object ServerConnect {
     private val serverAddress = getMyServerAddress()
