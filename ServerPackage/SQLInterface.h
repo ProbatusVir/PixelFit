@@ -17,22 +17,25 @@ public:
 	static SQLInterface* Instance() { if (!m_instance) m_instance = new SQLInterface(); return m_instance; };
 	static void Destroy() { if (m_instance) delete m_instance; std::cerr << "destroyed SQL interface instance."; };
 
-	void FetchUser(const char* query);
-	bool InsertNewUser(const char* name, const char* username, const char* email, const char* password);
-	bool LoginRequest(const char* username, const char* password);
-	std::vector<std::string> GetEveryExistingUsername();
+	void FetchUser(const char* query) const;
+	bool InsertNewUser(const char* name, const char* username, const char* email, const char* password) const;
+	bool LoginRequest(const char* username, const char* password) const;
+	std::vector<std::string> GetEveryExistingUsername() const;
+	std::vector<std::string> GetEveryUserContaining(const char* substr) const;
 
 private:
 	void ConnectToDB();
-	void InterpretState(const SQLRETURN code, const char* name, const bool indented = true);
+	void InterpretState(const SQLRETURN code, const char* name, const bool indented = true) const;
 	void LoadCredentials();
-	void ErrorLogFromSQL(const SQLHSTMT& statement, const SQLRETURN error);
+	void ErrorLogFromSQL(const SQLHSTMT statement, const SQLRETURN error) const;
 
-	SQLHSTMT SetupAlloc(); 	// I (Ryan) got tired of writng the same 2 lines and large macros so I buried it into a function call
-	std::vector<std::string> ReturnEval(SQLRETURN result, SQLHSTMT& statement);
-	void HandleBindOfChars(SQLHSTMT& statement, int param, int columnWidth, const char* data);
-	void HandleBindOfIntegers(SQLHSTMT& statement, int param, int columnWidth, const int data);
+	SQLHSTMT SetupAlloc() const; 	// I (Ryan) got tired of writng the same 2 lines and large macros so I buried it into a function call
+	std::vector<std::string> ReturnEval(const SQLRETURN result, const SQLHSTMT statement) const;
+	void HandleBindOfChars(const SQLHSTMT statement, const int param, const int columnWidth, const char* data) const;
+	void HandleBindOfIntegers(const SQLHSTMT statement, const int param, const int columnWidth, const int data) const;
 	void ResetHandle(SQLHSTMT& statement);	// Created to make resetting the handle more convientent compared to the other way
+
+	void HandleFail(const char* failmessage, const SQLHSTMT statement, const SQLRETURN result, const char* additional = "") const;
 
 	SQLInterface();
 	~SQLInterface();

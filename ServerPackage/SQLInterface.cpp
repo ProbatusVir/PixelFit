@@ -75,7 +75,7 @@ void SQLInterface::ConnectToDB()
 
 }
 
-void SQLInterface::InterpretState(const SQLRETURN code, const char* name, const bool indented)
+void SQLInterface::InterpretState(const SQLRETURN code, const char* name, const bool indented) const
 {
 	const char* error_message; //Not SQL related
 	char successWithInfo[1024] = { 0 };
@@ -122,7 +122,7 @@ void SQLInterface::LoadCredentials()
 	const size_t sizes[] = { sizeof(field1) - 1, strlen(dsn),	sizeof(field2) - 1, strlen(db_name), sizeof(end) };
 	connStr = CONCATENATEA(components, sizes);
 }
-bool SQLInterface::LoginRequest(const char* username, const char* password)
+bool SQLInterface::LoginRequest(const char* username, const char* password) const
 {
 	SQLHSTMT statement = SetupAlloc();
 	bool isValid = false;
@@ -147,18 +147,54 @@ bool SQLInterface::LoginRequest(const char* username, const char* password)
 		SQLFreeHandle(SQL_HANDLE_STMT, statement);
 		return false;
 	}
-
-
-	
-
 }
-std::vector<std::string> SQLInterface::GetEveryExistingUsername()
+std::vector<std::string> SQLInterface::GetEveryExistingUsername() const
 {
 	constexpr const char query[] = "SELECT nvcUserName FROM [dbo].[tblUser]";
 	SQLHSTMT statement = SetupAlloc();
 	SQLRETURN result = SQLExecDirectA(statement, (SQLCHAR*)query, sizeof(query));
 	return ReturnEval(result, statement);
 }
+
+
+std::vector<std::string> SQLInterface::GetEveryUserContaining(const char* substr) const
+{
+	std::vector<std::string> hits;
+	//constexpr const char query[] = "SELECT nvcUserName FROM tblUser WHERE nvcUserName LIKE '%?%'";
+	//constexpr const char query[] = "SELECT nvcUserName FROM tblUser WHERE nvcUserName LIKE '%kot%'";
+
+	//This is super hacky and I hate it. But it seems that binding data inside string literals isn't easy...
+	constexpr const char query_start[] = "SELECT nvcUserName FROM tblUser WHERE nvcUserName LIKE '%";
+	constexpr const char query_end[] = "%'";
+	const char* data[] = { query_start, substr, query_end };
+	const size_t sizes[] = { sizeof(query_start) - 1, strlen(substr), sizeof(query_end) };
+	const char* query = CONCATENATEA(data, sizes);
+
+
+	SQLHSTMT statement = SetupAlloc();
+	SQLRETURN result = SQLPrepareA(statement, (SQLCHAR*)query, SQL_NTS);
+
+
+	if (result != SQL_SUCCESS) {
+		std::cerr << "Failed to retrieve users containing: " << substr;
+		ErrorLogFromSQL(statement, result);
+		SQLFreeHandle(SQL_HANDLE_STMT, statement);
+		return hits;
+	}
+
+	//HandleBindOfChars(statement, 1, strlen(substr), substr);
+	//HandleBindOfChars(statement, 1, USERNAME_SIZE, substr);
+
+	result = SQLExecute(statement);
+	if (result == SQL_SUCCESS || result == SQL_SUCCESS_WITH_INFO)
+		hits = ReturnEval(result, statement);
+	else
+		ErrorLogFromSQL(statement, result);
+
+	SQLFreeHandle(SQL_HANDLE_STMT, statement);
+	return hits;
+}
+
 /// <summary>
 /// Attempts to make a new user, if the username already exists this will fail and kick back a false 
 /// This forces users to have different usernames
@@ -168,7 +204,7 @@ std::vector<std::string> SQLInterface::GetEveryExistingUsername()
 /// <param name="password"></param>
 /// <param name="id"></param>
 /// <returns></returns>
-bool SQLInterface::InsertNewUser(const char* name, const char* username, const char* email, const char* password)
+bool SQLInterface::InsertNewUser(const char* name, const char* username, const char* email, const char* password) const
 {
 	bool userNotRegistered = true;
 	bool isValid = false;
@@ -177,14 +213,9 @@ bool SQLInterface::InsertNewUser(const char* name, const char* username, const c
 	for (std::string& registered : usernames) {
 		
 		//All strings are space padded if they are smaller than the allotted size. so they must be trimmed.
-		const size_t trail_start = registered.find(' ');
-		if (trail_start != std::string::npos)
-			registered.erase(trail_start);
+		trimstr(registered);
 
-		int compareResult = strcmp(username, registered.c_str());
-		// We want to compare the usernames to enforce one username is registered to one person.
-		// We do not want multiple usernames to multiple users so instead of wanting strcmp to == 0 we want -1 or 1
-		if (compareResult == 0) {
+		if (strcmp(username, registered.c_str()) == 0) {
 
 			// Indicates the user is already existing and we will not bind this name to the new person
 			userNotRegistered = false;
@@ -235,7 +266,7 @@ bool SQLInterface::InsertNewUser(const char* name, const char* username, const c
 /// This method is because typing the same three lines is redundant
 /// </summary>
 /// <returns></returns>
-SQLHSTMT SQLInterface::SetupAlloc()
+SQLHSTMT SQLInterface::SetupAlloc() const
 {
 	SQLHSTMT statement = nullptr;
 	SQLAllocHandle(SQL_HANDLE_STMT, m_hDbc, &statement);
@@ -244,7 +275,7 @@ SQLHSTMT SQLInterface::SetupAlloc()
 
 // Since nearly every SQL call that goes to the database will need evaluated
 // This is made a little specific to users at this point though
-std::vector<std::string> SQLInterface::ReturnEval(SQLRETURN result, SQLHSTMT& statement)
+std::vector<std::string> SQLInterface::ReturnEval(const SQLRETURN result, const SQLHSTMT statement) const
 {
 	std::vector<std::string> data;
 	if (result == SQL_SUCCESS || result == SQL_SUCCESS_WITH_INFO) {
@@ -269,21 +300,21 @@ std::vector<std::string> SQLInterface::ReturnEval(SQLRETURN result, SQLHSTMT& st
 	return data;
 }
 // The entire purpose of this is to again reduce redundancies and bury stuff that isnt going to change
-void SQLInterface::HandleBindOfChars(SQLHSTMT& statement, int param, int columnWidth, const char* data)
+void SQLInterface::HandleBindOfChars(const SQLHSTMT statement, const int param, const int columnWidth, const char* data) const
 {
 	SQLBindParameter(statement, param, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, columnWidth, 0, (SQLPOINTER)data, sizeof(data), nullptr);
 }
 
 
 // This is to abstract some of the annoyance of needing 10 parameters everytime down to about four parameters
-void SQLInterface::HandleBindOfIntegers(SQLHSTMT& statement, int param, int columnWidth, const int data)
+void SQLInterface::HandleBindOfIntegers(const SQLHSTMT statement, const int param, const int columnWidth, const int data) const
 {
 	SQLLEN dataLength = sizeof(SQLINTEGER);
 	SQLBindParameter(statement, param, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&data, 0, &dataLength);
 }
 
 
-void SQLInterface::ErrorLogFromSQL(const SQLHSTMT& statement, const SQLRETURN error)
+void SQLInterface::ErrorLogFromSQL(const SQLHSTMT statement, const SQLRETURN error) const
 {
 	const char* error_message = nullptr;
 
@@ -319,9 +350,16 @@ void SQLInterface::ResetHandle(SQLHSTMT& statement)
 	statement = SetupAlloc();
 }
 
+void SQLInterface::HandleFail(const char* failmessage, const SQLHSTMT statement, const SQLRETURN result, const char* additional) const
+{
+	std::cerr << failmessage << additional;
+	ErrorLogFromSQL(statement, result);
+	SQLFreeHandle(SQL_HANDLE_STMT, statement);
+}
+
 
 // As it implies, it fetches users. NOTE: This has a statement that needs adjusted because I could not integrate the mdf file
-void SQLInterface::FetchUser(const char* query)
+void SQLInterface::FetchUser(const char* query) const
 {
 
 	// This function needs slight modification to be useful for our needs

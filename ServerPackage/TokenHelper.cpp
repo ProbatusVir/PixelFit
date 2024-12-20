@@ -44,4 +44,12 @@ void Tokenizer::DestroyTokens()
 		delete[] m_container;
 }
 
+std::string& trimstr(std::string& str)
+{
+	const size_t trail_start = str.find(' ');
+	if (trail_start != std::string::npos)
+		str.erase(trail_start);
+
+	return str;
+}
 

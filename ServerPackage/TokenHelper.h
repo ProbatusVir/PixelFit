@@ -1,6 +1,9 @@
 #pragma once
 
-#include <string.h>
+#include <string>
+
+std::string& trimstr(std::string& str);
+
 class Tokenizer
 {
 

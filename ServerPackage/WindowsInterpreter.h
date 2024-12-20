@@ -4,6 +4,7 @@
 #include "CommandSet.h"
 #include "DiscussionPost.h"
 #include "Header.h"
+#include "ActiveUsers.h"
 
 #include <WinSock2.h>
 #include <unordered_map>
@@ -17,36 +18,42 @@ class WindowsInterpreter
 public:
 	//This will take the client socket and begin interpretations.
 	//From here the appropriate functions will be called and data handled outside of the switch statement.
-	void InterpretMessage(const SOCKET &clientSocket, Command command);
-	void DisconnectClient(const SOCKET& clientSocket);
+	void InterpretMessage(const SOCKET clientSocket, const Command command);
+	void DisconnectClient(const SOCKET clientSocket);
+	static unsigned int ReadByteHeader(const SOCKET clientSocket);
 private:
 
-	void HandleLoginUser(const SOCKET& clientSocket);
-	void HandleNewUser(const SOCKET& clientSocket);
-	void LoginResponseToUser(const SOCKET& clientSocket, User& user, const bool success);
+	void HandleLoginUser(const SOCKET clientSocket);
+	void HandleNewUser(const SOCKET clientSocket);
+	void LoginResponseToUser(const SOCKET clientSocket, User& user, const bool success);
 	// This may get reworked to handle direct messaged or deleted in general.
 	// Another Method needs to be responsible for handling discussion posts
 	// discussion posts have more nuances to handle like is it a comment or main post.
-	void MessageToServer(const SOCKET& clientSocket);
-	void SendMessageToClient(const SOCKET& clientSocket, bool success);
-	unsigned int ReadByteHeader(const SOCKET& clientSocket);
-	bool VerifyUserAuth(const SOCKET& clientSocket, User& user);
-	bool EnsureSingleTokenInstance(const std::string& token);
-	std::string CreateToken(User& user);
-	void NewDiscussionPost(const SOCKET& clientSocket);
-	void SendPostToClients(const SOCKET&clientSocket, const char* buffer, const size_t sizeOfBuffer);
-	void CreateMessagePacket(DiscussionPost& post , const size_t packetSize);
-	void ReceiveImage(const SOCKET& clientSocket);
-	void SendData(const SOCKET clientSocket);
-	void SendImage(const SOCKET clientSocket, const InboundPacket& header);
-	void SendDirectory(const SOCKET clientSocket, const InboundPacket& header);
-	void SendWork(const SOCKET clientSocket, const InboundPacket& header);
+	void MessageToServer(const SOCKET clientSocket) const;
+	void SendMessageToClient(const SOCKET clientSocket, bool success) const;
+	std::string CreateToken(User& user) const;
+	void NewDiscussionPost(const SOCKET clientSocket);
+	void SendPostToClients(const SOCKET clientSocket, const char* buffer, const size_t sizeOfBuffer) const;
+	void CreateMessagePacket(DiscussionPost& post , const size_t packetSize) const;
+	void ReceivePfp(const SOCKET clientSocket) const;
+	void SendData(const SOCKET clientSocket) const;
+	void SendImage(const SOCKET clientSocket, const InboundResourcePacket& header) const;
+	void SendDirectory(const SOCKET clientSocket, const InboundResourcePacket& header) const;
+	void SendWork(const SOCKET clientSocket, const InboundResourcePacket& header) const;
+	void GetActiveUsers(const SOCKET clientSocket) const;
+	void GetUsersContaining(const SOCKET clientSocket) const;
+	void GetAllUsers(const SOCKET clientSocket) const;
 	void LogOut(const SOCKET clientSocket);
-	User* FindUserByToken(const char* clientSocket);
-	User* FindUserByToken (const std::string& clientSocket);
 
-	//					Token		User+Socket+*token
-	std::unordered_map<std::string, WindowsUserPair> _clientPairs;
+	WindowsInterpreter() { _active_users = ActiveUsers::Instance(); }
+
+	ActiveUsers* _active_users;
 	CommandSet _commands;
+
+public:
+	static WindowsInterpreter* Instance() { if (instance == nullptr) return new WindowsInterpreter(); else return instance; };
+	static void DestroyInstance() {	delete instance; }
+private:
+	static WindowsInterpreter* instance;
 };
 

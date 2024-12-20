@@ -1,5 +1,9 @@
+import android.os.Handler
+import android.os.Looper
 import android.os.StrictMode
+import android.widget.Toast
 import com.example.myapplication.Instructor
+import com.example.myapplication.MainActivity
 import java.io.*
 import java.net.InetAddress
 import java.net.Socket
@@ -23,9 +27,12 @@ enum class Command(val int : Int) {
     DiscussionPost(6),
     GetUser(7),
     BanUser(8),
-    SendImageToServer(9),
+    SendPfpToServer(9),
     LogOut(10),
     RequestData(11),
+    GetAllUsers(12),
+    GetUsersContaining(13),
+    GetActiveUsers(14),
 }
 
 enum class ResourceType(val int:  Int)
@@ -35,20 +42,7 @@ enum class ResourceType(val int:  Int)
     WORK(0x574F524B),
 }
 
-enum class MessageResult(val int : Int) {
-
-    Failed(0),
-    LoginSuccess(1),
-    Success(2);
-
-    companion object {
-        fun fromInt(int : Int) = entries.first {it.int == int}
-    }
-}
-
-
 object ServerConnect {
-
     private val serverAddress = getMyServerAddress()
     //TODO: add some error handling
     private var socket : Socket? = null
@@ -64,11 +58,20 @@ object ServerConnect {
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
 
-        return try {
-             InetAddress.getByName(SERVER_NAME)
-        } catch (e : Exception) {
-            InetAddress.getByName(LOCALHOST) //This alternative keeps the client from crashing when a server is not specified or not active
+        var addr : InetAddress? = null
+        while (addr == null) {
+
+            addr = try {
+                InetAddress.getByName(SERVER_NAME)
+            } catch (e: Exception) {
+                InetAddress.getByName(LOCALHOST) //This alternative keeps the client from crashing when a server is not specified or not active
+            }
+            if (addr == null)
+                makeToast("Failed to find server address.")
         }
+
+        makeToast("Connected to server!")
+        return addr
 
         //https://stackoverflow.com/questions/5806220/how-to-connect-to-my-http-localhost-web-server-from-android-emulator
     }
@@ -82,7 +85,7 @@ object ServerConnect {
         while (socket == null) {
             try {
                 socket = Socket(serverAddress, PORT)
-            } catch(e : Exception) {/* no-op */ }
+            } catch(e : Exception) { makeToast("Failed to connect to server :(")}
             finally {
                 println("Attempted to make socket")
             }
@@ -95,14 +98,13 @@ object ServerConnect {
      */
     private fun listenForServer()
     {
-        //handleToken()
         while (true)
         {
             val command = readHeader()
             when (command)
             {
-                Command.SocketError.int -> println("Socket error")
-                Command.Failed.int -> println("Server disconnected")
+                Command.SocketError.int -> makeToast("Disconnected from server!")
+                Command.Failed.int -> makeToast("Failed to sign in!")
                 Command.Login.int -> handleToken()
                 Command.GetUsers.int -> {}
                 Command.MessageServer.int -> {}
@@ -111,6 +113,9 @@ object ServerConnect {
                 Command.GetUser.int -> {}
                 Command.BanUser.int -> {}
                 Command.RequestData.int -> receiveData()
+                Command.GetActiveUsers.int -> receiveUsers()
+                Command.GetAllUsers.int -> receiveUsers()
+                Command.GetUsersContaining.int -> receiveUsers()
                 else -> println("Received unexpected command")
             }
         }
@@ -145,8 +150,7 @@ object ServerConnect {
 
         token = ByteArray(bytesToRead)
         inputStream?.read(token, 0, bytesToRead)
-        println("Your token: $token")
-
+        makeToast(ActiveUser.username + " logged in!")
     }
 
     /**
@@ -170,6 +174,8 @@ object ServerConnect {
             messageToServer += ByteBuffer.allocate(Int.SIZE_BYTES).order(ENDIAN).putInt(tokenSize).array()
             messageToServer += token!!
         }
+        else
+            messageToServer += ByteBuffer.allocate(Int.SIZE_BYTES).order(ENDIAN).putInt(0).array()
 
         messageToServer += ByteBuffer.allocate(Int.SIZE_BYTES).order(ENDIAN).putInt(lengthOfMessage).array()
         messageToServer += message + 0x00
@@ -194,17 +200,17 @@ object ServerConnect {
         sendToServer(Command.Login.int, message)
     }
 
-    fun sendImageToServer(file : File) {
+    fun sendPfpToServer(file : File) {
         Thread{
         val input = file.readBytes()
-        sendToServer(Command.SendImageToServer.int, input.toString())
+        sendToServer(Command.SendPfpToServer.int, input)
         }.start()
     }
 
-    fun sendImageToServer(file : FileInputStream) {
+    fun sendPfpToServer(file : FileInputStream) {
         Thread {
             val input = file.readBytes()
-            sendToServer(Command.SendImageToServer.int, input)
+            sendToServer(Command.SendPfpToServer.int, input)
             file.close()
         }.start()
     }
@@ -214,6 +220,8 @@ object ServerConnect {
         //The error checking is two-fold, for the token does not exist without a socket.
         //otherwise, we have a REAL problem.
         token?.let { sendToServer(Command.LogOut.int, "") }
+        token = null
+        makeToast(ActiveUser.username + " logged out.")
     }
 
     fun requestData(fileName : String, type : ResourceType) {
@@ -252,7 +260,7 @@ object ServerConnect {
         var endOfName = 0
         for (i in 0 until buffer.size)
         {
-            if (buffer[i] == '\n'.code.toByte())
+            if (buffer[i] == delim.code.toByte())
                 break
             endOfName++
         }
@@ -294,7 +302,35 @@ object ServerConnect {
             data.fetchVariable("src")
             )
         )
+
+        makeToast("Your workouts have been delivered.")
     }
+
+    //This needs serious refactoring.
+    private fun receiveUsers() {
+        Shared.userQueryResults = ArrayList()
+
+        val tokenSize = readHeader()
+        val token = ByteArray(tokenSize)
+        inputStream!!.read(token, 0, tokenSize)
+        val bufferSize = readHeader()
+        val buffer = ByteArray(bufferSize)
+        var bytesRead = 0
+        while (bytesRead < bufferSize) {
+            bytesRead += inputStream!!.read(buffer, bytesRead, bufferSize - bytesRead)
+        }
+
+        val data = String(buffer).split('\n')
+        Shared.userQueryResults = ArrayList(data)
+
+        makeToast("Users have been delivered.")
+    }
+
+    fun getAllUsers() = sendToServer(Command.GetAllUsers.int, ByteArray(0))
+
+    fun getUsersContaining(string: String) = sendToServer(Command.GetUsersContaining.int, string)
+
+    fun getActiveUsers() = sendToServer(Command.GetActiveUsers.int, ByteArray(0))
 
     fun connected() : Boolean {
         return socket != null
@@ -313,6 +349,14 @@ object ServerConnect {
                     it.close()
             }
         } finally {}
+        makeToast("Disconnected from server.")
+    }
+
+    private fun makeToast(str : String) {
+        val context = MainActivity.getApplicationContext()
+        Handler(Looper.getMainLooper()).post {
+            Toast.makeText(context, str, Toast.LENGTH_SHORT).show()
+        }
     }
 
     init {
@@ -324,9 +368,9 @@ object ServerConnect {
         }.start()
     }
 
-        private const val SERVER_NAME = "6.tcp.ngrok.io"
+        private const val SERVER_NAME = "4.tcp.ngrok.io"
         private const val LOCALHOST = "10.0.2.2"
-        private const val PORT = 17241
+        private const val PORT = 13102
         private const val HASH_SIZE = 32
         private const val LENGTH_OF_COMMAND_AND_MESSAGE_HEADER = Int.SIZE_BYTES * 3 + 1 //This is good for an authenticated read, might have to cut it out later.
         //server endian

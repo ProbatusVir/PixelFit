@@ -62,6 +62,8 @@ class SignUp : Fragment() {
                             editor.apply()
 
                             val username = email
+                            ActiveUser.name = name
+                            ActiveUser.username = username
 
                             connection.signUp(name, username, email, password)
 

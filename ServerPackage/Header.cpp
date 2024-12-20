@@ -2,7 +2,15 @@
 #include <thread>
 #include <chrono>
 
-unsigned int Header::ReadByteHeader(const SOCKET clientSocket)
+char* DelayRead(const SOCKET socket, const unsigned int wait, const size_t buffer_size) {
+	char* const buffer = new char[buffer_size + 1];
+
+	std::this_thread::sleep_for(std::chrono::seconds(wait));
+	recv(socket, buffer, (int)buffer_size, 0);
+	return buffer;
+}
+
+unsigned int ReadByteHeader(const SOCKET clientSocket)
 {
 	unsigned int byteHeader = 0;
 	recv(clientSocket, (char*)&byteHeader, sizeof(unsigned int), 0);
@@ -12,8 +20,12 @@ unsigned int Header::ReadByteHeader(const SOCKET clientSocket)
 Header::Header(const SOCKET socket)
 {
 	token_size = ReadByteHeader(socket);
-	token = new char[token_size + 1];
-	recv(socket, (char*)token, token_size, 0);
+	
+	if (token_size)
+	{
+		token = new char[token_size + 1];
+		recv(socket, token, token_size, 0);
+	}
 
 	buffer_size = ReadByteHeader(socket);
 }
@@ -39,11 +51,8 @@ Header::~Header()
 Packet::Packet(const SOCKET socket, unsigned int wait) :
 	Header(socket)
 {
-	buffer = new char[buffer_size + 1];
-
-	//This is awful... please don't keep this...
-	std::this_thread::sleep_for(std::chrono::seconds(wait));
-	recv(socket, buffer, buffer_size, 0);
+	if (buffer_size)
+		buffer = DelayRead(socket, wait, buffer_size);
 }
 
 Packet::Packet(const unsigned int _tk_size, const char* _token, const unsigned int _bf_size, const char* _buffer) :
@@ -202,4 +211,20 @@ const char* Concatenator(const size_t fields, const char** data, const size_t* s
 	}
 
 	return array;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+InboundResourcePacket::InboundResourcePacket(const SOCKET socket, unsigned int wait) :
+	InboundResourceHeader(socket)
+{
+	if (buffer_size)
+		buffer = DelayRead(socket, wait, buffer_size);
+}
+
+InboundResourceHeader::InboundResourceHeader(const SOCKET socket) :
+	InboundHeader(socket)
+{
+	type = (ResourceType)ReadByteHeader(socket);
+	buffer_size -= sizeof(ResourceType);
 }
