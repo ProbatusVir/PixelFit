@@ -47,6 +47,9 @@ class ProfileFragment : Fragment() {
         binding.btnEditProfile.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_profileEdit)
         }
+        binding.backButton.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_HomeFragment)
+        }
 
         loadPfp()
 

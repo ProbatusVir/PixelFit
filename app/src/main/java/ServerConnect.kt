@@ -45,7 +45,7 @@ enum class ResourceType(val int:  Int)
     WORK(0x574F524B),
     CHAL(0x4348414C),
     RCHL(0x5243484C),
-    WCHL(0x5743484C)
+    TCHL(0x5743484C)
 }
 
 
@@ -164,7 +164,7 @@ object ServerConnect {
     /**
      * Sends the command, token, and message to the server.
      */
-    fun sendToServer(command : Int, message : ByteArray)
+    private fun sendToServer(command : Int, message : ByteArray)
     {
         val tokenSize = if (token != null)
             HASH_SIZE + 1 else 0
@@ -191,7 +191,7 @@ object ServerConnect {
         outputStream?.write(messageToServer)
         outputStream?.flush()
     }
-    fun sendToServer(command : Int, message : String) = sendToServer(command, message.toByteArray())
+    private fun sendToServer(command : Int, message : String) = sendToServer(command, message.toByteArray())
 
 
     /**

@@ -61,14 +61,13 @@ class SignUp : Fragment() {
                             editor.putString("passwordCheck", passwordCheck)
                             editor.apply()
 
-                            //Fixme: This needs its own field.
                             val username = email
                             ActiveUser.name = name
                             ActiveUser.username = username
 
                             connection.signUp(name, username, email, password)
 
-                            findNavController().navigate(R.id.action_signUp_to_HomeFragment)
+                            findNavController().navigate(R.id.profileEdit)
                         }
                         else{
                             Toast.makeText(context, "Passwords must be less than 60 characters", Toast.LENGTH_SHORT).show()
@@ -87,7 +86,7 @@ class SignUp : Fragment() {
         }
 
         binding.backButton.setOnClickListener {
-            findNavController().navigate(R.id.action_signUp_to_LoginFragment2)
+            findNavController().navigate(R.id.LoginFragment)
         }
 
     }

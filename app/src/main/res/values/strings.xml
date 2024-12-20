@@ -60,6 +60,7 @@
     <string name="password_input_text">Enter Your Password</string>
     <string name="reenter_password_input_text">Re Enter Your Password</string>
     <string name="back_button">Back Button</string>
+    <string name="next">Next</string>
 
     <!-- Room finder text -->
     <string name="room_header">Room Finder</string>
@@ -113,4 +114,7 @@
     <string name="sex_value">Value</string>
     <string name="calorie_goal">Calorie Goal</string>
     <string name="calorie_value">Value</string>
+
+    <!-- Friend Profile Text -->
+    <string name="username_placeholder">Username</string>
 </resources>
