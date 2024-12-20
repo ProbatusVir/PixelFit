@@ -47,7 +47,7 @@ int SQLInterface::GetUserIDByUsername(const char* username) const
 	const char* query = CONCATENATEA(components, sizes);
 
 	SQLHSTMT statement = SetupAlloc();
-	SQLRETURN result = SQLExecDirectA(statement, (SQLCHAR*)query, sizes[0] - 1 + sizes[1] + sizes[2]);
+	SQLRETURN result = SQLExecDirectA(statement, (SQLCHAR*)query, (SQLINTEGER)(sizes[0] - 1 + sizes[1] + sizes[2]));
 	
 	ErrorLogFromSQL(statement, result);
 
@@ -236,11 +236,6 @@ std::vector<std::string> SQLInterface::GetEveryUserContaining(const char* substr
 }
 
 
-
-
-//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 void SQLInterface::BlockUser(const char* blocker, const char* blocked) const
 {
 	if (strcmp(blocker, blocked) == 0)
