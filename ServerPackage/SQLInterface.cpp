@@ -43,13 +43,15 @@ int SQLInterface::GetUserIDByUsername(const char* username) const
 	constexpr const char query_end[] = "'";
 	const char* components[] = { query_start, username, query_end };
 	const size_t sizes[] = { sizeof(query_start) - 1, strlen(username), sizeof(query_end)};
-
+	
 	const char* query = CONCATENATEA(components, sizes);
 
 	SQLHSTMT statement = SetupAlloc();
-	SQLRETURN result = SQLExecDirectA(statement, (SQLCHAR*)query, sizes[0] - 1 + sizes[1] + sizes[2]);
+	SQLRETURN result = SQLExecDirectA(statement, (SQLCHAR*)query, (SQLINTEGER)(sizes[0] - 1 + sizes[1] + sizes[2]));
 	
-	long int id = -1;
+	ErrorLogFromSQL(statement, result);
+
+	int id = -1;
 	SQLLEN len = -1;
 
 	result = SQLBindCol(statement, 1, SQL_C_SLONG, &id, sizeof(id), &len);
@@ -169,7 +171,7 @@ bool SQLInterface::LoginRequest(const char* username, const char* password) cons
 	SQLRETURN result = SQLPrepareA(statement, (SQLCHAR*)checkForUsername, SQL_NTS);
 
 	HandleBindOfChars(statement, 1, USERNAME_SIZE, username);
-	HandleBindOfChars(statement, 0, HASH_SIZE, password);
+	HandleBindOfChars(statement, 2, HASH_SIZE, password);
 
 	result = SQLExecDirectA(statement, (SQLCHAR*)checkForUsername, SQL_NTS);
 	
@@ -228,16 +230,12 @@ std::vector<std::string> SQLInterface::GetEveryUserContaining(const char* substr
 	else
 		ErrorLogFromSQL(statement, result);
 
+	delete[] query;
 	SQLFreeHandle(SQL_HANDLE_STMT, statement);
 	return hits;
 }
 
 
-
-
-//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 void SQLInterface::BlockUser(const char* blocker, const char* blocked) const
 {
 	if (strcmp(blocker, blocked) == 0)
@@ -248,31 +246,19 @@ void SQLInterface::BlockUser(const char* blocker, const char* blocked) const
 
 	const int lesserID = (blockerID < blockedID) ? blockerID : blockedID;
 	const int greaterID = (blockedID > blockerID) ? blockedID : blockerID;
-	char lesserStr[11] = { 0 };
-	char greaterStr[11] = { 0 };
 
-	_itoa_s(lesserID, lesserStr, 10);
-	_itoa_s(greaterID, greaterStr, 10);
-
-	//constexpr const char query[] = "INSERT INTO [dbo].[tblBlock] (iLesserID, iGreaterID) VALUES (?,?)";
-	//constexpr const char a[] = "INSERT INTO dbo.[tblBlock] (iLesserID, iGreaterID) VALUES (";
-	//const char* components[] = {a, lesserStr, ",", greaterStr, ")"};
-	//const size_t sizes[] = { sizeof(a) -1, strlen(lesserStr), 1, strlen(greaterStr), 1 };
+	constexpr const char query[] = "INSERT INTO [dbo].[tblBlock] (iLesserID, iGreaterID) VALUES (?,?)";
 	
-	//const char* query = CONCATENATEA(components, sizes);
-
-	const char* query = "INSERT INTO [dbo].[tblBlock] (iLesserID, iGreaterID) VALUES (50,51)";
-
 	SQLHSTMT statement = SetupAlloc();
-	SQLRETURN result = SQLExecDirectA(statement, (SQLCHAR*)query, sizeof(query));
-	//SQLRETURN result = SQLPrepareA(statement, (SQLCHAR*)query, sizeof(query));
-	//ErrorLogFromSQL(statement, result);
+	SQLRETURN result = SQLPrepareA(statement, (SQLCHAR*)query, sizeof(query));
+	ErrorLogFromSQL(statement, result);
 
+	result = SQLBindParameter(statement, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&lesserID, 0,  nullptr);
+	ErrorLogFromSQL(statement, result);
+	result = SQLBindParameter(statement, 2, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&greaterID, 0, nullptr);
+	ErrorLogFromSQL(statement, result);
 
-	//HandleBindOfIntegers(statement, 1, 4, lesserID);
-	//HandleBindOfIntegers(statement, 2, 4, greaterID);
-
-	//result = SQLExecute(statement);
+	result = SQLExecute(statement);
 
 	if (result != SQL_SUCCESS)
 		std::cerr << "Could not block user.\n";
@@ -394,15 +380,17 @@ std::vector<std::string> SQLInterface::ReturnEval(const SQLRETURN result, const 
 // The entire purpose of this is to again reduce redundancies and bury stuff that isnt going to change
 void SQLInterface::HandleBindOfChars(const SQLHSTMT statement, const int param, const int columnWidth, const char* data) const
 {
-	SQLBindParameter(statement, param, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, columnWidth, 0, (SQLPOINTER)data, sizeof(data), nullptr);
+	SQLRETURN result = SQLBindParameter(statement, param, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, columnWidth, 0, (SQLPOINTER)data, sizeof(data), nullptr);
+	ErrorLogFromSQL(statement, result);
 }
 
 
 // This is to abstract some of the annoyance of needing 10 parameters everytime down to about four parameters
 void SQLInterface::HandleBindOfIntegers(const SQLHSTMT statement, const int param, const int columnWidth, const int data) const
 {
-	SQLLEN dataLength = sizeof(SQLINTEGER);
-	SQLBindParameter(statement, param, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&data, sizeof(data), nullptr);
+	//SQLRETURN result = SQLBindParameter(statement, param, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&data, sizeof(data), nullptr);
+	SQLRETURN result = SQLBindParameter(statement, param, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&data, sizeof(data), nullptr);
+	ErrorLogFromSQL(statement, result);
 }
 
 

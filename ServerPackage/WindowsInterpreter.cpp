@@ -9,6 +9,7 @@
 #include <filesystem>
 #include "SQLInterface.h"
 #include "TokenHelper.h"
+#include "Challenges.h"
 
 WindowsInterpreter* WindowsInterpreter::instance = nullptr;
 
@@ -449,6 +450,13 @@ void WindowsInterpreter::ReceivePfp(const SOCKET clientSocket) const
 	//Write to file
 	file.write(file_buffer, file_size);
 	file.close();
+}
+
+void WindowsInterpreter::ReceiveChallenges(const SOCKET clientSocket) const
+{
+	InboundResourcePacket in(clientSocket);
+	const char* reader;
+	//Challenges::challenges.push_back(new Challenge(in.buffer, in.buffer_size, reader));
 }
 
 void WindowsInterpreter::GetAllUsers(const SOCKET clientSocket) const

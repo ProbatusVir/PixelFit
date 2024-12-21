@@ -80,6 +80,7 @@
             app:layout_constraintTop_toBottomOf="@id/username_input"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
+
     <EditText
             android:id="@+id/password_input"
             android:layout_width="300dp"
@@ -91,12 +92,11 @@
             android:inputType="textPassword"
             android:background="@drawable/border_white"
             android:padding="8dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="40dp"
             style="@style/login_text"
             app:layout_constraintTop_toBottomOf="@id/email_input"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-
+            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintHorizontal_bias="0.504"/>
     <EditText
             android:id="@+id/reenter_password_input"
             android:layout_width="300dp"

@@ -131,6 +131,7 @@
   <ItemGroup>
     <ClCompile Include="ActiveUsers.cpp" />
     <ClCompile Include="Challenge.cpp" />
+    <ClCompile Include="Challenges.cpp" />
     <ClCompile Include="CommandSet.cpp" />
     <ClCompile Include="DiscussionPost.cpp" />
     <ClCompile Include="FileOps.cpp" />
@@ -146,6 +147,7 @@
   <ItemGroup>
     <ClInclude Include="ActiveUsers.h" />
     <ClInclude Include="Challenge.h" />
+    <ClInclude Include="Challenges.h" />
     <ClInclude Include="CommandSet.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="DiscussionPost.h" />

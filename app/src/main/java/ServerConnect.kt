@@ -49,6 +49,8 @@ enum class ResourceType(val int:  Int)
 
 }
 
+
+
 object ServerConnect {
     private val serverAddress = getMyServerAddress()
     //TODO: add some error handling
@@ -190,7 +192,7 @@ object ServerConnect {
         outputStream?.write(messageToServer)
         outputStream?.flush()
     }
-    fun sendToServer(command : Int, message : String) = sendToServer(command, message.toByteArray())
+    public fun sendToServer(command : Int, message : String) = sendToServer(command, message.toByteArray())
 
 
     /**
