@@ -191,7 +191,7 @@ object ServerConnect {
         outputStream?.write(messageToServer)
         outputStream?.flush()
     }
-    private fun sendToServer(command : Int, message : String) = sendToServer(command, message.toByteArray())
+    public fun sendToServer(command : Int, message : String) = sendToServer(command, message.toByteArray())
 
 
     /**
