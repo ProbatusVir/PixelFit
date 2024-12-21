@@ -46,6 +46,8 @@ class Instructor : Fragment() {
         mAdapter = InstructorAdapter(mList)
         recyclerView.adapter = mAdapter
 
+        mAdapter.pauseAll()
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
