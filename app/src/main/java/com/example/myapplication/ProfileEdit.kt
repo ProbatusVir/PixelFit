@@ -63,7 +63,8 @@ class ProfileEdit : Fragment() {
             temp.delete()
             /////////////
 
-            ServerConnect.sendPfpToServer(profile)
+            //TODO: fix this call so it does not crash the application
+            //ServerConnect.sendPfpToServer(profile)
 
             profileViewModel.updateProfile(username, bio, height, weight, sex, calorieGoal)
             profileViewModel.saveProfileToJson(requireContext(), "profile.json")

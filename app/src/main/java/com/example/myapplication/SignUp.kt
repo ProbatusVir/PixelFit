@@ -11,26 +11,21 @@ import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.example.myapplication.databinding.FragmentSignUpBinding
 
-
 class SignUp : Fragment() {
 
-    private var _binding:FragmentSignUpBinding? = null
-
+    private var _binding: FragmentSignUpBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentSignUpBinding.inflate(inflater, container, false)
         return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -43,15 +38,10 @@ class SignUp : Fragment() {
             val passwordCheck = binding.reenterPasswordInput.text.toString()
             val connection = ServerConnect
 
-            if (name.isNotEmpty()&& email.isNotEmpty() && password.isNotEmpty() && passwordCheck.isNotEmpty() ) {
-
+            if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && passwordCheck.isNotEmpty()) {
                 if (password == passwordCheck) {
-
-                    if (password.length > 7) {
-
-                        if (password.length < 60) {
-
-
+                    if (password.length in 8..59) {
+                        try {
                             val sharedPreferences =
                                 requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
                             val editor = sharedPreferences.edit()
@@ -61,35 +51,34 @@ class SignUp : Fragment() {
                             editor.putString("passwordCheck", passwordCheck)
                             editor.apply()
 
-                            val username = email
                             ActiveUser.name = name
-                            ActiveUser.username = username
+                            ActiveUser.username = email
 
-                            connection.signUp(name, username, email, password)
+                            connection.signUp(name, email, email, password)
 
                             findNavController().navigate(R.id.profileEdit)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            Toast.makeText(context, "An error occurred: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
-                        else{
-                            Toast.makeText(context, "Passwords must be less than 60 characters", Toast.LENGTH_SHORT).show()
-                        }
+                    } else {
+                        Toast.makeText(context, "Passwords must be between 8 and 60 characters.", Toast.LENGTH_SHORT).show()
                     }
-                    else{
-                        Toast.makeText(context, "Passwords must be at least 8 characters", Toast.LENGTH_SHORT).show()
-                    }
-                }
-                else{
-                    Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Passwords do not match.", Toast.LENGTH_SHORT).show()
                 }
             } else {
-                Toast.makeText(context, "Please fill out all fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Please fill out all fields.", Toast.LENGTH_SHORT).show()
             }
         }
 
         binding.backButton.setOnClickListener {
             findNavController().navigate(R.id.LoginFragment)
         }
-
     }
 
-
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

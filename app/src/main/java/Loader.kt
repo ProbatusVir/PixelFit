@@ -1,39 +1,45 @@
 import java.io.File
 import java.io.IOException
 
-
 class Loader {
 
     private var data = HashMap<String, String>()
 
     constructor(file: File) {
-        initialize(file.readText().toString())
+        initialize(file.readText())
     }
 
     constructor(str: String) {
         initialize(str)
     }
 
-    private fun initialize(str : String)
-    {
+    private fun initialize(str: String) {
         val tokens = str.split('\n')
         for (token in tokens) {
             val split = token.split('=')
+            if (split.size < 2) {
+                println("Skipping malformed line: $token") // Log malformed lines
+                continue
+            }
             data[split[0]] = split[1]
         }
     }
 
-    fun fetchVariable(name : String): String {
-        if (!data.containsKey(name))
-            throw(IOException("Make sure the variable you're looking for exists!"))
-        else
-            return data[name]!!
+    fun fetchVariable(name: String): String {
+        return data[name] ?: throw IOException("Variable '$name' does not exist in the data.")
     }
 
-    fun fetchIntegralVariable(name : String) = fetchVariable(name).toInt()
+    fun fetchIntegralVariable(name: String): Int {
+        return fetchVariable(name).toIntOrNull()
+            ?: throw IOException("Variable '$name' is not a valid integer.")
+    }
 
-    fun fetchDoubleVariable(name : String) = fetchVariable(name).toDouble()
+    fun fetchDoubleVariable(name: String): Double {
+        return fetchVariable(name).toDoubleOrNull()
+            ?: throw IOException("Variable '$name' is not a valid double.")
+    }
 
-    //This will default to false without excepting.
-    fun fetchBooleanVariable(name : String) = fetchVariable(name).toBoolean()
+    fun fetchBooleanVariable(name: String): Boolean {
+        return fetchVariable(name).toBoolean()
+    }
 }
