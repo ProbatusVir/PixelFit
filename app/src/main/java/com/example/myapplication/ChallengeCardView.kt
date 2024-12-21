@@ -36,6 +36,13 @@ class ChallengeCardView : Fragment() {
             findNavController().navigate(R.id.GroupFragment)
         }
 
+        val challenge = Shared.currentChallenge
+        binding.challengeTitle.text = challenge?.game
+        binding.challengeDescription.text = challenge?.description
+        binding.conditionText.text = challenge?.condition
+        binding.punishmentText.text = "Whoops, we forgot to add a punishment field to the ChallengeData object"
+        //binding.
+
     }
 
     override fun onDestroyView() {

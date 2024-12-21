@@ -35,6 +35,7 @@ class ChallengeAdapter(private var mList: List<ChallengeData>) : RecyclerView.Ad
         // Handle button click (optional)
         holder.itemView.findViewById<Button>(R.id.acceptButton).setOnClickListener {
             holder.itemView.findNavController().navigate(R.id.challengeCardView)
+            Shared.currentChallenge = challenge
             Toast.makeText(holder.itemView.context, "View Challenge: ${challenge.game}", Toast.LENGTH_SHORT).show()
         }
     }

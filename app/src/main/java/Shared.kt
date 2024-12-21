@@ -8,6 +8,7 @@ object Shared {
     lateinit var filesDir : File
     var directories = HashMap<String, List<String>>()
     var userQueryResults = ArrayList<String>()
+    var currentChallenge : ChallengeData? = null
 
     fun getPfpUri() : Uri? {
         val imageFile = File(filesDir, PROFILE_IMAGE_NAME)
