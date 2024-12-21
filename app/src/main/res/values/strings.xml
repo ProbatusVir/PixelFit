@@ -28,6 +28,8 @@
     <!-- Title & description placeholders -->
     <string name="title">Title</string>
     <string name="body">Description</string>
+    <string name="buttonAccept">Accept</string>
+    <string name="buttonDecline">Decline</string>
 
 
     <!-- Speakable text -->
@@ -117,4 +119,10 @@
 
     <!-- Friend Profile Text -->
     <string name="username_placeholder">Username</string>
+
+    <!-- Challenge Card -->
+    <string name="challengeCardTitle">CHALLENGE</string>
+    <string name="conditionTitleText">CONDITION</string>
+    <string name="punishmentTitleText">PUNISHMENT</string>
+
 </resources>
