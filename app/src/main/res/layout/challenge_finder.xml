@@ -8,6 +8,14 @@
         android:background="@drawable/gradient_blue"
         tools:context=".ChallengeFinder">
 
+    <!-- Blur Overlay -->
+    <View
+            android:id="@+id/blur_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#80000000"
+            android:visibility="gone" />
+
     <!-- MaterialCardView for SearchView -->
     <com.google.android.material.card.MaterialCardView
             android:id="@+id/materialCardView"
@@ -43,7 +51,7 @@
             tools:listitem="@layout/challenge_finder_card" />
     <androidx.fragment.app.FragmentContainerView
             android:layout_width="match_parent"
-            android:layout_height="match_parent" android:name="com.example.myapplication.challenge_card"
+            android:layout_height="match_parent" android:name="com.example.myapplication.ChallengeCardView"
             android:id="@+id/fragmentContainerView" tools:layout_editor_absoluteY="3dp"
             tools:layout_editor_absoluteX="6dp"/>
 

@@ -64,6 +64,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.GroupFragment-> {
                     profile.visibility = View.GONE
+
                 }
 
                 else -> {

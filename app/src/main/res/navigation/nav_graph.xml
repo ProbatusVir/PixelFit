@@ -65,4 +65,6 @@
               android:label="fragment_profile_edit" tools:layout="@layout/fragment_profile_edit">
         <action android:id="@+id/action_profileEdit_to_profileFragment" app:destination="@id/profileFragment"/>
     </fragment>
+    <fragment android:id="@+id/challengeCardView" android:name="com.example.myapplication.ChallengeCardView"
+              android:label="fragment_challenge_card_view" tools:layout="@layout/fragment_challenge_card_view"/>
 </navigation>

@@ -9,10 +9,19 @@
         app:cardCornerRadius="8dp"
         app:cardElevation="4dp">
 
+
+
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp">
+
+        <View
+                android:id="@+id/blur_overlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#80000000"
+                android:visibility="gone" />
 
         <!-- Challenge Title -->
         <TextView

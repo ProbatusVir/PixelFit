@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 
 class ChallengeAdapter(private var mList: List<ChallengeData>) : RecyclerView.Adapter<ChallengeAdapter.ChallengeViewHolder>() {
@@ -33,6 +34,7 @@ class ChallengeAdapter(private var mList: List<ChallengeData>) : RecyclerView.Ad
 
         // Handle button click (optional)
         holder.itemView.findViewById<Button>(R.id.acceptButton).setOnClickListener {
+            holder.itemView.findNavController().navigate(R.id.challengeCardView)
             Toast.makeText(holder.itemView.context, "View Challenge: ${challenge.game}", Toast.LENGTH_SHORT).show()
         }
     }
