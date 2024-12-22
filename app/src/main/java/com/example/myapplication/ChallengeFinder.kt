@@ -62,15 +62,15 @@ class ChallengeFinder : Fragment() {
 
     private fun addDataToList() {
         mList.apply {
-            add(ChallengeData("Fortnite Challenge", "Random description", 2342, "Push-ups", ResourceType.RCHL ))
-            add(ChallengeData("Call of Duty", "Random description", 6513, "Sit-ups", ResourceType.RCHL ))
-            add(ChallengeData("CS2", "Random description", 1314, "Mountain Climbers", ResourceType.TCHL ))
-            add(ChallengeData("Valorant", "Random description", 1223, "Calf Raises", ResourceType.RCHL ))
-            add(ChallengeData("Rocket League", "Random description jalskjbfaslkfjbaslkfbsalkfbaslfkba asfsfasfasf aesfasfasfs lshbflashkfbasf", 8845, "Pull ups", ResourceType.RCHL ))
-            add(ChallengeData("NBA 2K", "Random description", 7946, "Weighted Curls", ResourceType.RCHL ))
-            add(ChallengeData("MLB The Show", "Random description", 7745, "Plank", ResourceType.TCHL ))
-            add(ChallengeData("Overwatch", "Random description", 1469, "Flutter Kicks", ResourceType.TCHL ))
-            add(ChallengeData("Skyrim", "Random description", 5445, "Bicycle Kicks", ResourceType.TCHL ))
+            add(ChallengeData("Fortnite Challenge", "Survive the storm, conquer the challenge! Are you fit enough to dominate the battlefield and save Tilted Towers?", 2342, "Be in the top 49 next match", ResourceType.RCHL, "5 minutes of push ups", 5, arrayOf(true, false, false, false).toBooleanArray(), 34))
+            add(ChallengeData("Call of Duty", "Duty calls, soldier, will you answer?", 6513, "Get at least 15 kills in your next match.", ResourceType.RCHL, "100 choice-weight sit-ups",  5, arrayOf(false, false, true, false).toBooleanArray(), 25))
+            add(ChallengeData("CS2", "Your team’s counting on you! Train hard, aim sharp, and dominate the challenge — this is your moment!", 1314, "Mountain Climbers", ResourceType.TCHL, "1 bicycle kicks", 1, arrayOf(false, true, true, false).toBooleanArray(),  4))
+            add(ChallengeData("Valorant", "Ready to take control of the map and your fitness? Step up, agent—this challenge is yours to win!", 1223, "Calf Raises", ResourceType.RCHL, "50 calf-raises", 2, arrayOf(false, true, true, false).toBooleanArray(), 40))
+            add(ChallengeData("Rocket League", "Drift. Dodge. Dominate. Pull yourself up to victory if you have to.", 8845, "Pull ups", ResourceType.RCHL, "10 pull ups", 3, arrayOf(true, false, true, false).toBooleanArray(), 11))
+            add(ChallengeData("NBA 2K", "Train like a legend. Play like a champ.", 7946, "Weighted Curls", ResourceType.RCHL, "7-7-7-7 bicep curls", 3,  arrayOf(true, false, false, false).toBooleanArray(), 35))
+            add(ChallengeData("MLB The Show", "Make it a home run or Coach will be angry!", 7745, "Plank", ResourceType.TCHL, "1 minute planking", 1,  arrayOf(false, false, true, false).toBooleanArray(), 5))
+            add(ChallengeData("Overwatch", "Show no Mercy >:)", 1469, "Flutter Kicks", ResourceType.TCHL, "30 flutter kicks", 1, arrayOf(false, true, true, false).toBooleanArray(), 15))
+            add(ChallengeData("Skyrim", "You thought the 7000 steps to High Hrothgar were bad?", 5445, "Bicycle Kicks", ResourceType.TCHL, "3 minutes of mountain-climbers",  3, arrayOf(false, true, true, false).toBooleanArray(), 30))
         }
         Log.d("FriendFinder", "Data added to list: $mList")
     }

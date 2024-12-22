@@ -40,7 +40,7 @@ class ChallengeCardView : Fragment() {
         binding.challengeTitle.text = challenge?.game
         binding.challengeDescription.text = challenge?.description
         binding.conditionText.text = challenge?.condition
-        binding.punishmentText.text = "Whoops, we forgot to add a punishment field to the ChallengeData object"
+        binding.punishmentText.text = challenge?.punishment
         //binding.
 
     }
