@@ -156,8 +156,9 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onStop()
+    {
+        super.onStop()
         ActiveUser.saveToFile()
     }
 
