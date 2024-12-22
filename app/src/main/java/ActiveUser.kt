@@ -7,7 +7,7 @@ object ActiveUser : User() {
         Arms, Legs, Torso, Head
     }
 
-    lateinit var name : String
+    var name : String = "User-san"
 
     var sex : Boolean = false //True is male, will consult with Devin
     var caloriesBurned : Double = 0.0
