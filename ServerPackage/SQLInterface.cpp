@@ -87,12 +87,12 @@ void SQLInterface::ConnectToDB()
 	// This code is for when the DSN is unknown for the device
 	// Configure your DSN in "ODBC Data Source Administrator (64-bit)"
 	//		and put your defined name in the dsn field of `db_credentials.h`
-	
+
 	//Get database connection handle
 	hconnection_state = SQLAllocHandle(SQL_HANDLE_DBC, m_hEnv, &m_hDbc);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
+
 	//Connect to the database
 	char debug[1024] = { 0 };
 	SQLSMALLINT new_len;
@@ -107,12 +107,7 @@ void SQLInterface::ConnectToDB()
 	InterpretState(hconnection_state, "connection handle");
 	InterpretState(driver_state, "driver state");
 
-	//DEBUG
-	//int a = GetUserIDByUsername("NotKotlinusername");
-	BlockUser("NotKotlinusername", "blahblah@gmail.com");
-
-	}
-
+}
 void SQLInterface::InterpretState(const SQLRETURN code, const char* name, const bool indented) const
 {
 	const char* error_message; //Not SQL related
